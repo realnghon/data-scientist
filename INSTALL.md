@@ -2,6 +2,26 @@
 
 The plugin source lives at `plugins/data-scientist/` in this repo. Each supported tool reads it from a different conventional location, so install means either copying/symlinking that directory (or a single file inside it) into your tool's plugin path, or pointing your tool's config at the in-repo path.
 
+## Prerequisites
+
+The plugin's Python helpers require these dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Or install manually:
+
+```bash
+pip install pandas numpy scipy scikit-learn statsmodels
+```
+
+For development (includes pytest and type checking):
+
+```bash
+pip install -r requirements-dev.txt
+```
+
 ## Supported platforms
 
 | Platform        | Entrypoint inside the plugin                                   | Install style                                   |

@@ -1,0 +1,12 @@
+# Core data science dependencies for the data-scientist plugin
+# Pin major+minor to ensure reproducibility; allow patch updates
+
+pandas>=2.0.0,<3.0.0
+numpy>=1.24.0,<2.0.0
+scipy>=1.10.0,<2.0.0
+scikit-learn>=1.3.0,<2.0.0
+statsmodels>=0.14.0,<1.0.0
+
+# Optional: visualization (used by visualization helpers if present)
+# matplotlib>=3.7.0,<4.0.0
+# seaborn>=0.12.0,<1.0.0
