@@ -9,18 +9,51 @@ __pycache__/
 *.pyo
 *.pyd
 *.egg-info/
+*.so
+*.egg
 
 # Virtual environments
 .venv/
 venv/
+env/
+ENV/
 
 # Coverage reports
 .coverage
 htmlcov/
+.tox/
 
 # Build outputs
 dist/
 build/
+*.whl
+*.tar.gz
+
+# Type checking
+.mypy_cache/
+.pyright/
+.dmypy.json
+dmypy.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Cache files (ds_skill.caching)
+.cache/
+*.pkl
 
 # OS junk
 .DS_Store
+Thumbs.db
+
+# Local config
+.env
+*.local.json
+
