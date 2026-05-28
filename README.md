@@ -25,7 +25,7 @@
 ## 🚀 Quick start
 
 1. **Pick your tool** from the [supported platforms](#-supported-platforms) below.
-2. **Install the plugin** with the one-line snippet for your tool — Claude Code shown here, others in collapsible blocks under [Install](#-install).
+2. **Install the plugin** following the 2-minute guide in [INSTALL.md](INSTALL.md) for your tool.
 3. **Run the workflow** against a dataset.
 
 ```bash
@@ -51,186 +51,73 @@ The first pass returns a profile + readiness check; subsequent stages plan metho
 
 ## 🧩 Supported platforms
 
-| Platform | Entrypoint | Skill | Subagents | Slash commands | Install |
-|---|---|---|---|---|---|
-| Claude Code | `.claude-plugin/plugin.json` | ✅ | ✅ native dispatch | ✅ | [↓](#claude-code) |
-| Codex | `.codex-plugin/plugin.json` | ✅ | ⚠️ sequential | ✅ | [↓](#codex) |
-| Cursor | `.cursor/rules/data-scientist.mdc` | ✅ | ⚠️ sequential | ⚠️ as rules | [↓](#cursor) |
-| OpenCode | `.opencode/plugins/data-scientist.js` | ✅ | ⚠️ sequential | ✅ | [↓](#opencode) |
-| Cline | `.clinerules/` | ✅ | ⚠️ sequential | ⚠️ as rules | [↓](#cline) |
-| Windsurf | `.windsurf/rules/` | ✅ | ⚠️ sequential | ⚠️ as rules | [↓](#windsurf) |
-| GitHub Copilot | `.github/copilot-instructions.md` | ✅ | ➖ | ➖ | [↓](#github-copilot) |
-| Gemini CLI | `GEMINI.md` | ✅ | ⚠️ sequential | ⚠️ as prompts | [↓](#gemini-cli) |
+**Native skill + subagent dispatch** (full feature set):
 
-Legend: ✅ first-class · ⚠️ partial (works, fewer affordances) · ➖ not available on this surface.
+| Platform | Skill | Subagents | Slash commands |
+|---|:-:|:-:|:-:|
+| **Claude Code** | ✅ | ✅ native parallel | ✅ |
+| **Codex** | ✅ | ⚠️ sequential | ✅ |
+| **OpenCode** | ✅ | ⚠️ sequential | ✅ |
+
+**Rules-based integration** (skill content surfaced as project rules):
+
+| Platform | Entrypoint | Auto-activates on |
+|---|---|---|
+| **Cursor** | `.cursor/rules/data-scientist.mdc` | data file globs |
+| **Cline** | `.clinerules/data-scientist.md` | manual rule load |
+| **Windsurf** | `.windsurf/rules/data-scientist.md` | data file globs |
+| **GitHub Copilot** | `.github/copilot-instructions.md` | repo presence |
+| **Gemini CLI** | `GEMINI.md` | session start |
+
+Legend: ✅ first-class · ⚠️ partial (works, fewer affordances)
 
 ---
 
 ## 📦 Install
 
-Full per-platform details live in [INSTALL.md](INSTALL.md). The snippets below are the minimum to get running.
+Pick your tool below — each has a 2-minute install path documented in **[INSTALL.md](INSTALL.md)**.
 
-<details>
-<a id="claude-code"></a>
-<summary><b>Claude Code</b> — native skill + subagents + slash commands</summary>
-
-```bash
-ln -s "$PWD/plugins/data-scientist" "$HOME/.claude/plugins/data-scientist"
-```
-
-Verify:
-
-```bash
-ls "$HOME/.claude/plugins/data-scientist/.claude-plugin/plugin.json"
-```
-
-See [INSTALL.md#claude-code](INSTALL.md#claude-code).
-</details>
-
-<details>
-<a id="codex"></a>
-<summary><b>Codex</b> — skill, commands, subagent prompts (sequential)</summary>
-
-```bash
-ln -s "$PWD/plugins/data-scientist" "$HOME/.codex/plugins/data-scientist"
-```
-
-Verify:
-
-```bash
-cat "$HOME/.codex/plugins/data-scientist/.codex-plugin/plugin.json"
-```
-
-See [INSTALL.md#codex](INSTALL.md#codex).
-</details>
-
-<details>
-<a id="cursor"></a>
-<summary><b>Cursor</b> — auto-activating rule on data file globs</summary>
-
-```bash
-mkdir -p "$PWD/.cursor/rules"
-cp plugins/data-scientist/.cursor/rules/data-scientist.mdc "$PWD/.cursor/rules/data-scientist.mdc"
-```
-
-Verify by opening any `*.csv` / `*.parquet` file — Cursor should surface the rule.
-
-See [INSTALL.md#cursor](INSTALL.md#cursor).
-</details>
-
-<details>
-<a id="opencode"></a>
-<summary><b>OpenCode</b> — bundled plugin entry</summary>
-
-```bash
-mkdir -p "$HOME/.opencode/plugins"
-ln -s "$PWD/plugins/data-scientist/.opencode/plugins/data-scientist.js" \
-      "$HOME/.opencode/plugins/data-scientist.js"
-```
-
-Verify:
-
-```bash
-opencode plugins list | grep data-scientist
-```
-
-See [INSTALL.md#opencode](INSTALL.md#opencode).
-</details>
-
-<details>
-<a id="cline"></a>
-<summary><b>Cline</b> — workspace rules</summary>
-
-```bash
-mkdir -p "$PWD/.clinerules"
-cp -r plugins/data-scientist/.clinerules/* "$PWD/.clinerules/"
-```
-
-Verify by reopening the project — Cline lists active rules in its panel.
-
-See [INSTALL.md#cline](INSTALL.md#cline).
-</details>
-
-<details>
-<a id="windsurf"></a>
-<summary><b>Windsurf</b> — workspace rules</summary>
-
-```bash
-mkdir -p "$PWD/.windsurf/rules"
-cp -r plugins/data-scientist/.windsurf/rules/* "$PWD/.windsurf/rules/"
-```
-
-Verify in Windsurf settings → Rules.
-
-See [INSTALL.md#windsurf](INSTALL.md#windsurf).
-</details>
-
-<details>
-<a id="github-copilot"></a>
-<summary><b>GitHub Copilot</b> — repo instructions</summary>
-
-```bash
-mkdir -p "$PWD/.github"
-cp plugins/data-scientist/.github/copilot-instructions.md "$PWD/.github/"
-```
-
-Verify Copilot Chat picks up the instructions on the next session.
-
-See [INSTALL.md#github-copilot](INSTALL.md#github-copilot).
-</details>
-
-<details>
-<a id="gemini-cli"></a>
-<summary><b>Gemini CLI</b> — persistent memory file</summary>
-
-```bash
-cp plugins/data-scientist/GEMINI.md "$PWD/GEMINI.md"
-```
-
-Verify:
-
-```bash
-gemini --show-memory | grep data-scientist
-```
-
-See [INSTALL.md#gemini-cli](INSTALL.md#gemini-cli).
-</details>
+| Platform | Entrypoint | Install guide |
+|---|---|---|
+| Claude Code | `.claude-plugin/plugin.json` | [→ INSTALL.md#claude-code](INSTALL.md#claude-code) |
+| Codex | `.codex-plugin/plugin.json` | [→ INSTALL.md#codex](INSTALL.md#codex) |
+| Cursor | `.cursor/rules/data-scientist.mdc` | [→ INSTALL.md#cursor](INSTALL.md#cursor) |
+| OpenCode | `.opencode/plugins/data-scientist.js` | [→ INSTALL.md#opencode](INSTALL.md#opencode) |
+| Cline | `.clinerules/data-scientist.md` | [→ INSTALL.md#cline](INSTALL.md#cline) |
+| Windsurf | `.windsurf/rules/data-scientist.md` | [→ INSTALL.md#windsurf](INSTALL.md#windsurf) |
+| GitHub Copilot | `.github/copilot-instructions.md` | [→ INSTALL.md#github-copilot](INSTALL.md#github-copilot) |
+| Gemini CLI | `GEMINI.md` | [→ INSTALL.md#gemini-cli](INSTALL.md#gemini-cli) |
 
 ---
 
 ## ⚙️ How it works
 
-```
-                  ┌──────────────┐
-                  │   intake     │   parse request, locate data
-                  └──────┬───────┘
-                         │
-                  ┌──────▼───────┐
-                  │  readiness   │   8-dim rubric, gate decision
-                  └──────┬───────┘
-                         │  (gate)
-                  ┌──────▼───────┐
-                  │   shaping    │   ◀── ⓟ parallel views possible
-                  └──────┬───────┘
-                         │
-                  ┌──────▼───────┐
-                  │ method plan  │   pick from 11 method groups
-                  └──────┬───────┘
-                         │
-                  ┌──────▼───────┐
-                  │  execution   │   ◀── ⓟ parallel per method
-                  └──────┬───────┘
-                         │
-                  ┌──────▼───────┐
-                  │   critic     │   stress-test conclusions
-                  └──────┬───────┘
-                         │
-                  ┌──────▼───────┐
-                  │   report     │   three-tier evidence framework
-                  └──────────────┘
+```mermaid
+flowchart LR
+    A[intake] --> B[readiness]
+    B -->|gate| C[shaping]
+    C --> D[method plan]
+    D --> E[execution]
+    E --> F[critic]
+    F --> G[report]
+
+    C -.parallel.-> C2[view 2]
+    C -.parallel.-> C3[view 3]
+    E -.parallel.-> E2[method 2]
+    E -.parallel.-> E3[method 3]
+
+    style A fill:#e0f2fe,stroke:#0284c7
+    style B fill:#fef3c7,stroke:#d97706
+    style C fill:#dcfce7,stroke:#16a34a
+    style D fill:#dcfce7,stroke:#16a34a
+    style E fill:#fce7f3,stroke:#db2777
+    style F fill:#f3e8ff,stroke:#9333ea
+    style G fill:#e0e7ff,stroke:#4f46e5
 ```
 
-Stages marked ⓟ can fan out to parallel subagents on platforms that support multi-agent dispatch (Claude Code). On platforms that don't, the same role is executed sequentially without changing the artifact contract — the report you get out the other end is shaped identically.
+**7 stages, parallelizable where dependencies allow.**
+
+Stages connected by dotted lines can fan out to parallel subagents on platforms that natively dispatch sub-agents (Claude Code). On other platforms the same role runs sequentially without changing the artifact JSON contract. See [`references/multi-agent-orchestration.md`](plugins/data-scientist/skills/analysis-workflow/references/multi-agent-orchestration.md) for state-passing schemas and per-platform fan-out patterns.
 
 ---
 
@@ -253,6 +140,7 @@ Stages marked ⓟ can fan out to parallel subagents on platforms that support mu
 - **32 charts** catalogued with selection guidance
 - **7 manufacturing recipes** in the playbook
 - **3 golden templates** for common report shapes
+- **145 tests** in the pytest suite
 
 ---
 
@@ -271,7 +159,7 @@ data_scientist/
 │   ├── GEMINI.md              # Gemini CLI memory
 │   ├── agents/                # 7 staged subagents
 │   ├── commands/              # 4 slash commands
-│   └── skills/data-scientist/
+│   └── skills/analysis-workflow/
 │       ├── SKILL.md
 │       ├── references/        # workflow, method-registry, chart-catalog, ...
 │       ├── scripts/           # profile_dataset.py, ds_skill/
@@ -294,7 +182,7 @@ npm test                       # → pytest tests
 # Profile a dataset without an assistant in the loop
 npm run profile -- path/to/data.csv
 # or directly:
-python plugins/data-scientist/skills/data-scientist/scripts/profile_dataset.py path/to/data.csv
+python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py path/to/data.csv
 ```
 
 Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored).
@@ -312,7 +200,7 @@ Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored
 
 ## 🤝 Contributing
 
-Issues and PRs welcome. The highest-leverage contributions are: new entries in the method registry, new golden templates for under-served domains, and new platform integrations. A full contributing guide is on the way — see `CONTRIBUTING.md` (coming soon).
+Issues and PRs welcome. The highest-leverage contributions are: new entries in the method registry, new golden templates for under-served domains, and new platform integrations. A full contributing guide is on the way — see [CONTRIBUTING.md](CONTRIBUTING.md) (coming soon).
 
 ---
 

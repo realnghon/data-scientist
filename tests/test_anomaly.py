@@ -13,7 +13,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(
     0,
-    str(ROOT / "plugins" / "data-scientist" / "skills" / "data-scientist" / "scripts"),
+    str(ROOT / "plugins" / "data-scientist" / "skills" / "analysis-workflow" / "scripts"),
 )
 
 from ds_skill.anomaly import (  # noqa: E402
@@ -83,7 +83,7 @@ def test_isolation_forest_flags_known_outliers_in_2d():
     body = rng.normal(loc=0.0, scale=1.0, size=(n, 2))
     extreme = np.array([[10.0, 10.0], [-9.0, 9.0], [9.0, -9.0]])
     data = np.vstack([body, extreme])
-    df = pd.DataFrame(data, columns=["x", "y"])
+    df = pd.DataFrame(data, columns=pd.Index(["x", "y"]))
 
     result = detect_isolation_forest(
         df, features=["x", "y"], contamination=0.02, random_state=0
@@ -129,7 +129,7 @@ def test_skewness_warning_added_to_zscore_on_lognormal():
 def test_contamination_parameter_passed_to_isolation_forest():
     pytest.importorskip("sklearn")
     rng = _rng(5)
-    df = pd.DataFrame(rng.normal(size=(300, 3)), columns=["a", "b", "c"])
+    df = pd.DataFrame(rng.normal(size=(300, 3)), columns=pd.Index(["a", "b", "c"]))
 
     low = detect_isolation_forest(df, contamination=0.01, random_state=0)
     high = detect_isolation_forest(df, contamination=0.2, random_state=0)
@@ -172,7 +172,7 @@ def test_detect_multivariate_dispatches_to_isolation_forest():
     n = 250
     body = rng.normal(size=(n, 2))
     df = pd.DataFrame(
-        np.vstack([body, [[20.0, 20.0]]]), columns=["a", "b"]
+        np.vstack([body, [[20.0, 20.0]]]), columns=pd.Index(["a", "b"])
     )
 
     result = detect_multivariate(df, features=["a", "b"], method="isolation_forest")

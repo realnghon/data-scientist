@@ -10,7 +10,7 @@ from pathlib import Path
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
-SCRIPTS = ROOT / "plugins" / "data-scientist" / "skills" / "data-scientist" / "scripts"
+SCRIPTS = ROOT / "plugins" / "data-scientist" / "skills" / "analysis-workflow" / "scripts"
 
 if SCRIPTS.exists():
     scripts_str = str(SCRIPTS)

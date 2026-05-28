@@ -1,0 +1,18 @@
+# Default: treat as text, auto-detect, normalize to LF on checkin/checkout
+* text=auto eol=lf
+
+# Text files - force LF
+*.py text eol=lf
+*.md text eol=lf
+*.mdc text eol=lf
+*.json text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.js text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.pdf binary
+*.xlsx binary
+*.parquet binary

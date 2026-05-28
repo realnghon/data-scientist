@@ -13,7 +13,7 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(
     0,
-    str(ROOT / "plugins" / "data-scientist" / "skills" / "data-scientist" / "scripts"),
+    str(ROOT / "plugins" / "data-scientist" / "skills" / "analysis-workflow" / "scripts"),
 )
 
 from ds_skill.correlation import (  # noqa: E402
@@ -68,7 +68,7 @@ def test_spearman_handles_monotonic_nonlinear():
 
 def test_pairwise_correlation_returns_matrices_per_method():
     rng = _rng(3)
-    df = pd.DataFrame(rng.normal(size=(100, 4)), columns=list("abcd"))
+    df = pd.DataFrame(rng.normal(size=(100, 4)), columns=pd.Index(list("abcd")))
 
     matrix = pairwise_correlation(
         df, methods=("pearson", "spearman", "kendall"), min_observations=20
@@ -91,7 +91,7 @@ def test_fdr_adjustment_reduces_false_positives_in_random_data():
     # 100 independent columns, n=60 per column.
     n_features = 14  # gives 14 choose 2 = 91 ≈ 100 pairs
     data = rng.normal(size=(60, n_features))
-    df = pd.DataFrame(data, columns=[f"v{i}" for i in range(n_features)])
+    df = pd.DataFrame(data, columns=pd.Index([f"v{i}" for i in range(n_features)]))
 
     matrix = pairwise_correlation(
         df, methods=("pearson",), fdr_alpha=0.05, min_observations=20
@@ -211,7 +211,7 @@ def test_min_observations_filters_low_n_pairs():
 
 def test_as_dict_is_json_serializable():
     rng = _rng(8)
-    df = pd.DataFrame(rng.normal(size=(80, 3)), columns=["x", "y", "z"])
+    df = pd.DataFrame(rng.normal(size=(80, 3)), columns=pd.Index(["x", "y", "z"]))
     matrix = pairwise_correlation(df, methods=("pearson", "spearman"), min_observations=20)
 
     payload = matrix.as_dict()

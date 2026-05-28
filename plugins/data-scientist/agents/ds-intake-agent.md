@@ -34,7 +34,7 @@ The parent passes a JSON object:
 ## Responsibilities
 
 1. Identify file types, sheets/tables, row counts, columns, dtypes, and sample records.
-2. Run or adapt `skills/data-scientist/scripts/profile_dataset.py` for file-based inputs; capture its output verbatim into the manifest.
+2. Run or adapt `skills/analysis-workflow/scripts/profile_dataset.py` for file-based inputs; capture its output verbatim into the manifest.
 3. Infer candidate field roles: target `Y`, time, entity id, group/dimension, process parameter, outcome label.
 4. Flag obvious risks: empty files, unreadable files, mixed grain, missing headers, duplicate-looking columns, unsupported formats, suspicious encodings.
 5. Note potential join keys across multiple sources without performing the join.
