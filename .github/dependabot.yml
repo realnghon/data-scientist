@@ -1,0 +1,34 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "ci"
+    commit-message:
+      prefix: "ci:"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "realnghon"
+    target-branch: "main"
+
+  - package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "dependencies"
+    commit-message:
+      prefix: "deps:"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "realnghon"
+    target-branch: "main"
+    groups:
+      python-deps:
+        update-types:
+          - "minor"
+          - "patch"

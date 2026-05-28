@@ -4,10 +4,10 @@ This repository ships the data-scientist plugin. When the user asks Copilot Chat
 
 ## Shared core — read before answering
 
-- Workflow definition: `plugins/data-scientist/skills/data-scientist/SKILL.md`
+- Workflow definition: `plugins/data-scientist/skills/analysis-workflow/SKILL.md`
 - Staged role prompts: `plugins/data-scientist/agents/` (seven files: intake, readiness, shaping, method-planner, execution, critic, report)
 - Slash-command entrypoints (informational, for users who prefer them): `plugins/data-scientist/commands/` (`ds-profile`, `ds-plan`, `ds-analyze`, `ds-report`)
-- Reference docs: `plugins/data-scientist/skills/data-scientist/references/` — method registry, data readiness, data shaping, chart catalog, manufacturing playbook, report standard, multi-agent orchestration
+- Reference docs: `plugins/data-scientist/skills/analysis-workflow/references/` — method registry, data readiness, data shaping, chart catalog, manufacturing playbook, report standard, multi-agent orchestration
 
 Do not duplicate the workflow content here. Read those files and follow them.
 
