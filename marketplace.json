@@ -1,0 +1,17 @@
+{
+  "_comment": "Scaffold — verify against Claude Code marketplace spec before publishing.",
+  "name": "data-scientist",
+  "version": "0.1.0",
+  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
+  "author": {
+    "name": "Data Scientist Plugin Maintainers"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/your-org/data-scientist-plugin",
+  "plugins": [
+    {
+      "name": "data-scientist",
+      "path": "plugins/data-scientist"
+    }
+  ]
+}

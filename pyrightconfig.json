@@ -1,0 +1,6 @@
+{
+  "include": ["tests", "plugins/data-scientist/skills/data-scientist/scripts"],
+  "exclude": ["**/__pycache__", ".local", ".venv", "venv"],
+  "extraPaths": ["plugins/data-scientist/skills/data-scientist/scripts"],
+  "reportMissingImports": "warning"
+}

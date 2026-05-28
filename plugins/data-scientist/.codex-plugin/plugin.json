@@ -1,0 +1,31 @@
+{
+  "name": "data-scientist",
+  "version": "0.1.0",
+  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
+  "license": "MIT",
+  "keywords": [
+    "data-science",
+    "statistics",
+    "manufacturing",
+    "analysis"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Data Scientist",
+    "shortDescription": "Analyze messy data with evidence.",
+    "longDescription": "Data Scientist helps agents inspect structured data, assess readiness, reshape tables, choose statistical and manufacturing analysis methods, execute reproducible code, and produce evidence-backed conclusions with charts and caveats.",
+    "developerName": "Data Scientist Plugin Maintainers",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Use $data-scientist to inspect my dataset and produce an analysis plan.",
+      "Use $data-scientist to analyze which factors affect my target metric.",
+      "Use $data-scientist to assess whether this manufacturing dataset can support a quality analysis."
+    ],
+    "screenshots": []
+  }
+}

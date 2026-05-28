@@ -1,0 +1,26 @@
+# Local scratch — progress notes, experimental notebooks, throwaway artifacts.
+# Tests now live in tests/ at the repo root and are tracked.
+.local/
+
+# Python build/cache artifacts
+.pytest_cache/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# Build outputs
+dist/
+build/
+
+# OS junk
+.DS_Store

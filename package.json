@@ -1,0 +1,10 @@
+{
+  "name": "data-scientist-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "pytest tests",
+    "profile": "python plugins/data-scientist/skills/data-scientist/scripts/profile_dataset.py"
+  }
+}
