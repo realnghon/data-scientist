@@ -5,10 +5,14 @@
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-informational.svg"></a>
+  <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-176%20passed-brightgreen.svg">
+  <img alt="Coverage" src="https://img.shields.io/badge/coverage-90%25-green.svg">
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-8-success.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-passing-brightgreen.svg">
-  <img alt="Status" src="https://img.shields.io/badge/status-alpha-orange.svg">
+  <img alt="Status" src="https://img.shields.io/badge/status-beta-orange.svg">
   <img alt="Built for" src="https://img.shields.io/badge/built%20for-Claude%20%7C%20Codex%20%7C%20Cursor%20%7C%20%2B5-7c3aed.svg">
+  <img alt="Code Style" src="https://img.shields.io/badge/code%20style-black-000000.svg">
+  <img alt="Maintained" src="https://img.shields.io/badge/maintained-yes-brightgreen.svg">
 </p>
 
 ---
