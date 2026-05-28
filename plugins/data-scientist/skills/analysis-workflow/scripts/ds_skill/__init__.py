@@ -15,6 +15,8 @@ Modules (lazy-import only what you need):
     report_generator   - fill the report template from evidence_matrix
     analysis_methods   - group comparison, driver ranking (legacy v0)
     validation         - input validation utilities
+    plotting           - optional visualization helpers (requires matplotlib/seaborn)
+    caching            - disk-based caching for expensive computations
 
 Import only what the current analysis needs, e.g.:
 
@@ -36,7 +38,7 @@ __version__ = "0.1.0"
 _SUBMODULES = frozenset({
     "readiness", "spc", "correlation", "anomaly", "time_series", "bootstrap",
     "shaping", "ab_validator", "regression", "classification", "survival",
-    "report_generator", "analysis_methods", "validation",
+    "report_generator", "analysis_methods", "validation", "plotting", "caching",
 })
 
 
@@ -57,8 +59,10 @@ if TYPE_CHECKING:
     from . import analysis_methods as analysis_methods
     from . import anomaly as anomaly
     from . import bootstrap as bootstrap
+    from . import caching as caching
     from . import classification as classification
     from . import correlation as correlation
+    from . import plotting as plotting
     from . import readiness as readiness
     from . import regression as regression
     from . import report_generator as report_generator
