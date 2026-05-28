@@ -1,0 +1,69 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ds-skill"
+version = "0.1.0"
+description = "Reusable statistical analysis helpers for the data-scientist plugin"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Data Scientist Plugin Maintainers"}
+]
+keywords = [
+    "data-science",
+    "statistics",
+    "manufacturing",
+    "analysis"
+]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = [
+    "pandas>=2.0.0,<3.0.0",
+    "numpy>=1.24.0,<2.0.0",
+    "scipy>=1.10.0,<2.0.0",
+    "scikit-learn>=1.3.0,<2.0.0",
+    "statsmodels>=0.14.0,<1.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0,<8.0.0",
+    "pytest-cov>=4.1.0,<5.0.0",
+    "pyright>=1.1.350",
+]
+
+[project.urls]
+Homepage = "https://github.com/realnghon/data-scientist"
+Repository = "https://github.com/realnghon/data-scientist"
+Issues = "https://github.com/realnghon/data-scientist/issues"
+
+[tool.setuptools]
+package-dir = {"" = "plugins/data-scientist/skills/analysis-workflow/scripts"}
+
+[tool.setuptools.packages.find]
+where = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
+include = ["ds_skill*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-ra -q"
+
+[tool.pyright]
+include = ["tests", "plugins/data-scientist/skills/analysis-workflow/scripts"]
+exclude = ["**/__pycache__", ".local", ".venv", "venv"]
+extraPaths = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
+reportMissingImports = "warning"

@@ -14,6 +14,7 @@ Modules (lazy-import only what you need):
     survival           - Kaplan-Meier, log-rank, Weibull
     report_generator   - fill the report template from evidence_matrix
     analysis_methods   - group comparison, driver ranking (legacy v0)
+    validation         - input validation utilities
 
 Import only what the current analysis needs, e.g.:
 
@@ -35,7 +36,7 @@ __version__ = "0.1.0"
 _SUBMODULES = frozenset({
     "readiness", "spc", "correlation", "anomaly", "time_series", "bootstrap",
     "shaping", "ab_validator", "regression", "classification", "survival",
-    "report_generator", "analysis_methods",
+    "report_generator", "analysis_methods", "validation",
 })
 
 
@@ -65,3 +66,4 @@ if TYPE_CHECKING:
     from . import spc as spc
     from . import survival as survival
     from . import time_series as time_series
+    from . import validation as validation

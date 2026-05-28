@@ -1,0 +1,14 @@
+# Development dependencies for testing and linting
+# Includes everything from requirements.txt plus dev tools
+
+-r requirements.txt
+
+# Testing
+pytest>=7.4.0,<8.0.0
+pytest-cov>=4.1.0,<5.0.0
+
+# Type checking
+pyright>=1.1.350
+
+# Linting and formatting (optional)
+# ruff>=0.1.0,<1.0.0

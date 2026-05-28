@@ -25,7 +25,7 @@ Fork the repository, create a feature branch off `main` (e.g. `feat/method-regis
 ```bash
 git clone https://github.com/<your-fork>/data-scientist.git
 cd data-scientist
-pip install pandas numpy scipy scikit-learn statsmodels pytest
+pip install -r requirements-dev.txt
 ```
 
 Run the full test suite:
