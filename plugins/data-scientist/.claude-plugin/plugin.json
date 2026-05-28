@@ -1,6 +1,6 @@
 {
   "name": "data-scientist",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
   "author": {
     "name": "Data Scientist Plugin Maintainers"

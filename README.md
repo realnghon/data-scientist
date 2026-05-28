@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-0.1.0-informational.svg"></a>
+  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-informational.svg"></a>
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-8-success.svg">
   <img alt="Tests" src="https://img.shields.io/badge/tests-passing-brightgreen.svg">
   <img alt="Status" src="https://img.shields.io/badge/status-alpha-orange.svg">
