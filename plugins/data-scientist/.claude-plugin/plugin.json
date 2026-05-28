@@ -1,0 +1,20 @@
+{
+  "name": "data-scientist",
+  "version": "0.1.0",
+  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
+  "author": {
+    "name": "Data Scientist Plugin Maintainers"
+  },
+  "license": "MIT",
+  "keywords": [
+    "data-science",
+    "statistics",
+    "manufacturing",
+    "analysis",
+    "skills",
+    "agents"
+  ],
+  "commands": "./commands/",
+  "agents": "./agents/",
+  "skills": "./skills/"
+}

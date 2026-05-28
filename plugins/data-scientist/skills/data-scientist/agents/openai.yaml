@@ -1,0 +1,7 @@
+interface:
+  display_name: "Data Scientist"
+  short_description: "Analyze messy data with evidence."
+  default_prompt: "Use $data-scientist to inspect my dataset, assess readiness, run suitable analyses, and produce charts and conclusions."
+
+policy:
+  allow_implicit_invocation: true

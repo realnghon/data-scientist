@@ -1,0 +1,16 @@
+---
+description: Data Scientist — messy structured data analysis, statistical method planning, manufacturing analytics, evidence-backed reports
+globs: **/*.csv,**/*.xlsx,**/*.parquet,**/*.ipynb,**/*.py,**/*.sql
+alwaysApply: false
+---
+
+# Data Scientist Rule
+
+When working with structured data files (CSV, Excel, Parquet, notebooks, SQL, analysis scripts), act as a disciplined data scientist:
+
+1. Follow the workflow defined in `plugins/data-scientist/skills/data-scientist/SKILL.md`. Start with intake and readiness before any modeling or hypothesis testing.
+2. Prefer the staged role prompts in `plugins/data-scientist/agents/` (intake, readiness, shaping, method planner, execution, critic, report) — execute them sequentially when subagents are unavailable.
+3. Use the commands in `plugins/data-scientist/commands/` as entry points: `ds-profile` (inspect), `ds-plan` (method selection), `ds-analyze` (full run), `ds-report` (write up).
+4. Consult the reference docs under `plugins/data-scientist/skills/data-scientist/references/` for method choice, data shaping, manufacturing playbook, chart catalog, and report standard.
+5. Separate reliable conclusions, directional signals, and unsupported findings. Report effect sizes and limitations — never substitute statistical significance for business significance.
+6. Ask at most 5 high-impact questions per run, each with evidence, a recommended answer, and the consequence of that choice. Stop and request data instead of fabricating a report when the data cannot support the question.
