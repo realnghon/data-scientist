@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from dataclasses import asdict, dataclass
 from typing import Any
 
@@ -179,7 +180,9 @@ def compare_numeric_by_group(df: pd.DataFrame, *, target: str, group: str) -> di
     equal_variance_p = None
     if group_count >= 2 and all(len(values) >= 2 for values in groups):
         try:
-            equal_variance_p = float(stats.levene(*groups, center="median").pvalue)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                equal_variance_p = float(stats.levene(*groups, center="median").pvalue)
         except Exception:
             equal_variance_p = None
 
@@ -298,7 +301,9 @@ def _normality_ok(groups: list[np.ndarray]) -> bool | None:
         if np.unique(sample).size <= 2:
             return False
         try:
-            p_values.append(float(stats.shapiro(sample).pvalue))
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                p_values.append(float(stats.shapiro(sample).pvalue))
         except Exception:
             return None
     return all(p >= 0.01 for p in p_values)
@@ -306,20 +311,24 @@ def _normality_ok(groups: list[np.ndarray]) -> bool | None:
 
 def _run_group_method(groups: list[np.ndarray], method: str) -> dict[str, Any]:
     try:
-        if method == "welch_t_test":
-            statistic, p_value = stats.ttest_ind(groups[0], groups[1], equal_var=False)
-        elif method == "student_t_test":
-            statistic, p_value = stats.ttest_ind(groups[0], groups[1], equal_var=True)
-        elif method == "mann_whitney_u":
-            statistic, p_value = stats.mannwhitneyu(groups[0], groups[1], alternative="two-sided")
-        elif method == "one_way_anova":
-            statistic, p_value = stats.f_oneway(*groups)
-        elif method == "kruskal_wallis":
-            statistic, p_value = stats.kruskal(*groups)
-        elif method == "welch_anova":
-            statistic, p_value = _welch_anova(groups)
-        else:
-            return {"method": method, "status": "not_implemented"}
+        # scipy emits moment/precision RuntimeWarnings on near-identical groups;
+        # the results are still returned and labelled, so silence the noise.
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            if method == "welch_t_test":
+                statistic, p_value = stats.ttest_ind(groups[0], groups[1], equal_var=False)
+            elif method == "student_t_test":
+                statistic, p_value = stats.ttest_ind(groups[0], groups[1], equal_var=True)
+            elif method == "mann_whitney_u":
+                statistic, p_value = stats.mannwhitneyu(groups[0], groups[1], alternative="two-sided")
+            elif method == "one_way_anova":
+                statistic, p_value = stats.f_oneway(*groups)
+            elif method == "kruskal_wallis":
+                statistic, p_value = stats.kruskal(*groups)
+            elif method == "welch_anova":
+                statistic, p_value = _welch_anova(groups)
+            else:
+                return {"method": method, "status": "not_implemented"}
     except Exception as exc:
         return {"method": method, "status": "failed", "error": str(exc)}
 

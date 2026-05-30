@@ -1,76 +1,66 @@
 # Examples
 
-This directory contains example datasets and Jupyter notebooks demonstrating the data-scientist plugin workflow.
+Synthetic datasets that exercise the data-scientist plugin end to end. Each dataset is produced by a `generate_data.py` whose code documents the **ground truth** relationships, so you can check the plugin's findings against what was actually baked in.
 
-## Available examples
+## Layout
 
-### 1. Manufacturing Yield Analysis
+| Directory | Dataset | Rows | What it demonstrates |
+|---|---|---|---|
+| `manufacturing_yield/` | `dataset.csv` (+ `analysis.ipynb`) | 500 | Driver ranking with FDR control, regression, confounding, charts |
+| `ab_test/` | `dataset.csv` | 10,000 | Conversion/revenue lift, effect size with CI, SRM check |
+| `time_series/` | `dataset.csv` | 2,160 | Seasonal decomposition, change-point and anomaly detection |
 
-**Directory**: `manufacturing-yield/`
+## 1. Manufacturing yield
 
-**Business question**: Which process parameters drive yield? Are there confounded variables?
+**Question:** Which process parameters drive yield, and which apparent signals are noise or confounded?
 
-**Dataset**: 200 production runs with temperature, pressure, humidity, operator, shift, material batch, and yield %.
+**Ground truth** (`generate_data.py`): temperature has a strong negative effect, pressure a moderate positive one, humidity a weak negative one; **line speed has no effect** (a deliberate noise variable); operator C performs better and the night shift is worse; equipment age confounds temperature. A correct analysis recovers the real drivers and rejects line speed.
 
-**Demonstrates**:
-- Data readiness scoring
-- Correlation analysis with FDR correction
-- Regression with quadratic terms
-- Confounding detection
-
-**Run**:
 ```bash
-cd examples/manufacturing-yield
-jupyter notebook analysis.ipynb
+# Reproducible notebook walkthrough (uses the bundled ds_skill helpers)
+pip install -e ".[viz]"          # one-time: helpers + matplotlib/seaborn
+jupyter notebook examples/manufacturing_yield/analysis.ipynb
+
+# Or interactively in Claude Code:
+/ds-analyze examples/manufacturing_yield/dataset.csv
 ```
 
-### 2. A/B Test Analysis (Coming soon)
+## 2. A/B test
 
-**Directory**: `ab-test/`
+**Question:** Did the treatment increase conversion and revenue?
 
-**Business question**: Did the new checkout flow increase conversion?
+**Ground truth:** control converts at 12%, treatment at 14%, with a higher average order value in the treatment arm. Arms are balanced (5,000 each). A correct analysis confirms the lift with a confidence interval and checks for sample-ratio mismatch.
 
-**Demonstrates**:
-- Sample size validation
-- Effect size estimation with confidence intervals
-- Power analysis
+```bash
+/ds-analyze examples/ab_test/dataset.csv
+```
 
-### 3. Time Series Anomaly Detection (Coming soon)
+## 3. Time series anomaly detection
 
-**Directory**: `time-series-anomaly/`
+**Question:** When did equipment behavior change, and which readings are anomalous?
 
-**Business question**: When did equipment behavior change?
+**Ground truth:** an hourly sensor signal with daily + weekly seasonality and a slow upward trend, plus three injected anomaly types — sudden spikes, a gradual drift, and a zero-value outage. A correct analysis decomposes the seasonality and flags the injected anomalies.
 
-**Demonstrates**:
-- STL decomposition
-- Change-point detection
-- Anomaly scoring
+```bash
+/ds-analyze examples/time_series/dataset.csv
+```
 
 ## Prerequisites
 
-Install dependencies:
-
 ```bash
-pip install -r ../requirements.txt
-pip install jupyter matplotlib seaborn
+pip install -r requirements.txt          # core analysis dependencies
+pip install -e ".[viz]"                  # + matplotlib/seaborn for charts
+pip install jupyter                       # only for the notebook
 ```
 
-## Generating synthetic data
+## Regenerating the data
 
-Each example includes a `generate_data.py` script that creates the synthetic dataset. The data generation code documents the "ground truth" relationships so you can verify the plugin's findings.
-
-```bash
-python examples/manufacturing-yield/generate_data.py
-```
-
-## Using with Claude Code
-
-You can also run these analyses interactively with Claude Code:
+Each dataset is checked in, but you can regenerate it from the repo root:
 
 ```bash
-cd examples/manufacturing-yield
-# In Claude Code:
-/ds-analyze yield_data.csv
+python examples/manufacturing_yield/generate_data.py
+python examples/ab_test/generate_data.py
+python examples/time_series/generate_data.py
 ```
 
-The plugin will walk through the same workflow as the notebook, but with LLM-guided method selection and interpretation.
+The generators use fixed random seeds, so the output is deterministic.

@@ -8,6 +8,7 @@ environments.
 
 from __future__ import annotations
 
+import warnings
 from dataclasses import asdict, dataclass, field
 from typing import Any, Iterable
 
@@ -152,7 +153,10 @@ def detect_zscore(series: pd.Series, threshold: float = 3.0) -> AnomalyResult:
         scores = np.abs(values - mean) / std
 
     if n_total >= 8:
-        skew = float(stats.skew(values, bias=False))
+        with warnings.catch_warnings():
+            # Near-identical data triggers scipy's catastrophic-cancellation note.
+            warnings.simplefilter("ignore", RuntimeWarning)
+            skew = float(stats.skew(values, bias=False))
         if abs(skew) > 1:
             assumptions_violated.append(
                 f"z-score assumes near-normal – your data is skewed (skew={skew:.2f}); "

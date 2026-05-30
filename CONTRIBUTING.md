@@ -155,7 +155,7 @@ data_scientist/
 │       │       ├── caching.py
 │       │       └── validation.py
 │       └── assets/            # Templates
-├── tests/                     # Test suite (176 tests)
+├── tests/                     # Test suite (202 tests)
 ├── examples/                  # Example datasets and notebooks
 ├── .local/                    # Git-ignored scratch space
 ├── requirements.txt           # Core dependencies

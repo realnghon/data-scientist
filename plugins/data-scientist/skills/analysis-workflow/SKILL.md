@@ -50,6 +50,8 @@ Import only the module needed for the current method family. Never `import *` an
 | `ds_skill.survival` | Time-to-event data (MTBF, churn, time-to-failure); right-censored observations; KM curves, log-rank, Weibull fits. | No time-to-event semantics; no censoring. |
 | `ds_skill.report_generator` | Final deliverable stage; have a populated `evidence_matrix`; need to fill the report template. | Mid-analysis; evidence still being gathered. |
 | `ds_skill.analysis_methods` | Group comparison (numeric-by-group); driver ranking with 0-1 strength scores; legacy v0 helpers. | Newer dedicated module above better fits the task (e.g., use `correlation` directly for FDR-controlled ranking). |
+| `ds_skill.plotting` | Producing report charts (histogram, ECDF, grouped box/violin, dot-plot+CI, scatter+fit, Pareto, control chart, capability histogram, ROC, confusion matrix, feature importance, ...). Returns headless matplotlib figures. | Pure-text answer; no chart requested; matplotlib/seaborn unavailable and cannot be installed. |
+| `ds_skill.validation` / `ds_skill.caching` | Validating analysis inputs; memoizing expensive computations across a session. | One-shot computation; inputs already trusted. |
 
 ## Core Workflow
 
@@ -98,18 +100,44 @@ Templates are intentionally extensible. Add proven recurring workflows there aft
 
 ## Reusable Code
 
-Prefer these helpers over hand-rolled statistics. Lazy-import only the module you need — see the "Code Helpers — Lazy Import Map" above for selection guidance.
+The plugin ships a **tested** helper library (180+ passing unit tests). Call it instead of re-deriving statistics or chart code by hand — the helpers already handle edge cases (small N, censoring, FDR control, singular matrices, headless plotting). Re-implement only when no helper fits, and say so.
 
-- `scripts/profile_dataset.py`: lightweight profile for CSV, Excel, Parquet, and JSON files.
-- `scripts/ds_skill/`: package of tested method modules.
+### Make the helpers importable (do this once per analysis)
 
-Available modules in `ds_skill` (import as `from ds_skill.<module> import ...`):
+The helpers are the `ds_skill` package in `scripts/`. When the plugin is installed into a tool cache the package is not on `sys.path` by default, so add it before importing. Paste this self-contained block — it works on Claude Code, Codex, OpenCode, and local dev:
 
-- `readiness`, `spc`, `correlation`, `anomaly`, `time_series`, `bootstrap`
-- `shaping`, `ab_validator`, `regression`, `classification`, `survival`
-- `report_generator`, `analysis_methods` (legacy: `recommend_group_comparison`, `compare_numeric_by_group`, `rank_numeric_drivers`)
+```python
+import os, sys
 
-See `scripts/ds_skill/__init__.py` for the one-line description of each module.
+def _ds_scripts_dir():
+    # Claude Code / Codex substitute ${CLAUDE_PLUGIN_ROOT} into this skill text:
+    p = "${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts"
+    if "$" not in p and os.path.isdir(p):
+        return p
+    root = os.environ.get("CLAUDE_PLUGIN_ROOT") or os.environ.get("DS_SKILL_ROOT")
+    if root and os.path.isdir(os.path.join(root, "skills", "analysis-workflow", "scripts")):
+        return os.path.join(root, "skills", "analysis-workflow", "scripts")
+    return None  # not needed if you ran `pip install -e .` in the repo
+
+_dir = _ds_scripts_dir()
+if _dir and _dir not in sys.path:
+    sys.path.insert(0, _dir)
+
+from ds_skill.correlation import pairwise_correlation   # now importable
+```
+
+Alternatives: run `pip install -e .` in the repo once (then `import ds_skill` works everywhere with no path setup), or `import ds_bootstrap` from the scripts dir (it self-locates `ds_skill` and reports available optional dependencies). Run `python "$CLAUDE_PLUGIN_ROOT/skills/analysis-workflow/scripts/ds_bootstrap.py"` for a quick environment check.
+
+### What's available
+
+- `scripts/profile_dataset.py`: standalone CLI + importable profiler for CSV, Excel, Parquet, JSON. Emits the `data_manifest` JSON. Run `python profile_dataset.py <file>`.
+- `scripts/ds_bootstrap.py`: import-path bootstrap + dependency check (above).
+- `scripts/ds_skill/`: the tested method + chart library. Lazy-import only the module you need (see the "Code Helpers — Lazy Import Map" above):
+  - Analysis: `readiness`, `spc`, `correlation`, `anomaly`, `time_series`, `bootstrap`, `shaping`, `ab_validator`, `regression`, `classification`, `survival`
+  - Charts: `plotting` (headless matplotlib figures covering the families in `references/chart-catalog.md`)
+  - Reporting & utils: `report_generator`, `validation`, `caching`, `analysis_methods` (legacy: `recommend_group_comparison`, `compare_numeric_by_group`, `rank_numeric_drivers`)
+
+See `scripts/ds_skill/__init__.py` for the one-line description of each module. Charts require `matplotlib`/`seaborn` (`pip install matplotlib seaborn`, or `pip install -e ".[viz]"`); every `plotting` function fails with a clear install hint if they are missing.
 
 ## Safety And Quality
 

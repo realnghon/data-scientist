@@ -63,10 +63,9 @@ df = pd.DataFrame({
     'yield_pct': np.round(yield_pct, 2)
 })
 
-# Save
-import os
-os.makedirs('examples/manufacturing_yield', exist_ok=True)
-df.to_csv('dataset.csv', index=False)
+# Save next to this script, regardless of the current working directory
+from pathlib import Path
+df.to_csv(Path(__file__).resolve().parent / 'dataset.csv', index=False)
 print(f"Generated {len(df)} rows")
 print(f"Yield range: {df['yield_pct'].min():.1f}% - {df['yield_pct'].max():.1f}%")
 print(f"Missing values: {df['humidity_pct'].isna().sum()}")

@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "data-scientist",
+  "owner": {
+    "name": "realnghon",
+    "url": "https://github.com/realnghon"
+  },
+  "description": "Cross-platform data science plugin: data readiness, reshaping, statistical and manufacturing analysis, charting, and evidence-backed reporting.",
+  "plugins": [
+    {
+      "name": "data-scientist",
+      "source": "./plugins/data-scientist",
+      "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
+      "version": "1.0.0",
+      "author": {
+        "name": "realnghon"
+      },
+      "homepage": "https://github.com/realnghon/data-scientist",
+      "repository": "https://github.com/realnghon/data-scientist",
+      "license": "MIT",
+      "category": "productivity",
+      "keywords": [
+        "data-science",
+        "statistics",
+        "manufacturing",
+        "analysis",
+        "charts"
+      ]
+    }
+  ]
+}

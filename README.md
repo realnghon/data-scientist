@@ -4,12 +4,12 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-0.2.0-informational.svg"></a>
+  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-informational.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-176%20passed-brightgreen.svg">
-  <img alt="Coverage" src="https://img.shields.io/badge/coverage-90%25-green.svg">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-202%20passed-brightgreen.svg">
+  <img alt="Coverage" src="https://img.shields.io/badge/coverage-84%25-green.svg">
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-8-success.svg">
-  <img alt="Status" src="https://img.shields.io/badge/status-beta-orange.svg">
+  <img alt="Status" src="https://img.shields.io/badge/status-stable-brightgreen.svg">
   <img alt="Built for" src="https://img.shields.io/badge/built%20for-Claude%20%7C%20Codex%20%7C%20Cursor%20%7C%20%2B5-7c3aed.svg">
   <img alt="Code Style" src="https://img.shields.io/badge/code%20style-black-000000.svg">
   <img alt="Maintained" src="https://img.shields.io/badge/maintained-yes-brightgreen.svg">
@@ -33,14 +33,14 @@
 3. **Run the workflow** against a dataset.
 
 ```bash
-# Claude Code — primary entrypoint
-git clone https://github.com/your-org/data_scientist.git
-ln -s "$PWD/data_scientist/plugins/data-scientist" "$HOME/.claude/plugins/data-scientist"
+# Claude Code — install from the marketplace (primary entrypoint)
+/plugin marketplace add realnghon/data-scientist
+/plugin install data-scientist@data-scientist
 ```
 
 ```text
-# In Claude Code, then:
-/ds-analyze data/my_dataset.csv
+# Then, in Claude Code:
+/ds-analyze examples/manufacturing_yield/dataset.csv
 ```
 
 On platforms without slash commands, invoke the skill by name:
@@ -139,21 +139,22 @@ Stages connected by dotted lines can fan out to parallel subagents on platforms 
 - **1 skill** — `data-scientist` end-to-end workflow with bundled scripts and references
 - **7 staged subagents** — intake, readiness, shaping, method planner, execution, critic, report
 - **4 slash commands** — `/ds-profile`, `/ds-plan`, `/ds-analyze`, `/ds-report`
-- **11 method groups** in the method registry
+- **11 method groups** in the method registry, backed by tested `ds_skill` modules
+- **21 ready-made chart functions** (`ds_skill.plotting`) covering the 32-chart catalog — no hand-written plotting needed
 - **8 readiness dimensions** in the data-readiness rubric
-- **32 charts** catalogued with selection guidance
 - **7 manufacturing recipes** in the playbook
 - **3 golden templates** for common report shapes
-- **145 tests** in the pytest suite
+- **202 tests** in the pytest suite (warning-clean)
 
 ---
 
 ## 📚 Repository layout
 
 ```
-data_scientist/
+data-scientist/
+├── .claude-plugin/            # Marketplace manifest (marketplace.json)
 ├── plugins/data-scientist/
-│   ├── .claude-plugin/        # Claude Code manifest
+│   ├── .claude-plugin/        # Claude Code plugin manifest
 │   ├── .codex-plugin/         # Codex manifest
 │   ├── .cursor/rules/         # Cursor auto-activating rule
 │   ├── .opencode/plugins/     # OpenCode plugin entry
@@ -197,8 +198,7 @@ Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored
 
 - More golden templates — logistics, finance, web analytics
 - MCP server wrapper so the skill's helpers can be exposed as native tools
-- Native Claude Code marketplace publication
-- Quality and coverage CI on the pytest suite
+- Inline chart rendering in notebook examples for the A/B and time-series datasets
 
 ---
 

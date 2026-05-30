@@ -52,7 +52,8 @@ df['country'] = np.random.choice(['US', 'UK', 'CA', 'AU'], len(df), p=[0.5, 0.25
 df = df.sample(frac=1, random_state=42).reset_index(drop=True)
 
 # Save
-df.to_csv('dataset.csv', index=False)
+from pathlib import Path
+df.to_csv(Path(__file__).resolve().parent / 'dataset.csv', index=False)
 print(f"Generated {len(df)} users")
 print(f"Control conversion: {df[df['variant']=='control']['converted'].mean():.2%}")
 print(f"Treatment conversion: {df[df['variant']=='treatment']['converted'].mean():.2%}")

@@ -1,20 +1,23 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "data-scientist",
-  "version": "0.2.0",
-  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
+  "displayName": "Data Scientist",
+  "version": "1.0.0",
+  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
   "author": {
-    "name": "Data Scientist Plugin Maintainers"
+    "name": "realnghon",
+    "url": "https://github.com/realnghon"
   },
+  "homepage": "https://github.com/realnghon/data-scientist",
+  "repository": "https://github.com/realnghon/data-scientist",
   "license": "MIT",
   "keywords": [
     "data-science",
     "statistics",
     "manufacturing",
     "analysis",
+    "charts",
     "skills",
     "agents"
-  ],
-  "commands": "./commands/",
-  "agents": "./agents/",
-  "skills": "./skills/"
+  ]
 }

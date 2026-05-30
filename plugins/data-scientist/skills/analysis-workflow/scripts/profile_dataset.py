@@ -12,6 +12,7 @@ import csv
 import json
 import math
 import sys
+import warnings
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any
@@ -107,9 +108,13 @@ def coerce_datetime_if_likely(series: pd.Series) -> pd.Series:
     sample = series.dropna().astype(str).head(100)
     if sample.empty:
         return series
-    parsed = pd.to_datetime(sample, errors="coerce")
-    if parsed.notna().mean() >= 0.8:
-        return pd.to_datetime(series, errors="coerce")
+    # This is a best-effort, mixed-format heuristic across unknown columns, so
+    # silence pandas' "could not infer format" notice rather than guess a format.
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", UserWarning)
+        parsed = pd.to_datetime(sample, errors="coerce")
+        if parsed.notna().mean() >= 0.8:
+            return pd.to_datetime(series, errors="coerce")
     return series
 
 

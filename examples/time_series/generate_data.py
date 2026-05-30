@@ -58,7 +58,8 @@ missing_mask = np.random.random(hours) < 0.01
 df.loc[missing_mask, 'sensor_value'] = np.nan
 
 # Save
-df.to_csv('dataset.csv', index=False)
+from pathlib import Path
+df.to_csv(Path(__file__).resolve().parent / 'dataset.csv', index=False)
 print(f"Generated {len(df)} hourly readings")
 print(f"Date range: {df['timestamp'].min()} to {df['timestamp'].max()}")
 print(f"Value range: {df['sensor_value'].min():.1f} - {df['sensor_value'].max():.1f}")

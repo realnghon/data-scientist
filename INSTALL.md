@@ -37,54 +37,53 @@ Optional but recommended:
 
 **Best for**: Full feature set with parallel subagent dispatch and slash commands.
 
-#### 1. Clone the repository
+#### Option A — Install from the marketplace (recommended)
+
+In Claude Code, add this repo as a marketplace and install the plugin:
+
+```text
+/plugin marketplace add realnghon/data-scientist
+/plugin install data-scientist@data-scientist
+```
+
+That is all that is required to use the skill, agents, and `/ds-*` commands. To run the bundled Python helpers (`ds_skill`) and charts in your own analysis, also install the dependencies once:
+
+```bash
+pip install "pandas>=2,<3" "numpy>=1.24,<2" "scipy>=1.10,<2" "scikit-learn>=1.3,<2" "statsmodels>=0.14,<1"
+pip install matplotlib seaborn   # for charts
+```
+
+#### Option B — Local development (clone + editable install)
 
 ```bash
 git clone https://github.com/realnghon/data-scientist.git
 cd data-scientist
-```
 
-#### 2. Install Python dependencies
-
-```bash
-# Create virtual environment (recommended)
+# Create a virtual environment (recommended)
 python -m venv .venv
 source .venv/bin/activate  # On Windows: .venv\Scripts\activate
 
-# Install dependencies
-pip install -r requirements.txt
-
-# Install as editable package (optional, for development)
-pip install -e .
+# Install the helper package + dev/chart dependencies, then point Claude Code at the local plugin
+pip install -e ".[dev]"
 ```
 
-#### 3. Link the plugin
-
-```bash
-# Linux/macOS
-ln -s "$PWD/plugins/data-scientist" "$HOME/.claude/plugins/data-scientist"
-
-# Windows (PowerShell as Administrator)
-New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.claude\plugins\data-scientist" -Target "$PWD\plugins\data-scientist"
-
-# Windows (Command Prompt as Administrator)
-mklink /D "%USERPROFILE%\.claude\plugins\data-scientist" "%CD%\plugins\data-scientist"
+```text
+# In Claude Code, from the cloned repo:
+/plugin marketplace add ./
+/plugin install data-scientist@data-scientist
 ```
 
-#### 4. Verify installation
+`pip install -e .` makes `import ds_skill` work anywhere with no `sys.path` setup.
 
-```bash
-# Start Claude Code and run:
-/help
+#### Verify installation
 
-# You should see:
-# - /ds-analyze
-# - /ds-profile
-# - /ds-plan
-# - /ds-report
+```text
+# In Claude Code:
+/help            # should list /ds-analyze, /ds-profile, /ds-plan, /ds-report
+/plugin          # data-scientist shows as enabled
 ```
 
-#### 5. Test with example data
+#### Test with example data
 
 ```text
 /ds-profile examples/manufacturing_yield/dataset.csv
@@ -315,7 +314,7 @@ cd data-scientist
 python -m pytest tests/ -v
 ```
 
-Expected: **176 tests passed** (with some warnings, which are non-critical).
+Expected: **202 tests passed, 1 skipped** (the skip needs the optional `lifelines` package for survival curves).
 
 ### 2. Try the profile script
 
@@ -326,14 +325,15 @@ python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.p
 ### 3. Explore examples
 
 ```bash
-# Start Jupyter
-jupyter notebook examples/
+# Install chart + notebook dependencies
+pip install -e ".[viz]"
+pip install jupyter
 
-# Open:
-# - manufacturing_yield_analysis.ipynb
-# - ab_test_validation.ipynb
-# - time_series_anomaly_detection.ipynb
+# Open the worked example notebook
+jupyter notebook examples/manufacturing_yield/analysis.ipynb
 ```
+
+See [examples/README.md](examples/README.md) for all three datasets (manufacturing yield, A/B test, time series) and their baked-in ground truth.
 
 ---
 
