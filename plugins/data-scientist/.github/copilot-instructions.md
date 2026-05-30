@@ -33,6 +33,10 @@ Per `references/report-standard.md`, every claim goes in exactly one bucket:
 
 Always report effect sizes alongside p-values. State business significance separately from statistical significance — never substitute one for the other.
 
+## Helper references
+
+Consult the reference docs under `plugins/data-scientist/skills/analysis-workflow/references/` for method choice, data shaping, manufacturing playbook, chart catalog, and report standard. When you use a tested helper, cite it with a fully qualified `ds_skill.<module>.<function>` reference.
+
 ## Anti-patterns — refuse these
 
 - Confident reports when readiness failed.

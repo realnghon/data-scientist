@@ -72,7 +72,7 @@ Codex's skill system does not natively spawn parallel sub-agents in the same tur
 2. Running each stage as a sequential pass, inlining the prior stage's JSON envelope as input.
 3. For "parallel" stages, run them one after the other but keep their outputs in separate top-level keys (`evidence_matrix[]` rows are independent and order does not matter).
 
-The orchestrator script `scripts/run_full_workflow.py` (provided by the skill) implements this sequential emulation. Use it when fan-out matters but Codex cannot dispatch concurrently.
+The skill also ships `scripts/run_full_workflow.py`, a deterministic baseline pipeline that runs `profile_dataset.py` plus tested `ds_skill` helpers (`readiness`, `shaping`, `correlation`) and writes `baseline_artifacts.json` + `baseline_skeleton.md`. Use it as the first sequential hand-off artifact when fan-out is unavailable, then let the main Codex/OpenCode/Gemini thread continue with method-planner → execution → critic → report using the same JSON envelope.
 
 ### OpenCode
 
@@ -211,7 +211,7 @@ ds-execution-agent(assigned_methods=["m2"], output_dir="results/", carry_forward
 ds-execution-agent(assigned_methods=["m3"], output_dir="results/", carry_forward={...})
 ```
 
-Each writes to `results/m1/`, `results/m2/`, `results/m3/`. On Codex/OpenCode, the same three calls run sequentially via `run_full_workflow.py`. Parent concatenates the three returned `evidence_matrix` arrays.
+Each writes to `results/m1/`, `results/m2/`, `results/m3/`. On Codex/OpenCode, run the same three method executions sequentially (optionally after seeding the run with `run_full_workflow.py`'s baseline artifact bundle). Parent concatenates the three returned `evidence_matrix` arrays.
 
 ### Stage 6: Critic
 

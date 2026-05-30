@@ -316,10 +316,11 @@ python -m pytest tests/ -v
 
 Expected: **202 tests passed, 1 skipped** (the skip needs the optional `lifelines` package for survival curves).
 
-### 2. Try the profile script
+### 2. Try the profile script and baseline workflow
 
 ```bash
 python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py examples/manufacturing_yield/dataset.csv
+python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py examples/manufacturing_yield/dataset.csv --target yield_pct --output .local/baseline
 ```
 
 ### 3. Explore examples
