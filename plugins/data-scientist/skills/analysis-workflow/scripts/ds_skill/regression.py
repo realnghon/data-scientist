@@ -6,6 +6,7 @@ See `method-registry.md` section "Regression".
 from __future__ import annotations
 
 import math
+import warnings
 from dataclasses import asdict, dataclass, field
 from typing import Any
 
@@ -182,8 +183,12 @@ def _vif(X: np.ndarray, features: list[str]) -> dict[str, float]:
         A = np.column_stack([np.ones(n), others])
         target = X[:, i]
         try:
-            beta, *_ = np.linalg.lstsq(A, target, rcond=None)
-            y_hat = A @ beta
+            # Near-collinear features make ``A`` ill-conditioned, which can make
+            # NumPy's matmul emit spurious divide/overflow/invalid warnings even
+            # though the degenerate result is handled below (r2 -> inf VIF).
+            with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+                beta, *_ = np.linalg.lstsq(A, target, rcond=None)
+                y_hat = A @ beta
             r2 = _r_squared(target, y_hat)
             vif_val = 1.0 / (1.0 - r2) if r2 < 1 - 1e-12 else float("inf")
         except Exception:
@@ -311,7 +316,10 @@ def _fit_regularized(
         model.fit(X, y)
         alpha_used = float(alpha)
 
-    fitted = model.predict(X)
+    # scikit-learn's linear predict is a matmul; suppress spurious matmul
+    # warnings on ill-conditioned designs (the fit itself already succeeded).
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        fitted = model.predict(X)
     resid = y - fitted
     coefficients = {feats[i]: float(model.coef_[i]) for i in range(k)}
     intercept = float(model.intercept_)
@@ -443,7 +451,9 @@ def residual_diagnostics(
     # Normality
     if residuals.size < 5000:
         try:
-            norm_p = float(stats.shapiro(residuals).pvalue)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                norm_p = float(stats.shapiro(residuals).pvalue)
         except Exception:
             norm_p = float("nan")
     else:

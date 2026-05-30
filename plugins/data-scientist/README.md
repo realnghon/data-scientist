@@ -4,15 +4,22 @@ Data Scientist is a cross-tool AI plugin for messy structured data analysis. It 
 
 ## What It Provides
 
-- A top-level `data-scientist` skill for full-cycle analysis.
-- Reusable Python helpers for profiling data and selecting statistical methods.
-- Method registry documentation with selection criteria and rejected-method reasoning.
-- Multi-agent orchestration prompts for staged analysis.
-- Cross-tool plugin manifests for Claude Code, Codex, Cursor, and OpenCode.
+- A top-level `data-scientist` skill for full-cycle analysis (intake → readiness → shaping → method planning → execution → critic → report).
+- Seven staged subagents and four `/ds-*` slash commands.
+- A tested Python helper library (`ds_skill`) with 11 analysis method groups and 21 ready-made chart functions — so the model calls helpers instead of re-writing statistics and plots.
+- Method-registry, chart-catalog, data-readiness, and manufacturing-playbook reference docs.
+- Cross-tool entrypoints for Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, GitHub Copilot, and Gemini CLI.
 
-## Current Maturity
+## Install
 
-This is an early V1. It is suitable for local testing and iteration, not yet a polished public release.
+In Claude Code:
+
+```text
+/plugin marketplace add realnghon/data-scientist
+/plugin install data-scientist@data-scientist
+```
+
+For other tools and local development, see [`../../INSTALL.md`](../../INSTALL.md).
 
 ## Core Flow
 
@@ -24,6 +31,4 @@ This is an early V1. It is suitable for local testing and iteration, not yet a p
 6. Critique findings before reporting.
 7. Produce a report with limitations and next actions.
 
-## Install Notes
-
-Platform-specific installers are still pending. For development, point your tool at this plugin directory or install the `skills/data-scientist` folder directly where your agent discovers skills.
+See [`../../CHANGELOG.md`](../../CHANGELOG.md) for release history.

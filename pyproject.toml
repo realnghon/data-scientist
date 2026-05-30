@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ds-skill"
-version = "0.2.0"
+version = "1.0.0"
 description = "Reusable statistical analysis helpers for the data-scientist plugin"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -37,10 +37,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+viz = [
+    "matplotlib>=3.7.0,<4.0.0",
+    "seaborn>=0.12.0,<1.0.0",
+]
 dev = [
     "pytest>=7.4.0,<8.0.0",
     "pytest-cov>=4.1.0,<5.0.0",
     "pyright>=1.1.350",
+    "matplotlib>=3.7.0,<4.0.0",
+    "seaborn>=0.12.0,<1.0.0",
 ]
 
 [project.urls]
@@ -50,6 +56,7 @@ Issues = "https://github.com/realnghon/data-scientist/issues"
 
 [tool.setuptools]
 package-dir = {"" = "plugins/data-scientist/skills/analysis-workflow/scripts"}
+py-modules = ["ds_bootstrap", "profile_dataset"]
 
 [tool.setuptools.packages.find]
 where = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
