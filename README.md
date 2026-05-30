@@ -188,6 +188,9 @@ npm test                       # → pytest tests
 npm run profile -- path/to/data.csv
 # or directly:
 python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py path/to/data.csv
+
+# Run the deterministic baseline workflow (profile → readiness → shaping → baseline evidence)
+python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py path/to/data.csv --target target_column
 ```
 
 Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored).

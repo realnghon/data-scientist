@@ -2,9 +2,9 @@
 
 Catalog of method groups, indexed by analysis purpose. Pick by purpose + data shape + assumption fit, **not** by name. Every important claim must record: primary method, cross-check, rejected alternatives + reason, confidence calibration.
 
-Reusable helpers live in `scripts/ds_skill/analysis_methods.py`. Match their output shape: `{method, decision_reason, assumptions, rejected, cross_checks, effect_size, interpretation}`.
+**Each group below ends with a `Reusable helper` line naming a *tested* function — call it instead of re-deriving the statistic.** The helpers live in the `ds_skill` package under `scripts/ds_skill/` (one module per method family, lazy-imported). They already handle the edge cases (small N, censoring, FDR control, singular matrices, non-normality). See SKILL.md → "Make the helpers importable" for the one-time `sys.path` snippet, then `from ds_skill.<module> import <func>`. Every charting helper named here lives in `ds_skill.plotting` (headless matplotlib). When you cite a method in an `analysis_plan`, put its helper in the `helper_ref` field as `ds_skill.<module>.<func>`.
 
-Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness.md](data-readiness.md) supplies the assumption flags that drive accept/reject; [data-shaping.md](data-shaping.md) supplies the analysis view.
+Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness.md](data-readiness.md) supplies the assumption flags that drive accept/reject; [data-shaping.md](data-shaping.md) supplies the analysis view; [chart-catalog.md](chart-catalog.md) maps each chart to a `ds_skill.plotting` function.
 
 ---
 
@@ -34,7 +34,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if primary and cross-check agree in direction *and* effect size is practically meaningful; medium if p-value supports but effect size small; low if disagreement or n<20 per group.
 
-**Reusable helper:** `compare_numeric_by_group(df, target, group)` and `recommend_group_comparison(...)`.
+**Reusable helper:** `ds_skill.analysis_methods.recommend_group_comparison(df, target, group)` picks the right test from the data shape; `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)` runs it with effect size and a non-parametric cross-check. Charts: `ds_skill.plotting.plot_grouped_boxplot`, `plot_violin`, `plot_dotplot_ci`.
 
 ---
 
@@ -60,7 +60,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if rank order stable across two model families and across bootstrap resamples; medium if top-3 stable but tail noisy; low if rank flips between methods.
 
-**Reusable helper:** `rank_numeric_drivers(df, target, candidate_features)`.
+**Reusable helper:** `ds_skill.correlation.correlation_with_target(df, target, candidate_features=None, methods=("pearson","spearman"), include_mi=True, fdr_alpha=0.05)` ranks every feature against `Y` with BH-FDR-adjusted p-values and a mutual-information row per feature (robust default). `ds_skill.analysis_methods.rank_numeric_drivers(df, target, candidate_features)` gives 0–1 strength scores. For model-based importance, fit `ds_skill.regression.fit_linear_regression` / `fit_ridge` and read coefficients. Chart: `ds_skill.plotting.plot_feature_importance`.
 
 ---
 
@@ -87,7 +87,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high when |r| or |ρ| > 0.3 AND visual relationship matches AND bootstrap CI excludes 0; low if any one fails.
 
-**Reusable helper:** `rank_numeric_drivers(...)` covers the bulk-pairwise case.
+**Reusable helper:** `ds_skill.correlation.pairwise_correlation(df, columns=None, method="spearman", fdr_alpha=0.05)` returns the full FDR-controlled correlation matrix; `ds_skill.correlation.correlation_with_target(...)` for the single-target case. Both report effect-strength labels. Chart: `ds_skill.plotting.plot_correlation_matrix`, `plot_scatter_fit`.
 
 ---
 
@@ -114,7 +114,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if trend/change is visible on a chart AND statistic exceeds threshold AND domain context supports timing; low if only the statistic fires.
 
-**Reusable helper:** none yet — add to `scripts/ds_skill/analysis_methods.py` when written.
+**Reusable helper:** `ds_skill.time_series.mann_kendall_trend(series, alpha=0.05)` (robust monotonic trend + Sen's slope), `ds_skill.time_series.seasonal_decompose(...)` (STL-style trend/seasonal/remainder), `ds_skill.time_series.detect_change_points(...)` (CUSUM / binary segmentation), `ds_skill.time_series.sampling_quality(timestamps)` (regularity + gap audit before any decomposition). Charts: `ds_skill.plotting.plot_time_series`, `plot_time_series_decomposition`, `plot_small_multiples`.
 
 ---
 
@@ -140,7 +140,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if held-out performance matches train AND residual diagnostics pass AND coefficients align with domain knowledge; low if any one fails.
 
-**Reusable helper:** plan to add `fit_regression(df, target, features, model='ols'|'ridge'|'gbm')`.
+**Reusable helper:** `ds_skill.regression.fit_linear_regression(df, target, features, robust_se=False)` (OLS with HC3 option, falls back to numpy lstsq + bootstrap SE when statsmodels is absent), `ds_skill.regression.fit_ridge(...)` / `fit_lasso(...)` for correlated/wide predictors, `ds_skill.regression.residual_diagnostics(...)` (VIF, residual structure, influential points), `ds_skill.regression.response_curves(...)` for marginal effects. Charts: `ds_skill.plotting.plot_regression_diagnostics`, `plot_scatter_fit`.
 
 ---
 
@@ -167,7 +167,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if held-out PR-AUC and calibration both pass AND second model family agrees on top predictors; low if one passes alone.
 
-**Reusable helper:** plan to add `fit_classifier(...)`.
+**Reusable helper:** `ds_skill.classification.fit_classifier(...)` (small-N-safe CV, logistic or gradient-boosted), `ds_skill.classification.class_balance_check(y, min_per_class=30)` (run this first — flags imbalance), `ds_skill.classification.tune_threshold(...)` (cost-aware decision threshold). Charts: `ds_skill.plotting.plot_roc_curve`, `plot_confusion_matrix`, `plot_calibration_curve`.
 
 ---
 
@@ -193,7 +193,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** anomaly detection outputs are *candidates*, not findings. Confidence is operational (precision of flagged set), not statistical.
 
-**Reusable helper:** plan to add `detect_outliers(...)`.
+**Reusable helper:** `ds_skill.anomaly.detect_univariate(...)` (auto-picks IQR/MAD/z-score by skew), or the specific `detect_iqr` / `detect_mad` / `detect_zscore`; `ds_skill.anomaly.detect_multivariate(...)` / `detect_isolation_forest(...)` for multivariate screening. Each returns flag indices + a flag-rate summary. Chart: `ds_skill.plotting.plot_flagged_scatter`.
 
 ---
 
@@ -219,7 +219,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if KM curves visually separate AND log-rank p-value supports AND sample size adequate per group; low if curves cross (PH violated).
 
-**Reusable helper:** plan to add `survival_analysis(...)`.
+**Reusable helper:** `ds_skill.survival.kaplan_meier(durations, events)` and `kaplan_meier_by_group(...)` (non-parametric curves), `ds_skill.survival.log_rank_test(...)` (group comparison), `ds_skill.survival.fit_weibull(durations, events)` (shape parameter → early-life vs wear-out). Chart: `ds_skill.plotting.plot_kaplan_meier`.
 
 ---
 
@@ -247,7 +247,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if both control limits and run rules agree the process is in/out; low if a single rule fires on a noisy chart.
 
-**Reusable helper:** plan to add `control_chart(...)`, `process_capability(...)`.
+**Reusable helper:** `ds_skill.spc.individuals_mr_chart(...)`, `xbar_r_chart(...)`, `p_chart(...)`, `c_chart(...)`, `u_chart(...)` build the control chart; `ds_skill.spc.apply_nelson_rules(chart)` / `apply_western_electric_rules(chart)` add run-rule violations; `ds_skill.spc.cp/cpk/pp/ppk(...)` and `capability_summary(...)` compute capability after stability is confirmed. Charts: `ds_skill.plotting.plot_control_chart`, `plot_capability_histogram`.
 
 ---
 
@@ -276,7 +276,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if SRM passes AND primary metric moves AND segments agree AND CI excludes practical-significance threshold; low if any one fails.
 
-**Reusable helper:** plan to add `ab_test_report(...)`.
+**Reusable helper:** `ds_skill.ab_validator.validate_ab_test(df, group_col, outcome_col, expected_ratios=None)` runs SRM → per-arm summary → effect size with CI → MDE in one call (the recommended entrypoint). The pieces are also exposed: `sample_ratio_mismatch(...)`, `effect_size_with_ci(...)`, `minimum_detectable_effect(...)`. Chart: `ds_skill.plotting.plot_dotplot_ci` for per-arm effect bands.
 
 ---
 
@@ -303,7 +303,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Confidence calibration:** high if bootstrap CI is narrow and stable across B values; medium if narrow but unstable; low if CI spans zero or the practical-significance threshold.
 
-**Reusable helper:** plan to add `bootstrap_ci(...)`, `permutation_test(...)`.
+**Reusable helper:** `ds_skill.bootstrap.bootstrap_ci(data, statistic=np.mean, n_boot=2000, method="bca")` gives a percentile or BCa CI for any one-sample statistic; `ds_skill.bootstrap.bootstrap_two_sample(a, b, statistic=...)` for a difference statistic with a resampled null. (A dedicated block/cluster bootstrap for dependent data is not yet in the package — write it task-specific and note the dependence structure.)
 
 ---
 

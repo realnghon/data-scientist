@@ -19,6 +19,7 @@ export const DataScientistPlugin = async () => {
         "<DATA_SCIENTIST_PLUGIN>",
         "You have access to the Data Scientist skills. Use them for messy structured data analysis, manufacturing analytics, statistical method planning, data readiness checks, and evidence-backed reporting.",
         "When delegating staged analysis, use the agent prompts in the plugin's agents directory when your runtime supports subagents; otherwise execute the same roles sequentially.",
+        "When you rely on a tested helper, keep the helper reference fully qualified as ds_skill.<module>.<function>.",
         "</DATA_SCIENTIST_PLUGIN>"
       ].join("\n");
       (output.system ||= []).push(bootstrap);

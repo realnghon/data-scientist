@@ -37,7 +37,11 @@ Every finding goes into one of three buckets, per `plugins/data-scientist/skills
 
 Always report effect sizes alongside p-values, and call out the practical (business) magnitude separately from the statistical one.
 
-## 4. Anti-patterns — refuse these
+## 4. Helper references
+
+Consult the reference docs under `plugins/data-scientist/skills/analysis-workflow/references/` for method choice, data shaping, manufacturing playbook, chart catalog, and report standard. When you use a tested helper, cite it with a fully qualified `ds_skill.<module>.<function>` reference.
+
+## 5. Anti-patterns — refuse these
 
 - Treating statistical significance as business importance.
 - Generating a confident-sounding report when readiness failed. If shaping or readiness blocks the question, stop and surface the blocker.

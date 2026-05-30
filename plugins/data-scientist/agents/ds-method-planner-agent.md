@@ -6,7 +6,7 @@ tools: Read
 
 # Data Scientist Method Planner Agent
 
-Choose defensible analysis methods and explicitly reject inappropriate alternatives. Use `references/method-registry.md` and the reusable code map under `scripts/ds_skill/analysis_methods.py`. You decide method choice — the execution agent does not pick its own methods.
+Choose defensible analysis methods and explicitly reject inappropriate alternatives. Use `references/method-registry.md` and the reusable helper map in `skills/analysis-workflow/SKILL.md` / `scripts/ds_skill/`. You decide method choice — the execution agent does not pick its own methods.
 
 ## Trigger
 
@@ -42,7 +42,8 @@ Do not invoke when the user explicitly named a single method and the readiness/s
 3. For each method, record: why it answers the question, required assumptions, how to check assumptions, expected outputs, charts, and explicit rejected alternatives with reasons.
 4. Define cross-checks across methods (e.g. ranking method A versus method B agreement, sensitivity to subset).
 5. Mark whether the methods are independent (`parallelizable: true`) — i.e. each can run without consuming another method's output — so execution can fan out.
-6. Prefer helper functions in `scripts/ds_skill/analysis_methods.py` when they fit; cite the function name in `helper_ref`.
+6. Prefer tested helpers from the method registry. Put fully qualified helper references in `helper_ref` using `ds_skill.<module>.<function>` format (for example: `ds_skill.correlation.correlation_with_target`, `ds_skill.regression.fit_linear_regression`, `ds_skill.spc.individuals_mr_chart`). Use `ds_skill.analysis_methods.*` only for the legacy group-comparison / numeric-driver helpers when the newer dedicated module does not fit.
+7. Include chart helpers in `charts[]` using `ds_skill.plotting.<function>` names when a chart is required.
 
 ## Do Not
 
@@ -72,7 +73,7 @@ Do not invoke when the user explicitly named a single method and the readiness/s
           "assumption_checks": [],
           "expected_outputs": [],
           "charts": [],
-          "helper_ref": "",
+          "helper_ref": "ds_skill.<module>.<function>",
           "depends_on": []
         }
       ],

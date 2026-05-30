@@ -100,7 +100,7 @@ Templates are intentionally extensible. Add proven recurring workflows there aft
 
 ## Reusable Code
 
-The plugin ships a **tested** helper library (180+ passing unit tests). Call it instead of re-deriving statistics or chart code by hand — the helpers already handle edge cases (small N, censoring, FDR control, singular matrices, headless plotting). Re-implement only when no helper fits, and say so.
+The plugin ships a **tested** helper library (180+ passing unit tests). Call it instead of re-deriving statistics or chart code by hand — the helpers already handle edge cases (small N, censoring, FDR control, singular matrices, headless plotting). Re-implement only when no helper fits, and say so. Use fully qualified helper references in analysis plans and notes: `ds_skill.<module>.<function>`.
 
 ### Make the helpers importable (do this once per analysis)
 
@@ -131,6 +131,7 @@ Alternatives: run `pip install -e .` in the repo once (then `import ds_skill` wo
 ### What's available
 
 - `scripts/profile_dataset.py`: standalone CLI + importable profiler for CSV, Excel, Parquet, JSON. Emits the `data_manifest` JSON. Run `python profile_dataset.py <file>`.
+- `scripts/run_full_workflow.py`: deterministic baseline workflow for sequential runtimes and smoke tests. Runs profile → readiness → grain/leakage scan → target correlation baseline, then writes `baseline_artifacts.json` and `baseline_skeleton.md`. Run `python run_full_workflow.py <file> --target <column> --output <dir>`.
 - `scripts/ds_bootstrap.py`: import-path bootstrap + dependency check (above).
 - `scripts/ds_skill/`: the tested method + chart library. Lazy-import only the module you need (see the "Code Helpers — Lazy Import Map" above):
   - Analysis: `readiness`, `spc`, `correlation`, `anomaly`, `time_series`, `bootstrap`, `shaping`, `ab_validator`, `regression`, `classification`, `survival`
