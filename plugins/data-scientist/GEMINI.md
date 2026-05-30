@@ -25,7 +25,7 @@ Outside those conditions, behave normally.
   - `ds-critic-agent.md` — adversarial review
   - `ds-report-agent.md` — write the deliverable
 - Slash-command entrypoints: `plugins/data-scientist/commands/` — `ds-profile`, `ds-plan`, `ds-analyze`, `ds-report`
-- Reference docs: `plugins/data-scientist/skills/analysis-workflow/references/` — method registry, data readiness, data shaping, chart catalog, manufacturing playbook, report standard, multi-agent orchestration
+- Reference docs: `plugins/data-scientist/skills/analysis-workflow/references/` — method registry, data readiness, data shaping, chart catalog, manufacturing playbook, report standard, multi-agent orchestration. When you invoke a tested helper, cite it with `ds_skill.<module>.<function>` so the plan stays auditable.
 
 Do not duplicate workflow content here. Read those files and follow them.
 
