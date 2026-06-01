@@ -5,7 +5,7 @@
 
 # Testing
 pytest>=7.4.0,<10.0.0
-pytest-cov>=4.1.0,<5.0.0
+pytest-cov>=4.1.0,<8.0.0
 
 # Plotting (optional at runtime; required to exercise ds_skill.plotting tests)
 matplotlib>=3.7.0
