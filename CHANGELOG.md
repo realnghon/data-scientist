@@ -5,6 +5,14 @@ All notable changes to the data-scientist plugin will be documented in this file
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- Expanded high-value test coverage for caching, dataset profiling, analysis method selection, correlation validation, regression diagnostics, time-series edge cases, classification, SPC, and readiness rollups.
+
+### Changed
+- Updated README test and coverage badges to reflect **245 passing tests** and **89% coverage**.
+
 ## [1.0.0] - 2026-05-30
 
 First stable release. The headline fix is that the plugin now **installs cleanly** through the Claude Code marketplace flow (previously it errored), and the bundled helper library is now reliably importable so agents stop re-writing statistics and chart code by hand.
@@ -87,4 +95,3 @@ First stable release. The headline fix is that the plugin now **installs cleanly
 [1.0.0]: https://github.com/realnghon/data-scientist/compare/v0.2.0...v1.0.0
 [0.2.0]: https://github.com/realnghon/data-scientist/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/realnghon/data-scientist/releases/tag/v0.1.0
-
