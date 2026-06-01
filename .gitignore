@@ -1,6 +1,7 @@
 # Local scratch — progress notes, experimental notebooks, throwaway artifacts.
 # Tests now live in tests/ at the repo root and are tracked.
 .local/
+.omo/
 
 # Python build/cache artifacts
 .pytest_cache/
@@ -56,4 +57,3 @@ Thumbs.db
 # Local config
 .env
 *.local.json
-

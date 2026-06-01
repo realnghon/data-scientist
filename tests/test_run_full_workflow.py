@@ -44,6 +44,9 @@ def test_run_workflow_writes_json_and_markdown(tmp_path):
     bundle = module.run_workflow(dataset, target="yield_pct", output_dir=out)
 
     assert bundle["pipeline"] == "run_full_workflow"
+    assert bundle["stage"] == "baseline"
+    assert bundle["status"] == "ok"
+    assert set(["produced", "carry_forward", "next_stage_hint", "blockers", "human_questions"]).issubset(bundle)
     assert bundle["target"] == "yield_pct"
     assert bundle["data_manifest"]["status"] == "ok"
     assert "readiness_report" in bundle
@@ -54,6 +57,8 @@ def test_run_workflow_writes_json_and_markdown(tmp_path):
 
     payload = json.loads((out / "baseline_artifacts.json").read_text(encoding="utf-8"))
     assert payload["target"] == "yield_pct"
+    assert payload["carry_forward"]["data_manifest"]["status"] == "ok"
+    assert payload["next_stage_hint"]["can_parallelize"] is False
     assert payload["baseline_evidence"]["correlation"]
     assert "# Baseline Analysis" in (out / "baseline_skeleton.md").read_text(encoding="utf-8")
 
@@ -95,6 +100,54 @@ def test_cli_none_prints_json_to_stdout(tmp_path):
     payload = json.loads(result.stdout)
     assert payload["source_file"] == str(dataset)
     assert payload["target"] == "yield_pct"
+
+
+def test_cli_md_writes_only_markdown_file(tmp_path):
+    dataset = make_dataset(tmp_path)
+    out = tmp_path / "out"
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT_PATH),
+            str(dataset),
+            "--target",
+            "yield_pct",
+            "--output",
+            str(out),
+            "--format",
+            "md",
+        ],
+        check=False,
+        text=True,
+        capture_output=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert (out / "baseline_skeleton.md").is_file()
+    assert not (out / "baseline_artifacts.json").exists()
+
+
+def test_missing_target_is_reported_as_blocker(tmp_path):
+    module = load_module()
+    dataset = make_dataset(tmp_path)
+
+    bundle = module.run_workflow(dataset, target="missing_y", emit_markdown=False, emit_json=False)
+
+    assert bundle["status"] == "partial"
+    assert bundle["baseline_evidence"]["correlation"] == []
+    assert bundle["blockers"][0]["error_type"] == "MissingTargetColumn"
+
+
+def test_non_numeric_target_warning_is_visible(tmp_path):
+    module = load_module()
+    dataset = make_dataset(tmp_path)
+
+    bundle = module.run_workflow(dataset, target="line", emit_markdown=False, emit_json=False)
+
+    assert bundle["status"] == "partial"
+    assert bundle["warnings"]
+    assert bundle["blockers"] == bundle["warnings"]
+    assert bundle["baseline_evidence"]["driver_ranking"] == []
 
 
 def test_cli_missing_file_exits_with_error(tmp_path):

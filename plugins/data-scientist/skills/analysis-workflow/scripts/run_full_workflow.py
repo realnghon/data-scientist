@@ -10,9 +10,9 @@ Usage::
 
     python run_full_workflow.py dataset.csv --target yield_pct --output results/
     python run_full_workflow.py dataset.xlsx --sheet Sheet1 --sample-rows 10000
-    python run_full_workflow.py dataset.csv --format none  # JSON only, skip md
+    python run_full_workflow.py dataset.csv --format none  # JSON to stdout only
 
-The artifact bundle follows the envelopes defined in
+The artifact bundle includes the envelope fields defined in
 ``references/multi-agent-orchestration.md`` so a parent agent can pick up the
 output and dispatch the remaining stages (method-planner → execution → critic →
 report) from where this script leaves off.
@@ -99,6 +99,7 @@ def run_workflow(
     sample_rows: int = 10_000,
     output_dir: Path | None = None,
     emit_markdown: bool = True,
+    emit_json: bool = True,
 ) -> dict[str, Any]:
     """Run the baseline pipeline and return the artifact bundle.
 
@@ -118,6 +119,8 @@ def run_workflow(
         working directory.
     emit_markdown:
         When True, also write a ``baseline_skeleton.md`` alongside the JSON.
+    emit_json:
+        When True and ``output_dir`` is set, write ``baseline_artifacts.json``.
 
     Returns
     -------
@@ -125,26 +128,32 @@ def run_workflow(
         The full artifact bundle (also written to ``baseline_artifacts.json``).
     """
     out = output_dir or Path.cwd()
-    if emit_markdown or output_dir is not None:
+    if output_dir is not None and (emit_markdown or emit_json):
         out.mkdir(parents=True, exist_ok=True)
 
+    normalized_sheet = sheet if isinstance(sheet, int) else profiler.normalize_sheet(sheet)
+
     # ---- Stage 1: Intake / profile ----
-    profile = profiler.build_profile(path, profiler.normalize_sheet(sheet), sample_rows)
+    profile = profiler.build_profile(path, normalized_sheet, sample_rows)
 
     # ---- Stage 2: Readiness ----
-    df = profiler.read_table(path, profiler.normalize_sheet(sheet), sample_rows)[0]
+    df = profiler.read_table(path, normalized_sheet, sample_rows)[0]
     readiness = assess_readiness(df, target=target)
 
     # ---- Stage 3: Shaping lite (grain + leakage) ----
     grain = detect_grain(df)
     if target:
-        leakage = detect_leakage_columns(df, target=target, time_col=None)
+        if target in df.columns:
+            leakage = detect_leakage_columns(df, target=target, time_col=None)
+        else:
+            leakage = None
     else:
         leakage = None
 
     # ---- Stage 4: Baseline evidence (correlation → driver ranking) ----
     correlation_rows: list[dict[str, Any]] = []
     driver_ranking: list[dict[str, Any]] = []
+    warnings: list[dict[str, str]] = []
     if target and target in df.columns:
         try:
             results = correlation_with_target(df, target=target)
@@ -174,62 +183,105 @@ def run_workflow(
                  "strength": r["effect_strength"], "interpretation": r["interpretation"]}
                 for i, r in enumerate(scored[:10])
             ]
-        except Exception:
-            # Correlation may fail if target is non-numeric or sparse; surface
-            # the empty arrays rather than crashing the whole pipeline.
-            pass
+        except Exception as exc:
+            # Correlation may fail if target is non-numeric or sparse; keep the
+            # pipeline usable, but make the failed evidence path explicit.
+            warnings.append(
+                {
+                    "stage": "baseline_evidence",
+                    "error_type": exc.__class__.__name__,
+                    "message": str(exc),
+                }
+            )
+    elif target:
+        warnings.append(
+            {
+                "stage": "baseline_evidence",
+                "error_type": "MissingTargetColumn",
+                "message": f"Target column not found: {target}",
+            }
+        )
 
     # ---- Assemble artifact bundle ----
+    readiness_report = {
+        "overall_status": readiness.overall_status,
+        "dimensions": {
+            key: {"status": dim.status, "evidence": dim.evidence}
+            for key, dim in readiness.dimensions.items()
+        },
+        "caveats": readiness.caveats,
+        "narrowed_scope_suggestions": readiness.narrowed_scope_suggestions,
+        "data_request": readiness.data_request,
+    }
+    shaping = {
+        "grain": {
+            "keys_tested": grain.keys_tested,
+            "is_unique": grain.is_unique,
+            "n_total_rows": grain.n_total_rows,
+            "n_unique_keys": grain.n_unique_keys,
+            "duplicate_examples": grain.duplicate_examples,
+            "inferred_grain": grain.inferred_grain,
+        },
+        "leakage": {
+            "target": leakage.target if leakage else None,
+            "flagged_columns": leakage.flagged_columns if leakage else [],
+            "name_based_flags": leakage.name_based_flags if leakage else [],
+            "correlation_based_flags": leakage.correlation_based_flags if leakage else [],
+            "time_based_flags": leakage.time_based_flags if leakage else [],
+        },
+    }
+    baseline_evidence = {
+        "correlation": correlation_rows,
+        "driver_ranking": driver_ranking,
+    }
+    next_stage_hint = {
+        "stages": ["method-planner", "execution", "critic", "report"],
+        "can_parallelize": False,
+        "rationale": (
+            "Baseline pipeline complete. Hand off to method-planner for "
+            "full method selection, then fan-out execution, critic, and report."
+            if target and not warnings
+            else "Baseline pipeline completed with warnings; review blockers before method planning."
+            if warnings
+            else "No target column provided; run exploratory profiling or add --target for driver ranking."
+        ),
+    }
+
     bundle: dict[str, Any] = {
+        "stage": "baseline",
+        "status": "partial" if warnings else "ok",
+        "produced": {
+            "data_manifest": profile,
+            "readiness_report": readiness_report,
+            "shaping": shaping,
+            "baseline_evidence": baseline_evidence,
+            "warnings": warnings,
+        },
+        "carry_forward": {
+            "data_manifest": profile,
+            "field_role_candidates": profile.get("role_candidates", []),
+            "readiness_report": readiness_report,
+            "analysis_views": [],
+            "analysis_plan": {},
+            "evidence_matrix": correlation_rows,
+            "critique": {},
+        },
+        "next_stage_hint": next_stage_hint,
+        "blockers": warnings,
+        "human_questions": [],
         "pipeline": "run_full_workflow",
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "source_file": str(path),
         "target": target,
         "data_manifest": profile,
-        "readiness_report": {
-            "overall_status": readiness.overall_status,
-            "dimensions": {
-                key: {"status": dim.status, "evidence": dim.evidence}
-                for key, dim in readiness.dimensions.items()
-            },
-            "caveats": readiness.caveats,
-            "narrowed_scope_suggestions": readiness.narrowed_scope_suggestions,
-            "data_request": readiness.data_request,
-        },
-        "shaping": {
-            "grain": {
-                "keys_tested": grain.keys_tested,
-                "is_unique": grain.is_unique,
-                "n_total_rows": grain.n_total_rows,
-                "n_unique_keys": grain.n_unique_keys,
-                "duplicate_examples": grain.duplicate_examples,
-                "inferred_grain": grain.inferred_grain,
-            },
-            "leakage": {
-                "target": leakage.target if leakage else None,
-                "flagged_columns": leakage.flagged_columns if leakage else [],
-                "name_based_flags": leakage.name_based_flags if leakage else [],
-                "correlation_based_flags": leakage.correlation_based_flags if leakage else [],
-                "time_based_flags": leakage.time_based_flags if leakage else [],
-            },
-        },
-        "baseline_evidence": {
-            "correlation": correlation_rows,
-            "driver_ranking": driver_ranking,
-        },
-        "next_stage_hint": {
-            "stages": ["method-planner", "execution", "critic", "report"],
-            "rationale": (
-                "Baseline pipeline complete. Hand off to method-planner for "
-                "full method selection, then fan-out execution, critic, and report."
-                if target
-                else "No target column provided; run exploratory profiling or add --target for driver ranking."
-            ),
-        },
+        "readiness_report": readiness_report,
+        "shaping": shaping,
+        "baseline_evidence": baseline_evidence,
+        "warnings": warnings,
     }
 
     # ---- Write JSON ----
-    if emit_markdown or output_dir is not None:
+    if emit_json and output_dir is not None:
         json_path = out / "baseline_artifacts.json"
         json_path.write_text(json.dumps(bundle, ensure_ascii=False, indent=2, default=str), encoding="utf-8")
 
@@ -335,7 +387,10 @@ def _write_skeleton_md(out_dir: Path, bundle: dict[str, Any]) -> None:
 
 *Full correlation matrix is in `baseline_artifacts.json`.*"""
     else:
-        evidence_section = "_No target column specified; driver ranking skipped. Add `--target <column>` to enable._"
+        if bundle.get("target"):
+            evidence_section = "_No baseline driver ranking produced; review warnings in `baseline_artifacts.json`._"
+        else:
+            evidence_section = "_No target column specified; driver ranking skipped. Add `--target <column>` to enable._"
 
     # Caveats
     caveats = readiness.get("caveats", []) or []
@@ -413,6 +468,7 @@ def main(argv: list[str] | None = None) -> int:
             sample_rows=args.sample_rows,
             output_dir=args.output,
             emit_markdown=args.format in ("all", "md"),
+            emit_json=args.format in ("all", "json"),
         )
         if args.format == "none":
             print(json.dumps(bundle, ensure_ascii=False, indent=2, default=str))
@@ -422,8 +478,9 @@ def main(argv: list[str] | None = None) -> int:
         else:
             out = args.output or Path.cwd()
             print(f"Artifacts written to {out.resolve()}")
-            print(f"  baseline_artifacts.json  — full JSON bundle")
-            if args.format in ("all",):
+            if args.format in ("all", "json"):
+                print(f"  baseline_artifacts.json  — full JSON bundle")
+            if args.format in ("all", "md"):
                 print(f"  baseline_skeleton.md    — markdown skeleton")
         return 0
     except FileNotFoundError as exc:
