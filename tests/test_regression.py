@@ -161,3 +161,91 @@ def test_fit_validates_inputs():
     df_const = pd.DataFrame({"x": [1, 1, 1, 1], "y": [1, 2, 3, 4]})
     with pytest.raises(ValueError):
         fit_linear_regression(df_const, target="y", features=["x"])
+
+
+def test_fit_validates_dataframe_shape_and_feature_presence():
+    with pytest.raises(ValueError, match="pandas DataFrame"):
+        fit_linear_regression(None, target="y", features=["x"])  # type: ignore[arg-type]
+    with pytest.raises(ValueError, match="empty"):
+        fit_linear_regression(pd.DataFrame(), target="y", features=["x"])
+    with pytest.raises(ValueError, match="Feature columns"):
+        fit_linear_regression(pd.DataFrame({"x": [1, 2], "y": [1, 2]}), target="y", features=["missing"])
+    with pytest.raises(ValueError, match="Not enough complete rows"):
+        fit_linear_regression(pd.DataFrame({"x1": [1, None], "x2": [2, 3], "y": [1, 2]}), target="y", features=["x1", "x2"])
+
+
+def test_regularized_regression_validates_alpha_inputs():
+    df = _make_linear_data(n=30)
+    with pytest.raises(ValueError, match="alpha must be > 0"):
+        fit_ridge(df, target="y", features=["x1"], alpha=0)
+    with pytest.raises(ValueError, match="alpha list must be non-empty"):
+        fit_lasso(df, target="y", features=["x1"], alpha=[])
+
+
+def test_regularized_regression_cross_validated_alpha_path():
+    df = _make_linear_data(n=60)
+    result = fit_ridge(df, target="y", features=["x1", "x2"], alpha=[0.1, 1.0], cv_folds=3)
+    assert result.method == "ridge"
+    assert result.alpha_used in {0.1, 1.0}
+
+
+def test_response_curves_validates_inputs_and_constant_feature_path():
+    result = RegressionResult(
+        method="linear",
+        coefficients={"x": 2.0},
+        intercept=1.0,
+        std_errors=None,
+        p_values=None,
+        r_squared=1.0,
+        adjusted_r_squared=None,
+        n=3,
+        n_features=1,
+    )
+    df = pd.DataFrame({"x": [5.0, 5.0, 5.0]})
+
+    curves = response_curves(result, df, ["x"], n_points=3)
+    assert curves["per_feature"]["x"]["x"] == [5.0, 5.0, 5.0]
+    with pytest.raises(ValueError, match="n_points"):
+        response_curves(result, df, ["x"], n_points=1)
+    with pytest.raises(ValueError, match="Columns not in DataFrame"):
+        response_curves(result, df, ["missing"])
+    with pytest.raises(ValueError, match="features must be non-empty"):
+        response_curves(result, df, [])
+    with pytest.raises(ValueError, match="No complete rows"):
+        response_curves(result, pd.DataFrame({"x": [None, None]}), ["x"])
+
+
+def test_residual_diagnostics_validates_residual_payload_and_clean_path():
+    bad = RegressionResult(
+        method="linear",
+        coefficients={},
+        intercept=0.0,
+        std_errors=None,
+        p_values=None,
+        r_squared=0.0,
+        adjusted_r_squared=None,
+        n=3,
+        n_features=0,
+        fitted_values=[1.0, 2.0, 3.0],
+        residuals=[0.0, 0.0],
+    )
+    with pytest.raises(ValueError, match="residuals"):
+        residual_diagnostics(bad, pd.DataFrame())
+
+    clean = RegressionResult(
+        method="linear",
+        coefficients={"x": 1.0},
+        intercept=0.0,
+        std_errors=None,
+        p_values=None,
+        r_squared=1.0,
+        adjusted_r_squared=None,
+        n=6,
+        n_features=1,
+        vif={"x": 1.0},
+        fitted_values=[1, 2, 3, 4, 5, 6],
+        residuals=[0, 0, 0, 0, 0, 0],
+    )
+    diag = residual_diagnostics(clean, pd.DataFrame())
+    assert diag.influential_observations == []
+    assert "Diagnostics pass" in diag.recommendations[0]

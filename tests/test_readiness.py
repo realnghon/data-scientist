@@ -252,6 +252,27 @@ def test_assess_readiness_overall_status_ok_on_clean_data():
     assert report.narrowed_scope_suggestions == []
 
 
+def test_assess_readiness_partial_status_populates_caveats_and_narrowed_scope():
+    rng = np.random.default_rng(44)
+    n = 80
+    df = pd.DataFrame(
+        {
+            "temperature": rng.normal(100.0, 5.0, size=n),
+            "pressure": rng.normal(50.0, 2.0, size=n),
+            "yield_rate": rng.normal(0.95, 0.01, size=n),
+        }
+    )
+    df.loc[:30, "temperature"] = np.nan
+
+    report = assess_readiness(df, target="yield_rate", candidate_features=["temperature", "pressure"])
+
+    assert report.overall_status == "partial"
+    assert report.data_request == []
+    assert report.caveats
+    assert report.narrowed_scope_suggestions
+    assert report.dimensions["missingness"].status == "partial"
+
+
 def test_assess_readiness_overall_status_blocked_propagates_data_request():
     # 3 rows per group => sample size blocked
     df = pd.DataFrame(
