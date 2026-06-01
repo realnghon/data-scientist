@@ -6,8 +6,8 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-informational.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-202%20passed-brightgreen.svg">
-  <img alt="Coverage" src="https://img.shields.io/badge/coverage-84%25-green.svg">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-245%20passed-brightgreen.svg">
+  <img alt="Coverage" src="https://img.shields.io/badge/coverage-89%25-green.svg">
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-8-success.svg">
   <img alt="Status" src="https://img.shields.io/badge/status-stable-brightgreen.svg">
   <img alt="Built for" src="https://img.shields.io/badge/built%20for-Claude%20%7C%20Codex%20%7C%20Cursor%20%7C%20%2B5-7c3aed.svg">
@@ -144,7 +144,7 @@ Stages connected by dotted lines can fan out to parallel subagents on platforms 
 - **8 readiness dimensions** in the data-readiness rubric
 - **7 manufacturing recipes** in the playbook
 - **3 golden templates** for common report shapes
-- **202 tests** in the pytest suite (warning-clean)
+- **245 tests** in the pytest suite, with focused coverage on high-value helper branches
 
 ---
 
