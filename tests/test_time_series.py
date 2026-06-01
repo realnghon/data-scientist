@@ -183,3 +183,66 @@ def test_trend_result_as_dict_round_trips():
 def test_detect_regime_changes_aliases_detect_change_points():
     # Alias keeps the public API surface advertised in the spec stable.
     assert ts_module.detect_regime_changes is ts_module.detect_change_points
+
+
+def test_mann_kendall_short_and_decreasing_series_paths():
+    short = mann_kendall_trend(pd.Series([1.0, 2.0]))
+    decreasing = mann_kendall_trend(pd.Series(np.arange(50, 0, -1, dtype=float)))
+
+    assert short.trend == "no_trend"
+    assert short.n == 2
+    assert decreasing.trend == "decreasing"
+    assert decreasing.slope_sen < 0
+
+
+def test_seasonal_decompose_short_and_multiplicative_fallback_paths(monkeypatch):
+    short = seasonal_decompose(pd.Series([1.0, 2.0, 3.0]), period=4)
+    assert short.period_used == 4
+    assert short.seasonal == [0.0, 0.0, 0.0]
+
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):
+        if name.startswith("statsmodels"):
+            raise ImportError("statsmodels disabled")
+        return real_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    series = pd.Series(np.tile([1.0, 2.0, 4.0, 2.0], 4))
+    result = seasonal_decompose(series, period=4, model="multiplicative")
+    assert result.model == "multiplicative"
+    assert result.period_used == 4
+
+
+def test_detect_change_points_short_constant_and_unknown_method_paths():
+    short = detect_change_points(pd.Series([1.0, 2.0, 3.0]), min_size=3)
+    constant = detect_change_points(pd.Series([1.0] * 30), method="binary_segmentation", min_size=5)
+
+    assert short.change_indices == []
+    assert short.segments[0]["end"] == 3
+    assert constant.change_indices == []
+    with pytest.raises(ValueError, match="Unknown change-point"):
+        detect_change_points(pd.Series(np.arange(30, dtype=float)), method="unknown", min_size=5)
+
+
+def test_sampling_quality_short_regular_and_gap_recommendations():
+    empty = sampling_quality(pd.Series([], dtype="datetime64[ns]"))
+    one = sampling_quality(pd.Series([pd.Timestamp("2026-01-01")]))
+    regular = sampling_quality(pd.Series(pd.date_range("2026-01-01", periods=5, freq="h")))
+    gap = sampling_quality(
+        pd.Series(
+            [
+                pd.Timestamp("2026-01-01 00:00"),
+                pd.Timestamp("2026-01-01 01:00"),
+                pd.Timestamp("2026-01-01 02:00"),
+                pd.Timestamp("2026-01-01 10:00"),
+            ]
+        )
+    )
+
+    assert empty.span_start is None
+    assert one.span_end == pd.Timestamp("2026-01-01")
+    assert "Regular cadence" in regular.recommendation
+    assert gap.gaps

@@ -162,6 +162,23 @@ def test_u_chart_normalizes_by_opportunity():
     assert chart.variable_limits is not None
 
 
+def test_u_chart_variable_opportunity_limits_align_with_points():
+    df = pd.DataFrame(
+        {
+            "d": [1, 4, 3, 8],
+            "opp": [10, 40, 20, 80],
+        }
+    )
+
+    chart = u_chart(df, defect_count_col="d", opportunities_col="opp")
+
+    assert chart.points == pytest.approx([0.1, 0.1, 0.15, 0.1])
+    assert isinstance(chart.subgroup_size, list)
+    assert chart.subgroup_size == [10, 40, 20, 80]
+    assert chart.variable_limits is not None
+    assert len(chart.variable_limits) == len(chart.points)
+
+
 # ---------------------------------------------------------------------------
 # Western Electric rules
 # ---------------------------------------------------------------------------
