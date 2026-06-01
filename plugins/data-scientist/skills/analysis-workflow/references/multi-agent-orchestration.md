@@ -1,6 +1,6 @@
 # Multi-Agent Orchestration
 
-Operator's manual for running the 7-stage data-science pipeline across Claude Code, Codex, OpenCode, and Cursor. The pipeline is: `intake → readiness → shaping → method-planner → execution → critic → report`. Each stage is a sub-agent prompt under `plugins/data-scientist/agents/`. This document tells the parent (main) agent WHEN to spawn each one, which can run in parallel, and how state flows between them.
+Operator's manual for running the 7-stage data-science pipeline across Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, GitHub Copilot, and Gemini CLI. The pipeline is: `intake → readiness → shaping → method-planner → execution → critic → report`. Each stage is a sub-agent prompt under `plugins/data-scientist/agents/`. This document tells the parent (main) agent WHEN to spawn each one, which can run in parallel where supported, and how state flows between them.
 
 ## Section 1: Staged orchestration vs single-pass
 
@@ -81,6 +81,22 @@ OpenCode runs the plugin via a Node bootstrap (`.opencode/plugins/data-scientist
 ### Cursor
 
 Cursor is not a multi-agent runtime — `.cursor/rules/data-scientist.mdc` exposes the skill as an auto-activating rule the main chat consults. The orchestration is user-driven: the user prompts for each stage in turn ("now profile", "now shape", "now run methods"), and the rule keeps the stage contracts consistent. Do not attempt to spawn agents from Cursor; surface the stage hint to the user and wait for their next prompt.
+
+### Cline
+
+Cline is also a rules-based integration, not a native multi-agent runtime. The `.clinerules/data-scientist.md` file mirrors the shared core and should be followed sequentially in one session.
+
+### Windsurf
+
+Windsurf uses a rule file (`.windsurf/rules/data-scientist.md`) to surface the shared workflow. Treat it like Cursor/Cline: sequential stage use, no native subagent dispatch.
+
+### GitHub Copilot
+
+GitHub Copilot reads project instructions from `.github/copilot-instructions.md`. Use the same staged workflow sequentially in chat; do not assume slash commands or native agent fan-out.
+
+### Gemini CLI
+
+Gemini CLI loads `GEMINI.md` as project memory. Run the stages sequentially in one thread and keep the JSON envelope explicit for handoff or rerun.
 
 ## Section 4: State-passing contract
 

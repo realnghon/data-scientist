@@ -15,7 +15,7 @@ This guide covers installation for all 8 supported platforms. Pick your tool and
 | **Cline** | 1 min | ⚠️ Rules | ❌ | ❌ |
 | **Windsurf** | 1 min | ⚠️ Rules | ❌ | ❌ |
 | **GitHub Copilot** | 1 min | ⚠️ Rules | ❌ | ❌ |
-| **Gemini CLI** | 2 min | ✅ Native | ✅ Parallel | ✅ |
+| **Gemini CLI** | 2 min | ⚠️ Project memory | ❌ | ❌ |
 
 ---
 
@@ -271,7 +271,7 @@ Copilot should reference the data-scientist instructions.
 
 ### Gemini CLI
 
-**Best for**: Full feature set with parallel subagents in Gemini.
+**Best for**: Sequential workflow via project memory in Gemini CLI.
 
 #### 1. Clone and install
 
@@ -288,17 +288,17 @@ pip install -r requirements.txt
 cp /path/to/data-scientist/plugins/data-scientist/GEMINI.md .
 ```
 
-#### 3. Activate skill
+#### 3. Start Gemini CLI
 
 ```bash
-# In Gemini CLI:
-activate_skill data-scientist
+# Gemini CLI auto-loads GEMINI.md as project memory when it starts.
+# Use the shared 7-stage workflow sequentially in one thread.
 ```
 
 #### 4. Verify
 
 ```text
-# Should see skill loaded message
+# Confirm GEMINI.md is loaded as project memory.
 # Then try:
 analyze my dataset.csv
 ```
