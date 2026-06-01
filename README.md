@@ -55,7 +55,7 @@ The first pass returns a profile + readiness check; subsequent stages plan metho
 
 ## 🧩 Supported platforms
 
-**Native skill + subagent dispatch** (full feature set):
+**Native plugin surfaces** (strongest affordances; parallelism varies by runtime):
 
 | Platform | Skill | Subagents | Slash commands |
 |---|:-:|:-:|:-:|
@@ -73,7 +73,7 @@ The first pass returns a profile + readiness check; subsequent stages plan metho
 | **GitHub Copilot** | `.github/copilot-instructions.md` | repo presence |
 | **Gemini CLI** | `GEMINI.md` | session start |
 
-Legend: ✅ first-class · ⚠️ partial (works, fewer affordances)
+Legend: ✅ first-class · ⚠️ partial / emulated · ❌ unavailable. Rules-based integrations expose the shared workflow as instructions or memory, not as native plugin runtimes.
 
 ---
 
@@ -119,7 +119,7 @@ flowchart LR
     style G fill:#e0e7ff,stroke:#4f46e5
 ```
 
-**7 stages, parallelizable where dependencies allow.**
+**7 stages, parallelizable where the runtime supports it.**
 
 Stages connected by dotted lines can fan out to parallel subagents on platforms that natively dispatch sub-agents (Claude Code). On other platforms the same role runs sequentially without changing the artifact JSON contract. See [`references/multi-agent-orchestration.md`](plugins/data-scientist/skills/analysis-workflow/references/multi-agent-orchestration.md) for state-passing schemas and per-platform fan-out patterns.
 

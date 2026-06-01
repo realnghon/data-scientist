@@ -29,9 +29,9 @@ Outside those conditions, behave normally.
 
 Do not duplicate workflow content here. Read those files and follow them.
 
-## Sequential execution — but keep the state envelope
+## Sequential execution — no native parallel dispatch
 
-Gemini CLI does not natively dispatch subagents in parallel. Fall back to a sequential pass through the 7 stages (intake → readiness → shaping → method-planner → execution → critic → report) in a single thread.
+Gemini CLI does not natively dispatch subagents in parallel and does not expose slash commands for this plugin. Run the 7 stages (intake → readiness → shaping → method-planner → execution → critic → report) sequentially in a single thread.
 
 Even when running sequentially, emit the per-stage JSON state envelope defined in `plugins/data-scientist/skills/analysis-workflow/references/multi-agent-orchestration.md`. This keeps each stage's artifact (manifest, readiness report, shaping plan, method plan, results, critique, draft) inspectable and lets a downstream tool or rerun pick up from any stage without re-deriving prior state.
 
