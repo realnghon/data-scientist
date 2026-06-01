@@ -245,3 +245,47 @@ def test_correlation_result_interpretation_bands():
     assert isinstance(strongest, CorrelationResult)
     assert "positive" in strongest.interpretation
     assert strongest.interpretation.startswith("very strong") or strongest.interpretation.startswith("strong")
+
+
+def test_pairwise_correlation_validates_methods_and_numeric_columns():
+    with pytest.raises(ValueError, match="methods"):
+        pairwise_correlation(pd.DataFrame({"x": [1, 2], "y": [2, 3]}), methods=())
+    with pytest.raises(ValueError, match="Unsupported"):
+        pairwise_correlation(pd.DataFrame({"x": [1, 2], "y": [2, 3]}), methods=("bad",))
+    with pytest.raises(ValueError, match="at least two numeric"):
+        pairwise_correlation(pd.DataFrame({"x": [1, 2], "label": ["a", "b"]}))
+
+
+def test_correlation_with_target_validates_target_and_methods():
+    df = pd.DataFrame({"x": [1, 2, 3], "y": [2, 3, 4], "label": ["a", "b", "c"]})
+    with pytest.raises(ValueError, match="not in DataFrame"):
+        correlation_with_target(df, target="missing")
+    with pytest.raises(ValueError, match="must be numeric"):
+        correlation_with_target(df, target="label")
+    with pytest.raises(ValueError, match="methods must contain"):
+        correlation_with_target(df, target="y", methods=())
+    with pytest.raises(ValueError, match="subset"):
+        correlation_with_target(df, target="y", methods=("mutual_info",))
+
+
+def test_correlation_skips_constant_and_sparse_features():
+    df = pd.DataFrame(
+        {
+            "constant": [1, 1, 1, 1, 1, 1],
+            "sparse": [1.0, np.nan, np.nan, np.nan, np.nan, 2.0],
+            "x": [1, 2, 3, 4, 5, 6],
+            "y": [2, 4, 6, 8, 10, 12],
+        }
+    )
+
+    pairwise = pairwise_correlation(df, methods=("pearson",), min_observations=3)
+    target = correlation_with_target(
+        df,
+        target="y",
+        candidate_features=["constant", "sparse", "missing", "x"],
+        include_mi=False,
+    )
+
+    assert all("constant" not in {row.x, row.y} for row in pairwise.pairs)
+    assert {row.x for row in target} == {"x"}
+    assert {row.method for row in target} == {"pearson", "spearman"}

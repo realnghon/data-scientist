@@ -94,6 +94,24 @@ def test_fit_classifier_min_class_warning_fires_on_small_class():
     assert any("smallest class" in r.lower() for r in result.recommendations)
 
 
+def test_gradient_boosting_warns_that_class_weight_is_ignored():
+    df = _make_binary_dataset(n=180, seed=11)
+
+    result = fit_classifier(
+        df,
+        target="y",
+        features=["x1", "x2"],
+        method="gradient_boosting",
+        class_weight="balanced",
+        cv_folds=3,
+    )
+
+    assert result.method == "gradient_boosting"
+    assert result.feature_importance is not None
+    assert set(result.feature_importance) == {"x1", "x2"}
+    assert any("does not accept class_weight" in item for item in result.recommendations)
+
+
 def test_tune_threshold_improves_f1_over_default():
     df = _make_binary_dataset(n=400, seed=12)
     # Skew the labels so 0.5 is not optimal for F1.
