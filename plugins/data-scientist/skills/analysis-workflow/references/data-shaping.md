@@ -118,13 +118,15 @@ Mixed grains: if the source has both unit-level and batch-summary rows, split th
 
 ## 5. Joins
 
+🔴 **CHECKPOINT**: 在执行 join 之前，确认 join 类型和验证策略。错误的 join 会导致行数爆炸或数据静默丢失，且难以事后发现。
+
 | Pitfall | Symptom | Fix |
 |---|---|---|
 | 1:N inflation | row count after join > expected | check `merge(..., validate="one_to_one"|"one_to_many"|"many_to_one")`; aggregate the many-side first |
 | time-window join | quality events tied to wrong shift / batch | use `merge_asof` with `tolerance` and `direction` |
 | fuzzy keys | trailing whitespace, casing, type mismatch | normalize keys explicitly: `df["k"] = df["k"].str.strip().str.upper()` and assert dtype equality |
 | many-to-many | combinatorial explosion | pre-aggregate at least one side |
-| left join silently drops | unmatched right side → NaN in critical column | report match rate per join; fail if below threshold |
+| left join silently drops | unmatched right side → NaN in critical column | report match rate per join; fail if below threshold (e.g., <95%) |
 
 ```python
 # Time-window join: align inspection rows to the latest sensor reading <= inspection time

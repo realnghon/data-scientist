@@ -25,17 +25,17 @@ Every chart in any report MUST carry:
 | KDE | Smooth shape, comparing 2-3 distributions | N < 50; heavy ties; bounded support without correction | Bandwidth, N | Oversmoothing real bumps |
 | ECDF | Compare exact quantiles, tail behavior, spec compliance | Audience unfamiliar with cumulative form | Spec lines, quantile markers, N | Treating step plateaus as zero density |
 | Violin | Shape + summary in one, several groups | N < 30 per group; bounded data without trim | Inner box, per-group n | Mirrored kernel implies symmetry that may not exist |
-| Boxplot | Robust summary, outliers, many groups | Need to see modality; very small n | Whisker rule, outlier rule, n per box | Hiding bimodality; comparing boxes of vastly different n without note |
+| Boxplot | Robust summary, outliers, many (>5) groups | Need to see modality; very small n (<10 per group) | Whisker rule, outlier rule, n per box | Hiding bimodality; comparing boxes of vastly different n without note |
 
 ## Intent: Comparison Across Groups
 
 | Chart | Use when | Reject when | Annotation | Common mistakes |
 |---|---|---|---|---|
-| Grouped boxplot | 2-15 groups, numeric Y | >20 groups (use ranked dot-plot); very unequal n without note | Group n, units, reference line | Sorting alphabetically when magnitude-sorted reads better |
+| Grouped boxplot | 2-15 groups, numeric Y | >20 groups (use ranked dot-plot); very unequal n (>5:1 ratio) without note | Group n, units, reference line | Sorting alphabetically when magnitude-sorted reads better |
 | Swarm / strip | Small N per group (5-50), show every point | N > 200 per group (use box+violin); overlapping crush | Jitter amount, n | Hiding overlap with opaque markers |
 | Dot-plot with CI | Compare estimated means/medians/rates across groups | Raw distribution matters more than estimate | CI method, CI level, n | Plotting point estimates without CI |
 | Paired line | Repeated measures on same unit, before/after | Independent groups; >50 lines without alpha | Slope direction legend, n pairs | Reading group mean shift from a paired chart |
-| Forest plot | Many group estimates with CIs, meta-style | Few groups (use dot-plot) | Effect metric, CI level, n | Mixing effect metrics on one axis |
+| Forest plot | Many (>5) group estimates with CIs, meta-style | Few groups (<5) (use dot-plot) | Effect metric, CI level, n | Mixing effect metrics on one axis |
 
 ## Intent: Correlation / Dependency
 

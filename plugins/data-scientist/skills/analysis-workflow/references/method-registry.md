@@ -24,11 +24,11 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 **Primary methods:**
 - 2 numeric groups, unequal/unknown variance → **Welch t-test**.
 - 2 numeric groups, paired → **paired t-test**.
-- 2 numeric groups, small/skewed → **Mann-Whitney U**.
+- 2 numeric groups, small (n<30 per group) / skewed → **Mann-Whitney U**.
 - 3+ numeric groups, balanced variance → **one-way ANOVA**.
 - 3+ numeric groups, unequal variance → **Welch ANOVA**.
 - 3+ numeric/ordinal, non-normal → **Kruskal-Wallis** (+ Dunn post-hoc).
-- Categorical/binary `Y` → **chi-square** (or **Fisher exact** if cells sparse / 2×2 small).
+- Categorical/binary `Y` → **chi-square** (or **Fisher exact** if cells sparse (<5 expected per cell) / 2×2 small (n<20 per cell)).
 
 **Alternatives & rejections:**
 - Student t-test → rejected by default (variance equality unverified); keep as sensitivity check only.
@@ -37,7 +37,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Cross-checks:** non-parametric counterpart for parametric primary (and vice versa); effect size (Cohen's d, Cliff's delta, Cramér's V); pairwise post-hoc when overall test rejects.
 
-**Confidence calibration:** high if primary and cross-check agree in direction *and* effect size is practically meaningful; medium if p-value supports but effect size small; low if disagreement or n<20 per group.
+**Confidence calibration:** high if primary and cross-check agree in direction *and* effect size is practically meaningful (Cohen's d>0.5 or Cliff's delta>0.3); medium if p-value supports but effect size small (d<0.3); low if disagreement or n<20 per group.
 
 **Reusable helper:** `ds_skill.analysis_methods.recommend_group_comparison(df, target, group)` picks the right test from the data shape; `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)` runs it with effect size and a non-parametric cross-check. Charts: `ds_skill.plotting.plot_grouped_boxplot`, `plot_violin`, `plot_dotplot_ci`.
 
