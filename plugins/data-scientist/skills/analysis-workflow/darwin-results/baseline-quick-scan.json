@@ -1,0 +1,252 @@
+[
+  {
+    "component": "report-standard.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 7,
+      "dim3": 6,
+      "dim4": 4,
+      "dim5": 7,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 6
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 8.4,
+      "dim3": 7.2,
+      "dim4": 2.4,
+      "dim5": 11.9,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 3.6
+    },
+    "structure_total": 48.9,
+    "estimated_total": 67.3
+  },
+  {
+    "component": "golden-templates.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 7,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 7,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 3
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 8.4,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 11.9,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 1.8
+    },
+    "structure_total": 50.7,
+    "estimated_total": 69.1
+  },
+  {
+    "component": "chart-catalog.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 7,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 7,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 6
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 8.4,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 11.9,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 3.6
+    },
+    "structure_total": 52.5,
+    "estimated_total": 70.9
+  },
+  {
+    "component": "manufacturing-playbook.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 7,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 7,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 6
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 8.4,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 11.9,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 3.6
+    },
+    "structure_total": 52.5,
+    "estimated_total": 70.9
+  },
+  {
+    "component": "workflow.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 9,
+      "dim3": 9,
+      "dim4": 6,
+      "dim5": 7,
+      "dim6": 10,
+      "dim7": 9,
+      "dim9": 3
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 10.8,
+      "dim3": 10.8,
+      "dim4": 3.6,
+      "dim5": 11.9,
+      "dim6": 4.0,
+      "dim7": 10.8,
+      "dim9": 1.8
+    },
+    "structure_total": 55.1,
+    "estimated_total": 73.5
+  },
+  {
+    "component": "data-readiness.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 9,
+      "dim3": 6,
+      "dim4": 4,
+      "dim5": 9,
+      "dim6": 10,
+      "dim7": 9,
+      "dim9": 6
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 10.8,
+      "dim3": 7.2,
+      "dim4": 2.4,
+      "dim5": 15.3,
+      "dim6": 4.0,
+      "dim7": 10.8,
+      "dim9": 3.6
+    },
+    "structure_total": 55.5,
+    "estimated_total": 73.9
+  },
+  {
+    "component": "method-registry.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 9,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 7,
+      "dim6": 10,
+      "dim7": 9,
+      "dim9": 6
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 10.8,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 11.9,
+      "dim6": 4.0,
+      "dim7": 10.8,
+      "dim9": 3.6
+    },
+    "structure_total": 55.7,
+    "estimated_total": 74.1
+  },
+  {
+    "component": "data-shaping.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 9,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 9,
+      "dim6": 10,
+      "dim7": 9,
+      "dim9": 3
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 10.8,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 15.3,
+      "dim6": 4.0,
+      "dim7": 10.8,
+      "dim9": 1.8
+    },
+    "structure_total": 57.3,
+    "estimated_total": 75.7
+  },
+  {
+    "component": "multi-agent-orchestration.md",
+    "scores": {
+      "dim1": 2,
+      "dim2": 9,
+      "dim3": 9,
+      "dim4": 4,
+      "dim5": 9,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 9
+    },
+    "weighted": {
+      "dim1": 1.4,
+      "dim2": 10.8,
+      "dim3": 10.8,
+      "dim4": 2.4,
+      "dim5": 15.3,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 5.4
+    },
+    "structure_total": 60.1,
+    "estimated_total": 78.5
+  },
+  {
+    "component": "SKILL.md",
+    "scores": {
+      "dim1": 8,
+      "dim2": 9,
+      "dim3": 9,
+      "dim4": 8,
+      "dim5": 9,
+      "dim6": 8,
+      "dim7": 9,
+      "dim9": 9
+    },
+    "weighted": {
+      "dim1": 5.6,
+      "dim2": 10.8,
+      "dim3": 10.8,
+      "dim4": 4.8,
+      "dim5": 15.3,
+      "dim6": 3.2,
+      "dim7": 10.8,
+      "dim9": 5.4
+    },
+    "structure_total": 66.7,
+    "estimated_total": 85.1
+  }
+]
