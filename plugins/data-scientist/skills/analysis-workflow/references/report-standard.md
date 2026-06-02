@@ -1,4 +1,8 @@
-# Report Standard
+---
+name: report-standard
+description: Final report contract defining structure, evidence-citing format, confidence tiers, limitations template. Use when writing deliverable, need section ordering, or report quality checklist. Triggers — write report, deliverable format, report structure.
+---
+
 
 This file defines the strict contract for the final report produced by the data-scientist skill. An agent writing or reviewing a report MUST conform to this contract. Use `assets/report_template.md` as the fill-in skeleton.
 
@@ -125,3 +129,21 @@ This log lives at the bottom of the output or in an appendix; it is not optional
 - Readiness gap categories: `data-readiness.md`.
 - Manufacturing-specific recipes: `manufacturing-playbook.md`.
 - Workflow orchestration: `workflow.md` and `multi-agent-orchestration.md`.
+
+---
+
+## Anti-Patterns — Report Quality Red Flags
+
+🚫 These undermine trust and usability:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Report p-value without effect size** | Significance ≠ magnitude; misleads stakeholders | Always pair p-value with effect size + units + CI |
+| **Bury limitations at end** | Readers miss caveats, over-trust results | Surface limitations visibly in each finding section |
+| **Conclusions without evidence links** | Claims feel subjective, unreproducible | Link every claim to its evidence_matrix entry + chart |
+| **No confidence tiers** | All findings seem equally reliable | Separate `reliable`, `directional`, `unsupported` explicitly |
+| **Jargon without translation** ("p<0.05", "Welch ANOVA") | Non-technical readers lost | Translate: "strong evidence that X differs by Y" |
+| **Charts without N or missing-count** | Hides sparse data, misleading solidity | Annotate every chart with sample size |
+| **Recommendations without next-actions** | Report ends abruptly, unclear what to do | Always end with actionable next steps |
+
+The report is the user-facing artifact — optimize for clarity and trust, not statistical formality.

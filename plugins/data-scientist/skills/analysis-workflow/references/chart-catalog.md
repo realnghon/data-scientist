@@ -1,4 +1,8 @@
-# Chart Catalog
+---
+name: chart-catalog
+description: Chart selection guide indexed by intent (distribution, comparison, relationship, time, composition). Maps each chart type to ds_skill.plotting function. Use when choosing visualization, need chart best practices, or plotting patterns. Triggers — visualize this, what chart to use, how to plot.
+---
+
 
 Index charts by analysis intent. Pick the chart that exposes the evidence; reject decoration. Every chart must carry units, N, missing count, and uncertainty where applicable.
 
@@ -134,3 +138,21 @@ Method groups listed below come from `method-registry.md`. Do not edit that file
 - If the chart shows estimates, the uncertainty must be visible (band, bar, or stated).
 - If groups have widely different n, annotate n directly on the chart.
 - If outliers are removed for visual scale, state the rule and count removed.
+
+---
+
+## Anti-Patterns — Chart Selection Red Flags
+
+🚫 These obscure evidence or mislead:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **3D charts for 2D data** | Perspective distorts perception, harder to read | Use 2D; add color/size if need 3rd dimension |
+| **Pie chart with >5 slices** | Hard to compare angles, clutter | Use horizontal bar chart sorted by value |
+| **Dual-axis with different scales** | Visually manipulates relationship strength | Separate charts or normalize to same scale |
+| **Chart without units on axes** | Reader can't interpret magnitude | Always label axes with units (%, mm, $, count) |
+| **Missing N or missing-count** | Hides sample size, sparse data looks solid | Annotate every chart with N and missing count |
+| **Cherry-picked axis range** | Exaggerates small differences | Start Y-axis at 0 for counts/rates; use full data range |
+| **Decoration over evidence** (excessive grid, 3D effects, clipart) | Distracts from data | Minimize ink; maximize data-ink ratio |
+
+Pick the chart that exposes the evidence; reject decoration.

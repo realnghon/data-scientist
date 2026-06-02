@@ -1,4 +1,8 @@
-# Golden Templates
+---
+name: golden-templates
+description: Fully-specified executable analysis recipes for recurring patterns (yield drop, A/B test, root cause, capability study, MTBF). Use when user goal matches template trigger, need end-to-end workflow, or pre-baked analysis plan. Triggers — yield analysis, A/B test, root cause, Cpk study, recurring pattern.
+---
+
 
 Fully specified, executable analysis recipes. An agent can run these end-to-end without further design work. Each template lists: trigger conditions, required data roles, template-specific readiness checks, methods sequence, charts, output skeleton, and known failure modes.
 
@@ -176,3 +180,19 @@ User has sensor data with timestamps and asks: "find anomalies", "detect when eq
 - Sensor calibration drift mistaken for process drift. Mitigation: include calibration / maintenance event markers in chart; require maintenance log cross-check before flagging.
 - Regime change (e.g. recipe switch) treated as anomaly. Mitigation: segment by regime; refit baselines per segment.
 - Re-fitting control limits on the same data being judged -> circular. Mitigation: hold out a known in-control period for limit calculation.
+
+---
+
+## Anti-Patterns — Template Misuse Red Flags
+
+🚫 These break the template contract:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Force-fit data to template** (missing required fields) | Template assumptions violated, results wrong | Check trigger conditions first; if mismatch, use general workflow |
+| **Skip readiness checks** (template says "run ANOVA" so skip validation) | Template assumes clean data; yours may not be | Always run readiness even with templates; narrow if blocked |
+| **Apply template to wrong domain** (use MFG template on marketing data) | Vocabulary and failure modes don't match | Templates are domain-specific; check applicability first |
+| **Ignore template's rejected alternatives** | Re-introduces methods template already ruled out | Trust the template's method choices; they encode field experience |
+| **Reuse template with stale data roles** | Field meanings changed, template now wrong | Re-validate data_manifest matches template's expected roles |
+
+Templates accelerate known patterns — but you still own quality gates and assumption checks.
