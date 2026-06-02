@@ -64,12 +64,13 @@ Import only the module needed for the current method family. Never `import *` an
 7. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
 8. For complex work, split responsibilities by `references/multi-agent-orchestration.md`.
 9. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code.
-10. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable.
-11. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
+10. **Check for interaction effects and confounding.** When analyzing multiple drivers of a target `Y`, check whether: (a) pairs of features interact (e.g., temperature × equipment_age, where the effect of temperature depends on equipment age); (b) a feature's apparent effect disappears or reverses when controlling for another (Simpson's paradox or confounding). Methods: fit a model with interaction terms, compare coefficients before and after adding suspected confounders, or stratify by levels of a potential confounder. Skip this step only if you have a single predictor or the analysis is purely descriptive.
+11. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable. **Important finding** = any claim where p < 0.05 and the effect size exceeds the minimum practically meaningful threshold (ask the user or use domain defaults: 2% for conversion rates, 0.2 SD for continuous outcomes, 10% relative change for business metrics).
+12. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
 
 ### Shortcut Routing — Skip Stages When The Request Is Narrow
 
-Not every request needs all 11 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
+Not every request needs all 12 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
 
 - **One-off statistic** on an already-profiled column ("mean of X") → answer inline; skip readiness, planning, and critic.
 - **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). 🔴 **CHECKPOINT: If assumptions fail, present the alternative and get confirmation before switching.** Then execute + critic. Never silently run a method whose assumptions are violated.
