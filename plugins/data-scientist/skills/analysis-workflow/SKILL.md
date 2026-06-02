@@ -64,7 +64,7 @@ Import only the module needed for the current method family. Never `import *` an
 7. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
 8. For complex work, split responsibilities by `references/multi-agent-orchestration.md`.
 9. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code.
-10. Cross-check important findings with at least one alternative method when feasible.
+10. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable.
 11. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
 
 ### Shortcut Routing — Skip Stages When The Request Is Narrow
@@ -173,11 +173,11 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 
 ## Safety And Quality
 
-- Do not present statistical significance as business significance. Report effect sizes and practical impact whenever possible.
+- Do not present statistical significance as business significance. Report effect sizes with units, CIs, and practical impact for every estimated effect — a p-value alone is a defect.
 - Do not force a conclusion when data is too sparse, biased, ambiguous, or low quality.
 - Separate `reliable conclusions`, `directional signals`, and `unsupported findings`.
 - Explain method choices and rejected alternatives in plain language.
-- Preserve reproducibility: record transformations, filters, random seeds, and package versions when relevant.
+- Preserve reproducibility: record transformations, filters, random seeds, and package versions for every stochastic or version-sensitive step.
 
 ## Anti-Patterns — Red-Flag Blacklist
 
