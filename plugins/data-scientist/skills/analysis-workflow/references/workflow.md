@@ -44,9 +44,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 4. If `Y` missing in `guided` mode: ask once with ranked candidates + recommendation.
 5. Frame the goal into one purpose: compare groups · explain drivers · detect change · monitor stability · estimate capability · predict/classify · segment · explore.
 
-🔴 **Stop conditions:**
-- File unreadable → return error + data request.
-- No plausible `Y` and user cannot supply one → fall back to `exploratory` mode (profile-only).
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| File unreadable | Try alternate parsers (`.read_csv(encoding='latin1')`, `.read_excel(engine='openpyxl')`) | Ask user for correct format/encoding | Return error + data request template |
+| No plausible `Y` | Scan column names + sample for target keywords (yield, defect, pass, fail) | In `guided` mode, present top-3 candidates for user confirmation | Fall back to `exploratory` mode (profile-only) |
 
 **Parallelization hint:** none. Sequential gate.
 
@@ -66,9 +69,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. If `partial`: list which sub-questions are still answerable and which must be dropped.
 4. If `blocked`: write a concrete data-request artifact (fields, grain, span, target definition).
 
-🔴 **Stop conditions:**
-- Any dimension scored `blocked` with no workaround → emit `readiness_report` with `decision: blocked` and stop downstream stages.
-- `partial` with user mode `auto` → continue with narrowed scope; record narrowing.
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| Any dimension scored `blocked` | Apply narrowing: drop leaked columns, filter to adequate-N subset, restrict time span | Try alternate analysis grain (e.g., daily → weekly aggregation) | Emit `readiness_report` with `decision: blocked`, stop downstream stages, return data request |
+| `partial` in `auto` mode | Continue with narrowed scope, record which sub-questions dropped | Surface limitations in all downstream outputs | In `guided` mode, ask user whether to proceed or stop |
 
 **Parallelization hint:** dimensions are independent — score in parallel (see [multi-agent-orchestration.md](multi-agent-orchestration.md) `parallel_readiness_scan`).
 
@@ -88,9 +94,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. Build one or more **named** analysis views; each carries grain, filters, dropped columns, aggregation rules, leakage check.
 4. Validate post-shape: no 1:N inflation, no future-leaked columns, target preserved.
 
-🔴 **Stop conditions:**
-- Required reshape impossible (no valid join key, grain irreconcilable) → bounce back to Stage 2 with a new data-request.
-- Post-shape sample size collapses below thresholds → narrow scope or stop.
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| Required reshape impossible (no valid join key) | Try fuzzy key matching (normalize whitespace, case, strip suffixes) | Use alternative join strategy (time-window join, nearest-neighbor) | Bounce back to Stage 2 with data request specifying missing join keys |
+| Post-shape sample size collapses (<20 rows) | Relax filters, widen time window, coarsen aggregation grain (daily → weekly) | Present descriptive stats only (no inference) | Narrow scope to profile-only or stop |
 
 **Parallelization hint:** independent views (e.g. group-summary + time-window + raw-row) can be built in parallel.
 
@@ -111,9 +120,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 4. Record **rejected** methods + reason (assumption fail, sample too small, leakage).
 5. Bind each method to its analysis view, chart spec, and confidence-calibration rule.
 
-🔴 **Stop conditions:**
-- No method group fits → return to Stage 1 to re-frame goal.
-- Every candidate method rejected by assumption checks → stop and emit a "method-blocked" note in the report.
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| No method group fits user's question | Decompose question into sub-questions, map each to method-registry purpose | Suggest closest-match method with caveats | Return to Stage 1 to re-frame goal |
+| Every candidate method rejected (assumptions fail) | Try non-parametric alternatives (e.g., Mann-Whitney instead of t-test) | Descriptive stats only (no inference) | Stop and emit "method-blocked" note in report |
 
 **Parallelization hint:** sub-questions are independent — plan in parallel.
 
@@ -135,9 +147,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 5. Save charts and tables with deterministic names (`<view>_<method>_<artifact>`).
 6. Build the `evidence_matrix`: one row per claim with primary, supports, effect, caveats, confidence.
 
-🔴 **Stop conditions:**
-- Primary method errors AND no alternative passes assumptions → mark claim `unsupported`, continue with other claims.
-- Catastrophic data issue surfaces (e.g. all rows drop after a filter) → bounce to Stage 2/3.
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| Primary method errors | Run alternative method from plan (e.g., Welch t-test → Mann-Whitney) | If alternative also fails, run cross-check method for directional signal | Mark claim `unsupported`, record error, continue with other claims |
+| Catastrophic data issue (all rows drop) | Audit filter chain, identify which filter dropped everything | Relax most restrictive filter, re-run Stage 3 shaping | Bounce to Stage 2/3 with diagnostic report |
 
 **Parallelization hint:** independent claims and independent views run in parallel; downstream cross-checks depend on primaries (see [multi-agent-orchestration.md](multi-agent-orchestration.md) `fan_out_methods`).
 
@@ -157,9 +172,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. Downgrade `confidence` labels where warranted; mark unsupported claims.
 4. Propose missing cross-checks or sensitivity tests that should have been run.
 
-🔴 **Stop conditions:**
-- Critic forces re-execution of a sensitivity test → loop back to Stage 5 for that claim only.
-- Critic marks every important claim `unsupported` → escalate to user with a data-request, skip Stage 7's findings section.
+🔴 **Stop conditions (3-level fallback):**
+
+| Trigger | First-line fix | If still blocked | Final fallback |
+|---------|---------------|------------------|----------------|
+| Critic forces re-execution (assumption violation found) | Run sensitivity test (e.g., bootstrap CI, stratified analysis) in Stage 5 | If sensitivity test confirms artifact, downgrade to directional signal | Loop back to Stage 5 for that claim only, mark as conditional |
+| Every important claim marked `unsupported` | Check if relaxing filters/grain in Stage 3 recovers sample size | Run exploratory profile to identify what *can* be answered | Escalate to user with data request, skip Stage 7 findings section |
 
 **Parallelization hint:** claim-by-claim audit is parallelizable; reconciliation is sequential at the end.
 
