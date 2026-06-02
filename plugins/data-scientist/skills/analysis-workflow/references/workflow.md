@@ -33,9 +33,14 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 **Trigger:** new user request OR new data file/path/query arrives.
 
 **Inputs needed:**
-- Raw data pointer (path, query, upload).
-- User text (goal, target metric `Y`, mode hint: `guided` / `auto` / `exploratory`).
-- Output format preference (md, html, pptx, notebook, all).
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `data_pointer` | string | Path, SQL query, or upload reference |
+| `user_goal` | string | User's question / analysis request |
+| `target_y` | string (optional) | Explicitly named target metric |
+| `mode` | enum | `guided` / `auto` / `exploratory` |
+| `output_format` | enum | `md` / `html` / `pptx` / `notebook` / `all` |
 
 **Actions:**
 1. Shallow-scan data (extension, sheet/table list, row count, columns + dtypes, head, random sample). Do **not** full-load huge files.
@@ -53,7 +58,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 
 **Parallelization hint:** none. Sequential gate.
 
-**Outputs:** `data_manifest` (file metadata, columns, dtypes, role candidates, sample) + framed `goal`.
+**Outputs:**
+
+| Artifact | Type | Schema |
+|----------|------|--------|
+| `data_manifest` | JSON | `{file_path, n_rows, n_cols, columns: [{name, dtype, role_candidate, confidence}], sample_rows: [...]}` |
+| `framed_goal` | string | One-sentence restatement mapped to analysis purpose (compare/explain/detect/monitor/predict/segment/explore) |
 
 ---
 
@@ -61,7 +71,12 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 
 **Trigger:** `data_manifest` produced.
 
-**Inputs needed:** `data_manifest`, framed `goal`.
+**Inputs needed:**
+
+| Field | Type | Source |
+|-------|------|--------|
+| `data_manifest` | JSON | Stage 1 output |
+| `framed_goal` | string | Stage 1 output |
 
 **Actions:**
 1. Score each readiness dimension (see [data-readiness.md](data-readiness.md)): sample size, missingness, grain, time coverage, balance, leakage, role clarity, measurement reliability.
