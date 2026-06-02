@@ -151,3 +151,22 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 - Separate `reliable conclusions`, `directional signals`, and `unsupported findings`.
 - Explain method choices and rejected alternatives in plain language.
 - Preserve reproducibility: record transformations, filters, random seeds, and package versions when relevant.
+
+## Anti-Patterns — Red-Flag Blacklist
+
+🚫 These failure modes silently corrupt an analysis. Scan this list before reporting any claim; each maps to a recovery action. If a stakeholder asks for one of these, explain the risk instead of complying silently.
+
+| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+|---|---|---|
+| **Report p-value as business impact** | large N makes trivial effects "significant"; significance ≠ magnitude | pair every p with effect size + units + CI |
+| **Conclude on leaked features** | post-outcome / target-derived `X` inflates accuracy; won't replicate | run the leakage scan (data-readiness dim 6) first; drop offenders |
+| **Force a conclusion on sparse data** | n<5 per cell, >30% missing on `Y`, or constant `Y` → any test is noise | report descriptive-only; route the question to Tier 3 unsupported |
+| **Causal language on observational data** | "X causes Y" needs an experiment or quasi-experiment | use "associated with" / "predicts" / "differs by" unless a causal design exists |
+| **Aggregate away the signal** | group-mean hides Simpson's paradox and station-level failure modes | check within-group before declaring a pooled effect |
+| **Cp/Cpk on an unstable process** | capability on an out-of-control process is a meaningless number | confirm SPC stability first; compute capability on the in-control segment only |
+| **Single method, no cross-check** | one test can fire on an artifact; no triangulation | every Tier-1 claim needs a second method agreeing in direction |
+| **Silently impute `Y`** | inventing the target biases every downstream estimate | never impute `Y`; imputing `X` requires a documented, reported strategy |
+| **Refit control/CV limits on the judged data** | circular — the limits always "fit" | hold out a known in-control window / keep train-test separation |
+| **Pick a method by name or popularity** | impressive ≠ defensible; the data shape decides | choose by purpose + data type + assumption fit (`method-registry.md`) |
+
+When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
