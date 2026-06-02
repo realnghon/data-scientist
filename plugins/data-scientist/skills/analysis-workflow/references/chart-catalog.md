@@ -245,6 +245,30 @@ Not every chart is optional. Certain analysis types MUST produce a core set of c
 - Bivariate scatter (if 2D anomaly detection)
 - Control chart overlay (if time-ordered data)
 
+#### Classifying Anomalies: Sporadic vs Systematic
+
+When anomalies are detected, classify them by pattern to guide action:
+
+**Sporadic (偶发)**:
+- **Pattern**: Isolated points or short bursts (<5 consecutive time points for time series; <5% of group for non-time data)
+- **Timing**: Random, no recurrence pattern
+- **Cause**: Equipment glitch, power spike, one-off human error
+- **Action**: Monitor for recurrence; set real-time alerts
+
+**Systematic (系统性)**:
+- **Pattern**: Prolonged segments (≥10 consecutive hours for hourly data; ≥20% of a time window) or gradual drift
+- **Timing**: Sustained shift or recurring at regular intervals
+- **Cause**: Sensor degradation, calibration drift, process change, seasonal effect
+- **Action**: Preventive maintenance, recalibration, root cause investigation
+
+**Detection method**:
+1. Sort detected anomalies by time (for time series) or group (for categorical data)
+2. Compute consecutive run lengths or cluster density
+3. Label runs ≥10 points (or ≥10% of period length) as systematic
+4. Report both counts: "X sporadic anomalies, Y systematic anomalies spanning Z time units"
+
+Always report durations for systematic anomalies (e.g., "200-hour drift starting at day 30") to prioritize maintenance timing.
+
 ---
 
 ### Enforcement Rule
