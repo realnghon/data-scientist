@@ -12,14 +12,13 @@ Data Scientist is a cross-tool AI plugin for messy structured data analysis. It 
 
 ## Install
 
-In Claude Code:
+One line, auto-detects your runtime:
 
-```text
-/plugin marketplace add realnghon/data-scientist
-/plugin install data-scientist@data-scientist
+```bash
+npx skills add realnghon/data-scientist
 ```
 
-For other tools and local development, see [`../../INSTALL.md`](../../INSTALL.md).
+For per-runtime manual paths (Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, GitHub Copilot, Gemini CLI) and local development, see [`../../INSTALL.md`](../../INSTALL.md). To use the skill as plain reference material without installing, `cat skills/analysis-workflow/SKILL.md` into your agent's context.
 
 ## Core Flow
 
