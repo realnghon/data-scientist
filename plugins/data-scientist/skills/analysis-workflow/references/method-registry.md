@@ -1,3 +1,8 @@
+---
+name: method-registry
+description: Catalog of statistical and ML methods indexed by analysis purpose (group comparison, driver ranking, correlation, time series, A/B test, modeling, survival, SPC). Use when selecting methods, checking assumptions, or finding alternatives. Pick by purpose + data shape + assumption fit, not by method name. Triggers — which method should I use, what are alternatives, why was X rejected, how to cross-check.
+---
+
 # Method Registry
 
 Catalog of method groups, indexed by analysis purpose. Pick by purpose + data shape + assumption fit, **not** by name. Every important claim must record: primary method, cross-check, rejected alternatives + reason, confidence calibration.
@@ -14,7 +19,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** `Y` is numeric / ordinal / categorical / binary; one or more grouping columns; rows independent within groups.
 
-**Reject when:** rows are paired/repeated (use paired or mixed-effects); grain mixes entities; single group only.
+🔴 **Reject when:** rows are paired/repeated (use paired or mixed-effects); grain mixes entities; single group only.
 
 **Primary methods:**
 - 2 numeric groups, unequal/unknown variance → **Welch t-test**.
@@ -44,7 +49,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** numeric or binary `Y`; multiple candidate `X` (mixed types ok); rows independent; `X` measured before or concurrently with `Y`.
 
-**Reject when:** any candidate `X` is computed from `Y` or recorded after `Y` (leakage); n_features ≫ n_rows without regularization; rows are repeated measures of same entity without grouping.
+🔴 **Reject when:** any candidate `X` is computed from `Y` or recorded after `Y` (leakage); n_features ≫ n_rows without regularization; rows are repeated measures of same entity without grouping.
 
 **Primary methods:**
 - Numeric `Y` + numeric `X` set → **Spearman rank correlation table** (default; robust).
@@ -70,7 +75,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** characterizing relationships before modeling; checking redundancy among `X`; sanity-checking a single hypothesis.
 
-**Reject when:** confounding obvious and unaddressed; relationship is causal claim (correlation ≠ causation); time order violated.
+🔴 **Reject when:** confounding obvious and unaddressed; relationship is causal claim (correlation ≠ causation); time order violated.
 
 **Primary methods:**
 - Linear association, no outlier dominance → **Pearson**.
@@ -97,7 +102,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** ordered timestamp; enough span to cover at least 2 cycles for seasonality; consistent sampling cadence (or interpolatable).
 
-**Reject when:** irregular gaps without resampling plan; process mix changes mid-series; aggregated to a grain coarser than the question.
+🔴 **Reject when:** irregular gaps without resampling plan; process mix changes mid-series; aggregated to a grain coarser than the question.
 
 **Primary methods:**
 - Trend → **STL decomposition** (trend + seasonal + remainder) or **Theil-Sen slope** for robustness.
@@ -124,7 +129,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** numeric `Y`; predictors known before `Y`; enough rows per predictor (≥10:1 rule of thumb, more if collinear).
 
-**Reject when:** `Y` is binary/categorical (use classification); strong leakage; n_features ≫ n_rows without regularization.
+🔴 **Reject when:** `Y` is binary/categorical (use classification); strong leakage; n_features ≫ n_rows without regularization.
 
 **Primary methods:**
 - Interpretable effects, few predictors → **OLS linear regression** with full diagnostics.
@@ -150,7 +155,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** discrete outcome; sufficient examples per class; predictors measured before outcome.
 
-**Reject when:** severe class imbalance with n_minority < 30 and no resampling/cost adjustment planned; leakage suspected; near-perfect separation (suggests a leaked target).
+🔴 **Reject when:** severe class imbalance with n_minority < 30 and no resampling/cost adjustment planned; leakage suspected; near-perfect separation (suggests a leaked target).
 
 **Primary methods:**
 - Binary, interpretability needed → **logistic regression** (+ L2).
@@ -177,7 +182,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** investigation candidates needed (not root cause); univariate or multivariate numeric data; enough rows to estimate normal behavior.
 
-**Reject when:** "anomaly" actually means "rare known class" (use supervised classification); features mostly categorical without encoding strategy.
+🔴 **Reject when:** "anomaly" actually means "rare known class" (use supervised classification); features mostly categorical without encoding strategy.
 
 **Primary methods:**
 - Univariate, skewed → **robust z-score (MAD-based)** or **IQR fence**.
@@ -203,7 +208,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** event-time data with some observations censored (event hasn't happened yet by end of window); single event type.
 
-**Reject when:** all events observed (use regression on duration); competing risks unaddressed (need cause-specific models).
+🔴 **Reject when:** all events observed (use regression on duration); competing risks unaddressed (need cause-specific models).
 
 **Primary methods:**
 - Non-parametric survival curve → **Kaplan-Meier** by group.
@@ -229,7 +234,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** ordered measurements; process mix reasonably constant within the window; rational subgrouping possible (for Xbar) or individuals data.
 
-**Reject when:** process mix changes within the chart; measurements are aggregated rates over inconsistent denominators (without using p/u chart); insufficient ordered subgroups for limit estimation (<20 subgroups).
+🔴 **Reject when:** process mix changes within the chart; measurements are aggregated rates over inconsistent denominators (without using p/u chart); insufficient ordered subgroups for limit estimation (<20 subgroups).
 
 **Primary methods:**
 - Continuous individuals → **I-MR chart**.
@@ -257,7 +262,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** explicit intervention/exposure variable; randomization or quasi-randomization; comparable pre-period or control arm.
 
-**Reject when:** sample ratio mismatch unexplained; outcome window leaks back into treatment assignment; novelty effects untested.
+🔴 **Reject when:** sample ratio mismatch unexplained; outcome window leaks back into treatment assignment; novelty effects untested.
 
 **Primary methods:**
 - Sanity → **SRM (sample ratio mismatch) chi-square** before reading the result.
@@ -286,7 +291,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Use when:** small sample, skewed distribution, complex statistic (median ratio, gini, top-decile difference) with no closed-form CI.
 
-**Reject when:** data is heavily dependent (time series, clustered) without block bootstrap; n is so small the bootstrap distribution is degenerate.
+🔴 **Reject when:** data is heavily dependent (time series, clustered) without block bootstrap; n is so small the bootstrap distribution is degenerate.
 
 **Primary methods:**
 - CI for any statistic → **percentile bootstrap** (B ≥ 2000).
@@ -317,3 +322,22 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 6. Is the result actionable for the business?
 
 For every important claim, record: primary, alternative(s), cross-check, **rejected with reason**.
+
+---
+
+## Anti-Patterns — Method Selection Red Flags
+
+🚫 These lead to unreliable or misleading results:
+
+| Anti-pattern | Why it's wrong | Do this instead |
+|---|---|---|
+| **Pick a method by name popularity** ("everyone uses random forest") | Impressive ≠ defensible; data shape and assumptions decide | Use the registry: match purpose + data type + assumption fit first |
+| **Skip assumption checks** (run t-test without checking normality/variance) | Violated assumptions inflate false positives or reduce power | Always check; swap to alternative when assumptions fail (Welch t, Mann-Whitney) |
+| **Single method, no cross-check** | One test can fire on an artifact; no triangulation | Every Tier-1 claim needs a second method agreeing in direction |
+| **Use p-value alone as evidence** | Large N makes trivial effects "significant"; magnitude lost | Always pair p-value with effect size + units + CI |
+| **Apply parametric tests to small/skewed data** (n<20/group, heavy tails) | Parametric CIs assume normality; breaks at low n or skew | Use non-parametric alternative (Mann-Whitney, Kruskal-Wallis, bootstrap CI) |
+| **Force a method when data too sparse** (n<5 per cell, >30% missing on Y) | Any test result is noise, won't replicate | Mark claim `unsupported`; route to descriptive-only or collect more data |
+| **Run multiple tests without FDR correction** | Family-wise error inflates; 1 in 20 tests spuriously significant | Apply BH-FDR adjustment when testing >5 hypotheses (`ds_skill.correlation` does this) |
+| **Choose method by computational ease** ("linear is fast") | Ease ≠ fit; wrong method gives wrong answer fast | Choose by assumptions first; if multiple pass, then pick simpler/faster |
+
+When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
