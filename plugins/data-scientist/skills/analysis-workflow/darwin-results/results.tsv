@@ -1,0 +1,21 @@
+timestamp	commit	component	old_score	new_score	status	dimension	note	eval_mode
+2026-06-02T23:00	baseline	SKILL.md	-	66.4	baseline	-	初始评估	structure_only
+2026-06-02T23:02	baseline	workflow.md	-	60.9	baseline	-	初始评估	structure_only
+2026-06-02T23:03	baseline	multi-agent-orchestration.md	-	63.9	baseline	-	初始评估	structure_only
+2026-06-02T23:04	baseline	method-registry.md	-	60.0	baseline	-	初始评估	structure_only
+2026-06-02T23:05	baseline	data-readiness.md	-	60.9	baseline	-	初始评估	structure_only
+2026-06-02T23:06	baseline	data-shaping.md	-	59.7	baseline	-	初始评估	structure_only
+2026-06-02T23:07	baseline	chart-catalog.md	-	56.1	baseline	-	初始评估	structure_only
+2026-06-02T23:08	baseline	report-standard.md	-	55.5	baseline	-	初始评估	structure_only
+2026-06-02T23:09	baseline	golden-templates.md	-	60.1	baseline	-	初始评估	structure_only
+2026-06-02T23:10	baseline	manufacturing-playbook.md	-	60.7	baseline	-	初始评估	structure_only
+2026-06-02T23:15	b14cf5b	workflow.md	60.9	70.5	keep	Dim1+4+9	+frontmatter +🔴markers +anti-patterns	structure_only
+2026-06-02T23:17	b81a2d6	multi-agent-orchestration.md	63.9	69.3	keep	Dim1+9	+frontmatter +anti-patterns-table	structure_only
+2026-06-02T23:19	a737aed	method-registry.md	60.0	70.2	keep	Dim1+4+9	+frontmatter +🔴reject-markers +anti-patterns	structure_only
+2026-06-02T23:21	07ca9f1	data-readiness.md	60.9	71.1	keep	Dim1+4+9	+frontmatter +🔴gates +anti-patterns	structure_only
+2026-06-02T23:23	1de559e	data-shaping.md	59.7	70.5	keep	Dim1+9	+frontmatter +anti-patterns(8-row)	structure_only
+2026-06-02T23:23	1de559e	chart-catalog.md	56.1	68.9	keep	Dim1+9	+frontmatter +anti-patterns(7-row)	structure_only
+2026-06-02T23:23	1de559e	report-standard.md	55.5	68.7	keep	Dim1+9	+frontmatter +anti-patterns(7-row)	structure_only
+2026-06-02T23:23	1de559e	golden-templates.md	60.1	70.9	keep	Dim1+9	+frontmatter +anti-patterns(5-row)	structure_only
+2026-06-02T23:23	1de559e	manufacturing-playbook.md	60.7	71.5	keep	Dim1+9	+frontmatter +anti-patterns(7-row)	structure_only
+2026-06-02T23:25	2b2e803	SKILL.md	66.4	71.8	keep	Dim4+5	strengthen checkpoints, remove soft language	structure_only
