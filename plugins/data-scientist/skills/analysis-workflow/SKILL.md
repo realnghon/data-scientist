@@ -67,6 +67,25 @@ Import only the module needed for the current method family. Never `import *` an
 10. Cross-check important findings with at least one alternative method when feasible.
 11. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
 
+## Failure Modes & Recovery
+
+When a stage hits a wall, do not abort the whole analysis. Each row is a three-step fallback: try the first-line fix, escalate to the fallback, and only then stop with a concrete ask.
+
+| Trigger condition | First-line fix | If that still fails |
+|---|---|---|
+| **File unreadable / wrong encoding** | retry with explicit encoding + delimiter sniff; sample first 1000 rows | return a data-request naming the format needed; do not invent a manifest |
+| **No plausible target `Y`** | propose ranked candidates from column roles; ask once (guided) | fall back to `exploratory` profile-only mode; report what's needed to define `Y` |
+| **Readiness = blocked** (leakage / sparse / mixed grain) | apply the data-readiness narrowing (drop leaked col, restrict to adequate-N subset) | emit the `data_request` artifact and stop downstream stages — never force a conclusion |
+| **Shaping collapses sample** (post-filter N too small) | loosen the filter or pick a coarser grain that preserves N | bounce to readiness with the new N; narrow the question to what survives |
+| **Join match-rate too low** | normalize keys (strip/case/dtype); try `merge_asof` with tolerance | report per-join match rate; drop the join and analyze sources separately |
+| **Every candidate method rejected** | swap to the non-parametric / robust alternative in `method-registry.md` | emit a "method-blocked" note; never run a method whose assumptions fail |
+| **Primary method errors at runtime** | run the registered alternative for that claim | mark the claim `unsupported`, keep other claims; record the failure, don't abort |
+| **Primary and cross-check disagree** | reconcile (confound, Simpson, sample diff) | downgrade to directional signal with the disagreement stated; never silently pick one |
+| **Helper import fails** (`ds_skill` off path) | run the `sys.path` bootstrap in "Make the helpers importable" | fall back to task-specific code and say so; don't skip the analysis |
+| **Charts unavailable** (matplotlib/seaborn missing) | `pip install matplotlib seaborn` or `pip install -e ".[viz]"` | deliver text + tables, note charts were skipped and why |
+
+Stage-to-stage bounces (readiness ↔ shaping, planner → reframe, critic → re-run one claim) are spelled out in `references/workflow.md` → "Loops And Bounces". Loop only the affected stage; never restart from intake.
+
 ## Required Artifacts
 
 For non-trivial analyses, create or summarize these artifacts:
