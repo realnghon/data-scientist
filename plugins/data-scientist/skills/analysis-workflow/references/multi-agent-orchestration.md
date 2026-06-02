@@ -1,3 +1,8 @@
+---
+name: multi-agent-orchestration
+description: Multi-agent dispatch patterns for 7-stage pipeline across Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, Copilot, Gemini CLI. Use when spawning sub-agents, need parallelization rules, state-passing contracts, or per-platform dispatch differences. Triggers — how to orchestrate stages, when to parallelize, how state flows between agents, platform-specific patterns.
+---
+
 # Multi-Agent Orchestration
 
 Operator's manual for running the 7-stage data-science pipeline across Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, GitHub Copilot, and Gemini CLI. The pipeline is: `intake → readiness → shaping → method-planner → execution → critic → report`. Each stage is a sub-agent prompt under `plugins/data-scientist/agents/`. This document tells the parent (main) agent WHEN to spawn each one, which can run in parallel where supported, and how state flows between them.
@@ -268,13 +273,18 @@ Parent dispatches `ds-report-agent` with the full carry_forward and `output_path
 - **Intake reports unreadable source**: stop and ask the user. Do not invent a manifest entry.
 - **Critic itself disagrees with the planner's method choice**: it returns a `recommended_revision` with `target_stage: "method-planner"`. The parent re-runs the planner with `prior_critique` populated, then re-executes only the changed methods.
 
-## Section 7: Anti-patterns
+## Section 7: Anti-Patterns — What NOT To Do
 
-- Do not spawn agents for trivial one-step queries (e.g. "what's the mean of column X" on a profiled dataset). Inline answer.
-- Do not fan out before readiness confirms — running shaping or execution on data that readiness later blocks wastes compute and risks user confusion.
-- Do not run the critic before at least one method has produced evidence; it has nothing to evaluate.
-- Do not let execution agents pick their own methods. The planner owns method choice. If an execution agent reports the method cannot run, it returns `failed` — the parent decides whether to replan.
-- Do not run the report stage on a `needs_revision` from the critic. Always close the loop first.
-- Do not dispatch parallel agents that share the same output path. Namespace by `method_id` or `view.name`.
-- Do not drop `carry_forward` between stages. The state envelope is the canonical pipeline memory.
-- Do not invoke shaping in parallel for views that share intermediate state (e.g. one view depends on another's aggregation). Sequence those instead.
+🚫 These break the orchestration contract:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Spawn agents for trivial one-step queries** ("mean of column X" on profiled data) | Wastes agent overhead on inline-answerable questions | Inline answer; reserve agents for multi-stage or ambiguous work |
+| **Fan out before readiness confirms** | Running shaping/execution on data readiness later blocks wastes compute and confuses user | Gate all downstream stages on `readiness_report.decision: ok/partial` |
+| **Run critic before any method produces evidence** | Critic has nothing to evaluate, returns empty or errors | Wait for at least one execution agent to populate evidence_matrix |
+| **Let execution agents pick their own methods** | Planner's rejected alternatives resurface, assumptions ignored | Planner owns method choice; execution only runs assigned methods from the plan |
+| **Run report on critic's `needs_revision`** | Surfaces unreviewed or wrong results | Always close the loop: re-run target_stage, re-invoke critic, then report |
+| **Dispatch parallel agents sharing same output path** | File collisions, race conditions, corrupted results | Namespace by `method_id` or `view.name` (e.g. `results/m1/`, `results/m2/`) |
+| **Drop carry_forward between stages** | Downstream stages lose context, must re-derive state | Thread full carry_forward envelope through every dispatch |
+| **Parallelize views with shared intermediate state** | One view depends on another's aggregation not yet finished | Sequence those views; only parallelize truly independent views |
+

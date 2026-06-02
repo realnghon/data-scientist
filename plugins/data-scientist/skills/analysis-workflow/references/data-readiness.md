@@ -1,4 +1,8 @@
-# Data Readiness
+---
+name: data-readiness
+description: 8-dimension data quality scorecard (sample size, missingness, grain, time coverage, balance, leakage, role clarity, measurement reliability) run before analysis. Use when need to gate downstream stages, narrow scope, or emit data-request. Triggers — is data good enough, what's missing, can we analyze this, readiness check.
+---
+
 
 Score the data **before** running methods. Output a structured `readiness_report` so downstream stages (shaping, method planning, critic) can react. See [workflow.md](workflow.md) Stage 2.
 
@@ -192,3 +196,22 @@ The critic stage (see [workflow.md](workflow.md) Stage 6) re-reads `readiness_re
 - Verify every `partial` caveat actually appears next to the matching claim in the final report.
 - Reject any conclusion that relied on a blocked-then-narrowed dimension without disclosure.
 - Trigger sensitivity tests when readiness is borderline (e.g. min per-cell n in the 10–29 partial band).
+
+---
+
+## Anti-Patterns — Data Readiness Red Flags
+
+🚫 These bypass quality gates and corrupt downstream results:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Skip readiness, go straight to methods** | Quality issues surface mid-analysis after wasted work | Always run readiness first; gate all downstream on `decision: ok/partial` |
+| **Force analysis on blocked readiness** | Sparse/leaked/mixed-grain data produces unreliable results | Stop at readiness, emit `data_request`, do not proceed to shaping/methods |
+| **Ignore leakage warnings** (Dim 6: post-outcome fields in X) | Inflates accuracy, won't replicate on new data | Drop leaked columns before any modeling; re-run readiness |
+| **Aggregate away grain issues** (Dim 3: mixing entity-level and batch-level) | Simpson's paradox hides; pooled result misleading | Reshape to uniform grain first (data-shaping.md); or analyze grains separately |
+| **Proceed with <5 samples per cell** | Any statistical test result is noise | Narrow scope to adequate-N subset, or mark claim `unsupported` |
+| **Impute target Y** | Inventing the outcome biases every estimate | Never impute Y; imputing X requires documented, reported strategy |
+| **Ignore balance warnings** (Dim 5: 10:1 group imbalance) | Majority class dominates; minority effects lost | Stratify analysis, or note the imbalance as a limitation |
+| **Run readiness once, reuse for changed data** | New data may have new quality issues | Re-run readiness when data sources or filters change |
+
+When readiness blocks, the correct action is **stop and ask for better data**, not **force a conclusion anyway**.

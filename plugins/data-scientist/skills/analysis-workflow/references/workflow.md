@@ -1,3 +1,8 @@
+---
+name: workflow
+description: 7-stage decision-tree workflow for data analysis (intake → readiness → shaping → method-planner → execution → critic → report). Use when need canonical pipeline structure, stage dependencies, parallelization patterns, or stage-to-stage contracts. Triggers — what's the process, how do stages connect, when can I parallelize, what are the loops.
+---
+
 # Workflow
 
 Decision-tree workflow for messy structured data analysis. Each stage is a node: enter on **Trigger**, leave on **Outputs** or **Stop conditions**. Stages are owned by the matching `ds-*-agent` (see [multi-agent-orchestration.md](multi-agent-orchestration.md)).
@@ -25,7 +30,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 4. If `Y` missing in `guided` mode: ask once with ranked candidates + recommendation.
 5. Frame the goal into one purpose: compare groups · explain drivers · detect change · monitor stability · estimate capability · predict/classify · segment · explore.
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - File unreadable → return error + data request.
 - No plausible `Y` and user cannot supply one → fall back to `exploratory` mode (profile-only).
 
@@ -47,7 +52,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. If `partial`: list which sub-questions are still answerable and which must be dropped.
 4. If `blocked`: write a concrete data-request artifact (fields, grain, span, target definition).
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - Any dimension scored `blocked` with no workaround → emit `readiness_report` with `decision: blocked` and stop downstream stages.
 - `partial` with user mode `auto` → continue with narrowed scope; record narrowing.
 
@@ -69,7 +74,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. Build one or more **named** analysis views; each carries grain, filters, dropped columns, aggregation rules, leakage check.
 4. Validate post-shape: no 1:N inflation, no future-leaked columns, target preserved.
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - Required reshape impossible (no valid join key, grain irreconcilable) → bounce back to Stage 2 with a new data-request.
 - Post-shape sample size collapses below thresholds → narrow scope or stop.
 
@@ -92,7 +97,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 4. Record **rejected** methods + reason (assumption fail, sample too small, leakage).
 5. Bind each method to its analysis view, chart spec, and confidence-calibration rule.
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - No method group fits → return to Stage 1 to re-frame goal.
 - Every candidate method rejected by assumption checks → stop and emit a "method-blocked" note in the report.
 
@@ -116,7 +121,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 5. Save charts and tables with deterministic names (`<view>_<method>_<artifact>`).
 6. Build the `evidence_matrix`: one row per claim with primary, supports, effect, caveats, confidence.
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - Primary method errors AND no alternative passes assumptions → mark claim `unsupported`, continue with other claims.
 - Catastrophic data issue surfaces (e.g. all rows drop after a filter) → bounce to Stage 2/3.
 
@@ -138,7 +143,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. Downgrade `confidence` labels where warranted; mark unsupported claims.
 4. Propose missing cross-checks or sensitivity tests that should have been run.
 
-**Stop conditions:**
+🔴 **Stop conditions:**
 - Critic forces re-execution of a sensitivity test → loop back to Stage 5 for that claim only.
 - Critic marks every important claim `unsupported` → escalate to user with a data-request, skip Stage 7's findings section.
 
@@ -160,7 +165,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 3. Emit in user-requested formats (md/html/pptx/notebook).
 4. Link every chart and table back to its claim in `evidence_matrix`.
 
-**Stop conditions:** none — final stage. Errors here are formatting bugs, not analytical.
+🔴 **Stop conditions:** none — final stage. Errors here are formatting bugs, not analytical.
 
 **Parallelization hint:** format renderers (md, html, pptx) run in parallel.
 
@@ -188,3 +193,20 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 - Stage 3 → Stage 2: post-shape sample collapse triggers new readiness check.
 - Stage 4 → Stage 1: no method fits → re-frame goal with user.
 - Any stage → user: ask once when blocked in `guided` mode; in `auto`, narrow and document.
+
+---
+
+## Anti-Patterns — What NOT To Do
+
+🚫 These break the workflow contract. Each maps to a recovery action.
+
+| Anti-pattern | Why it breaks the workflow | Do this instead |
+|---|---|---|
+| **Skip readiness, go straight to shaping** | Data quality issues surface too late after wasted shaping work | Always run readiness first; gate shaping on `decision: ok/partial` |
+| **Run methods before analysis_plan approved** | Executes wrong methods, wastes compute, confuses user | Wait for Stage 4 output; in guided mode block until user confirms plan |
+| **Drop carry_forward between stages** | Downstream stages lose context, must re-derive state from scratch | Thread full carry_forward envelope through every stage dispatch |
+| **Re-run full pipeline for single claim fix** | Wastes time re-executing unchanged stages | Use targeted loops: Stage 6→5 for one claim, Stage 3→2 for grain issues only |
+| **Force conclusions when readiness blocked** | Produces unreliable results that won't replicate | Stop at Stage 2, emit data_request artifact, do not proceed to Stage 3 |
+| **Parallelize stages with sequential dependencies** | Later stage starts before input ready, crashes or uses stale data | Respect the dependency graph: readiness must finish before any shaping starts |
+| **Let execution agents pick their own methods** | Planner's rejected alternatives resurface, assumptions ignored | Planner owns method choice; execution only runs assigned methods from the plan |
+
