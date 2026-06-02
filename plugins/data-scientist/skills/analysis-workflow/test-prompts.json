@@ -13,5 +13,15 @@
     "id": 3,
     "prompt": "用 t-test 帮我比较一下两个批次（batch_A vs batch_B）的 yield_pct 有没有显著差异。数据在 batches.parquet 里。",
     "expected": "用户明确指出单一方法 t-test → 跳过 Stage 4 方法规划（method fixed），但保留 readiness+shaping+execution+critic+report 流程"
+  },
+  {
+    "id": 4,
+    "prompt": "分析这个 orders.csv 的销售趋势，目标列是 revenue。但数据有 45% 的 revenue 缺失，customer_id 有重复，order_date 格式不一致。",
+    "expected": "触发失败模式处理：readiness 检测到稀疏性问题（>30% missing on Y）→ 应用 data-readiness narrowing 或直接 emit data_request → 不强制得出结论，而是报告需要什么数据才能分析"
+  },
+  {
+    "id": 5,
+    "prompt": "用 t-test 比较 group_A 和 group_B 的 response_time。数据在 experiment.csv，但我发现方差非常不齐（Levene test p<0.001），而且数据严重右偏。",
+    "expected": "用户指定 t-test 但假设不满足 → 应检查假设（方差齐性、正态性）→ 检测到违反后提供 registry alternative（Welch t-test 或 Mann-Whitney）→ 在 report 中说明为何不用原始 t-test"
   }
 ]

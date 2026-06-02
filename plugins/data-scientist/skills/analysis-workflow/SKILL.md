@@ -9,11 +9,11 @@ Use this skill as an analysis decision system, not as a fixed pipeline. The agen
 
 ## Operating Modes
 
-- `guided` is the default. Proceed automatically, but ask the user for high-impact decisions when confidence is low.
-- `auto` is for known, repeatable analyses or golden templates. Ask only if blocked.
-- `exploratory` is for unknown datasets. Prioritize data understanding, readiness, and an analysis plan before making strong claims.
+- `guided` is the default. Proceed automatically, but stop at checkpoints (🔴) for user confirmation on high-impact decisions.
+- `auto` is for known, repeatable analyses or golden templates. Stop only if blocked.
+- `exploratory` is for unknown datasets. Run data understanding and readiness first; defer method selection until data quality confirmed.
 
-Ask the user no more than 5 questions in one analysis run. Each question must include the evidence, the recommended answer, and the consequence of choosing it.
+Stop at a checkpoint maximum 5 times per analysis run. Each checkpoint must include: the evidence, the recommended choice, and the consequence of that choice.
 
 ## References — Lazy Load Map
 
@@ -57,7 +57,7 @@ Import only the module needed for the current method family. Never `import *` an
 
 1. Read `references/workflow.md`.
 2. Ingest only enough data to understand structure first: filenames, sheets, columns, row counts, dtypes, and sample rows. For large files, profile with sampling before full reads.
-3. If the user did not provide a target metric `Y`, propose candidate targets and ask for confirmation.
+3. 🔴 **If the user did not provide a target metric `Y`, propose candidate targets and ask for confirmation before proceeding.**
 4. Build a data profile and readiness assessment before analysis. Use `references/data-readiness.md`.
 5. Identify whether the data must be reshaped, pivoted, aggregated, or converted to an analysis view. Use `references/data-shaping.md`.
 6. Choose methods by analysis purpose, not by method name. Use `references/method-registry.md`.
@@ -72,7 +72,7 @@ Import only the module needed for the current method family. Never `import *` an
 Not every request needs all 11 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
 
 - **One-off statistic** on an already-profiled column ("mean of X") → answer inline; skip readiness, planning, and critic.
-- **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). Then execute + critic. Never silently run a method whose assumptions are violated.
+- **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). 🔴 **CHECKPOINT: If assumptions fail, present the alternative and get confirmation before switching.** Then execute + critic. Never silently run a method whose assumptions are violated.
 - **Profile-only** ("just profile this") → run intake + readiness, emit `data_manifest` + `readiness_report`, then stop before method planning — no claims, so no critic.
 
 ## Failure Modes & Recovery
