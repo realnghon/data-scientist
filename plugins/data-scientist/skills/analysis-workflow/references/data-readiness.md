@@ -99,6 +99,8 @@ Confirm:
 - Candidate `X` set is plausible and non-trivial (> 0 fields after leakage check).
 - Time, entity, group columns are typed correctly.
 
+🔴 **CHECKPOINT**: 如果 `Y` 不明确或有多个候选项，必须在 guided mode 中让用户确认。选错 `Y` 会导致整个分析方向错误。
+
 | Signal | Score |
 |---|---|
 | all roles confident, evidence in column names + dtypes + sample | ok |
