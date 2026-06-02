@@ -22,44 +22,46 @@
 
 | 组件 | Before | After | Δ | 主要改进 |
 |------|--------|-------|---|---------|
-| workflow.md | 60.9 | 70.5 | **+9.6** | frontmatter, 🔴标记, 7-row 反例表 |
-| multi-agent-orchestration.md | 63.9 | 69.3 | **+5.4** | frontmatter, 8-row 反例表 |
+| workflow.md | 60.9 | 69.9 | **+9.0** | frontmatter, 🔴标记, 7-row 反例表 |
+| multi-agent-orchestration.md | 63.9 | 68.7 | **+4.8** | frontmatter, 8-row 反例表 |
 | method-registry.md | 60.0 | 70.2 | **+10.2** | frontmatter, 🔴reject标记, 8-row 反例表 |
-| data-readiness.md | 60.9 | 71.1 | **+10.2** | frontmatter, 🔴gates标记, 8-row 反例表 |
-| data-shaping.md | 59.7 | 70.5 | **+10.8** | frontmatter, 8-row 反例表 |
+| data-readiness.md | 60.9 | 70.5 | **+9.6** | frontmatter, 🔴gates标记, 8-row 反例表 |
+| data-shaping.md | 59.7 | 67.5 | **+7.8** | frontmatter, 8-row 反例表 |
 
-**P0 平均**: 61.1 → 70.3 (**+9.2**)
+**P0 平均**: 61.1 → 69.4 (**+8.3**)
 
 ### P1 专项 References（4个）
 
 | 组件 | Before | After | Δ | 主要改进 |
 |------|--------|-------|---|---------|
-| chart-catalog.md | 56.1 | 68.9 | **+12.8** | frontmatter, 7-row 反例表 |
-| report-standard.md | 55.5 | 68.7 | **+13.2** | frontmatter, 7-row 反例表 |
-| golden-templates.md | 60.1 | 70.9 | **+10.8** | frontmatter, 5-row 反例表 |
-| manufacturing-playbook.md | 60.7 | 71.5 | **+10.8** | frontmatter, 7-row 反例表 |
+| chart-catalog.md | 56.1 | 63.9 | **+7.8** | frontmatter, 7-row 反例表 |
+| report-standard.md | 55.5 | 63.3 | **+7.8** | frontmatter, 7-row 反例表 |
+| golden-templates.md | 60.1 | 67.9 | **+7.8** | frontmatter, 5-row 反例表 |
+| manufacturing-playbook.md | 60.7 | 68.5 | **+7.8** | frontmatter, 7-row 反例表 |
 
-**P1 平均**: 58.1 → 70.0 (**+11.9**)
+**P1 平均**: 58.1 → 65.9 (**+7.8**)
 
 ### 核心 Skill（1个）
 
 | 组件 | Before | After | Δ | 主要改进 |
 |------|--------|-------|---|---------|
-| SKILL.md | 66.4 | 71.8 | **+5.4** | 强化检查点, 去除软化措辞 |
+| SKILL.md | 66.4 | 68.7 | **+2.3** | 强化检查点, 去除软化措辞 |
 
 ---
 
 ## 整体统计
 
-**总分提升**: 
+**总分提升** (重新评估后的实际数据):
 - Before: 604.2 / 710 (85.1%)
-- After: 702.4 / 710 (98.9%)
-- **Δ: +98.2 分 (+13.8%)**
+- After: 679.0 / 710 (95.6%)
+- **Δ: +74.8 分 (+10.5%)**
 
 **平均分变化**:
 - Before: 60.4 / 71 per file
-- After: 70.2 / 71 per file
-- **Δ: +9.8 分 per file**
+- After: 67.9 / 71 per file
+- **Δ: +7.5 分 per file**
+
+**注**: 初始预估为 +98.2 分，实际验证后修正为 +74.8 分。差异原因见 POST_OPTIMIZATION_EVAL.md。
 
 ---
 
@@ -156,16 +158,16 @@ b14cf5b optimize workflow.md: +frontmatter +🔴checkpoint-markers +anti-pattern
 | 改进项 | 投入成本 | 收益 | ROI |
 |--------|---------|------|-----|
 | 添加 frontmatter (9 files) | 30 分钟 | +37.8 分 | **75.6 分/小时** |
-| 添加 🔴 检查点标记 (10 files) | 20 分钟 | +18.6 分 | **55.8 分/小时** |
-| 添加反例黑名单表 (10 files) | 60 分钟 | +28.8 分 | **28.8 分/小时** |
+| 添加 🔴 检查点标记 (10 files) | 20 分钟 | +8.4 分 | **25.2 分/小时** |
+| 添加反例黑名单表 (10 files) | 60 分钟 | +27.0 分 | **27.0 分/小时** |
 
 **总投入**: ~110 分钟（1.8 小时）  
-**总收益**: +98.2 分  
-**整体 ROI**: **54.6 分/小时**
+**总收益**: +74.8 分（实际验证）  
+**整体 ROI**: **41.6 分/小时**
 
 ### 质量提升指标
 
-- **结构完整性**: 85.1% → 98.9% (**+13.8%**)
+- **结构完整性**: 85.1% → 95.6% (**+10.5%**)
 - **失败模式覆盖**: 所有 10 个文件都有失败处理和反例黑名单
 - **检查点可见性**: 从隐式提及 → 显性 🔴/🛑 标记
 - **文档可发现性**: 9 个 references 从无元信息 → 有完整 frontmatter
@@ -197,10 +199,15 @@ b14cf5b optimize workflow.md: +frontmatter +🔴checkpoint-markers +anti-pattern
 
 ✅ **优化成功**
 
-- 10 个核心文件全部改进，平均提升 **9.8 分/文件**
-- 结构质量从 85.1% → **98.9%**（接近满分）
+- 10 个核心文件全部改进，平均提升 **7.5 分/文件**
+- 结构质量从 85.1% → **95.6%**（接近满分）
 - 所有改进已保留（0 次回滚）
-- Git 历史清晰（7 个 commits，每个都有分数追踪）
+- Git 历史清晰（8 个 commits，每个都有分数追踪）
+
+**实际效果验证**:
+- 初始预估: +98.2 分（乐观估计）
+- 实际验证: +74.8 分（重新评估后的保守估计）
+- 差异原因: 初始评估时部分维度打分偏乐观，详见 POST_OPTIMIZATION_EVAL.md
 
 **建议下一步**:
 1. ✅ 合并分支到 main（所有优化已验证）
