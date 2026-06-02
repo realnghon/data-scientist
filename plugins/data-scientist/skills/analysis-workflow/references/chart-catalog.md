@@ -162,3 +162,96 @@ Method groups listed below come from `method-registry.md`. Do not edit that file
 | **Color without legend** | Reader can't decode color meaning | Always include legend or direct labels on chart elements |
 
 Pick the chart that exposes the evidence; reject decoration.
+
+---
+
+## Minimum Required Charts by Analysis Type
+
+Not every chart is optional. Certain analysis types MUST produce a core set of charts to be considered complete. This section defines the **minimum chart set** for common analysis types.
+
+### A/B Test Analysis
+
+**Required (3 minimum)**:
+1. **Conversion rate comparison with CI** — Dot plot showing control vs treatment rates with error bars (Wilson score CI). Annotate absolute lift and relative lift.
+2. **Sample size check** — Bar chart showing arm sizes. Include expected 50:50 line if randomized.
+3. **Revenue distribution by arm** (if revenue is measured) — Grouped boxplot or violin plot comparing revenue distributions. Include median, IQR, and per-arm N.
+
+**Optional but recommended**:
+- Funnel chart showing drop-off at each stage (if multi-step conversion)
+- Time-series of daily conversion rates by arm (if duration > 7 days)
+
+### Driver Ranking / Correlation Analysis
+
+**Required (2 minimum)**:
+1. **Correlation heatmap** — Show all numeric features vs target. Mask non-significant cells (post-FDR correction). Annotate method (Pearson/Spearman) and N.
+2. **Top drivers chart** — Horizontal bar chart of top 5-10 features by |correlation| or standardized coefficient. Include uncertainty (CI or SE bars).
+
+**Optional but recommended**:
+- Scatter plots for top 3 drivers vs target (with fit line and R²)
+- Pair plot if dimensionality ≤ 6 and exploratory analysis requested
+
+### Regression / Prediction Modeling
+
+**Required (4 minimum)**:
+1. **Actual vs Predicted scatter** — Y-axis = actual, X-axis = predicted. Include y=x reference line, R², and RMSE.
+2. **Residuals vs Fitted** — Check homoscedasticity. Flag patterns indicating non-linearity or heteroscedasticity.
+3. **Residuals Q-Q plot** — Check normality assumption. Include reference line.
+4. **Feature importance** — Bar chart of standardized coefficients (linear) or permutation importance (tree-based). Include sign and magnitude.
+
+**Optional but recommended**:
+- Residuals by group (if categorical features exist)
+- Learning curve (train vs validation score by sample size) if overfitting suspected
+
+### Time Series Analysis
+
+**Required (3 minimum)**:
+1. **Raw time series line plot** — Show original data with any detected change-points or anomalies overlaid. Include N, frequency, and missing periods.
+2. **Seasonal decomposition** — STL or similar showing trend, seasonal, and residual components. Annotate period and method.
+3. **Autocorrelation (ACF) plot** — Show lag structure up to lag 40 or 2 periods, whichever is shorter. Include significance bands.
+
+**Optional but recommended**:
+- Forecast with prediction interval (if forecasting requested)
+- Rolling mean/std to show variance stability
+- Calendar heatmap for daily/hourly patterns
+
+### Manufacturing / SPC Analysis
+
+**Required (3 minimum)**:
+1. **Control chart** — I-MR, X-bar/R, p-chart, or c-chart depending on data type. Include UCL/LCL, center line, out-of-control points flagged with rule number.
+2. **Capability histogram** — Show process distribution overlaid with spec limits (LSL/USL) and normal curve. Annotate Cp, Cpk, and % out-of-spec.
+3. **Pareto chart** — Rank defect types or root causes. Include cumulative % line and 80% reference.
+
+**Optional but recommended**:
+- Box plot by operator / line / shift (if categorical factors present)
+- Run chart (chronological order without control limits) if process is evolving
+
+### Root Cause / Group Comparison
+
+**Required (2 minimum)**:
+1. **Grouped box/violin plot** — Show target variable (Y) by suspected driver groups. Include per-group N, median, and F-statistic or p-value from ANOVA/Kruskal-Wallis.
+2. **Effect size with CI** — Dot plot showing mean difference (or median difference) between groups with 95% CI. Include practical significance threshold line.
+
+**Optional but recommended**:
+- Interaction plot if two categorical factors suspected to interact
+- Paired line chart if repeated measures (before/after)
+
+### Anomaly Detection
+
+**Required (2 minimum)**:
+1. **Scatter or time series with flagged anomalies** — Show original data with detected anomalies highlighted. Annotate detection method, threshold, and count flagged.
+2. **Score distribution** — Histogram of anomaly scores (e.g., IsolationForest score). Show threshold cutoff and % flagged.
+
+**Optional but recommended**:
+- Bivariate scatter (if 2D anomaly detection)
+- Control chart overlay (if time-ordered data)
+
+---
+
+### Enforcement Rule
+
+When completing an analysis, cross-check the **Required** charts for the analysis type. If any are missing, explain why they were skipped (e.g., "control chart skipped because process is non-stationary") or produce them before finalizing the report.
+
+**Default**: If unsure which analysis type fits, produce at minimum:
+1. Distribution of target variable (histogram or boxplot)
+2. Top 3 relationships (scatter or grouped comparison)
+3. One diagnostic chart (residuals, control chart, or Q-Q plot depending on method used)
