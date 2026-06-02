@@ -13,6 +13,22 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 ---
 
+## Table of Contents
+
+1. [Group Comparison](#1-group-comparison) — does Y differ across groups?
+2. [Driver Ranking / Feature Importance](#2-driver-ranking--feature-importance) — which X drives Y?
+3. [Correlation / Pairwise Association](#3-correlation--pairwise-association) — relationship strength
+4. [Time Series — Trend, Seasonality, Change, Anomaly](#4-time-series--trend-seasonality-change-anomaly)
+5. [Hypothesis Tests — A/B, Experiments, NHST](#5-hypothesis-tests--ab-experiments-nhst)
+6. [Regression Modeling — Continuous Y](#6-regression-modeling--continuous-y)
+7. [Classification Modeling — Categorical Y](#7-classification-modeling--categorical-y)
+8. [Survival / Censored-Time Analysis](#8-survival--censored-time-analysis)
+9. [Process Control — SPC, Capability](#9-process-control--spc-capability)
+10. [Exploratory — Quick Scans Before Method Selection](#10-exploratory--quick-scans-before-method-selection)
+11. [Method Selection Decision Tree](#method-selection-decision-tree)
+
+---
+
 ## 1. Group Comparison
 
 **Purpose:** Does `Y` differ by machine, line, batch, shift, supplier, recipe, time bucket?
@@ -24,11 +40,11 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 **Primary methods:**
 - 2 numeric groups, unequal/unknown variance → **Welch t-test**.
 - 2 numeric groups, paired → **paired t-test**.
-- 2 numeric groups, small/skewed → **Mann-Whitney U**.
+- 2 numeric groups, small (n<30 per group) / skewed → **Mann-Whitney U**.
 - 3+ numeric groups, balanced variance → **one-way ANOVA**.
 - 3+ numeric groups, unequal variance → **Welch ANOVA**.
 - 3+ numeric/ordinal, non-normal → **Kruskal-Wallis** (+ Dunn post-hoc).
-- Categorical/binary `Y` → **chi-square** (or **Fisher exact** if cells sparse / 2×2 small).
+- Categorical/binary `Y` → **chi-square** (or **Fisher exact** if cells sparse (<5 expected per cell) / 2×2 small (n<20 per cell)).
 
 **Alternatives & rejections:**
 - Student t-test → rejected by default (variance equality unverified); keep as sensitivity check only.
@@ -37,7 +53,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Cross-checks:** non-parametric counterpart for parametric primary (and vice versa); effect size (Cohen's d, Cliff's delta, Cramér's V); pairwise post-hoc when overall test rejects.
 
-**Confidence calibration:** high if primary and cross-check agree in direction *and* effect size is practically meaningful; medium if p-value supports but effect size small; low if disagreement or n<20 per group.
+**Confidence calibration:** high if primary and cross-check agree in direction *and* effect size is practically meaningful (Cohen's d>0.5 or Cliff's delta>0.3); medium if p-value supports but effect size small (d<0.3); low if disagreement or n<20 per group.
 
 **Reusable helper:** `ds_skill.analysis_methods.recommend_group_comparison(df, target, group)` picks the right test from the data shape; `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)` runs it with effect size and a non-parametric cross-check. Charts: `ds_skill.plotting.plot_grouped_boxplot`, `plot_violin`, `plot_dotplot_ci`.
 

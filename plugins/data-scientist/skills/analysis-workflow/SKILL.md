@@ -42,7 +42,7 @@ Import only the module needed for the current method family. Never `import *` an
 | `ds_skill.correlation` | Ranking drivers; checking pairwise relationships; need Pearson/Spearman/Kendall/MI; need FDR control across many features. | Only one candidate driver; relationships already established. |
 | `ds_skill.anomaly` | Detecting outliers; univariate (IQR/MAD) or multivariate (IsolationForest) screening; data cleaning pass. | Data already deduped + outlier-screened; analysis is distribution-robust by design. |
 | `ds_skill.time_series` | Trend detection (Mann-Kendall); seasonal decomposition (STL); change-point in a metric over time. | Cross-sectional snapshot; no time column; order doesn't matter. |
-| `ds_skill.bootstrap` | Need a CI for any statistic (median, ratio, custom); small N where parametric CIs are unsafe; report demands uncertainty bands. | Parametric CI from a standard test is already sufficient and assumptions hold. |
+| `ds_skill.bootstrap` | Need a CI for any statistic (median, ratio, custom); small N (n<30) where parametric CIs are unsafe; report demands uncertainty bands. | Parametric CI from a standard test is already sufficient and assumptions hold. |
 | `ds_skill.shaping` | Detecting analysis grain; scanning for leakage columns (post-outcome fields, IDs, target proxies); validating join keys. | Grain is obvious from a single table; no joins; user already vetted columns. |
 | `ds_skill.ab_validator` | A/B test analysis; SRM check on arm sizes; MDE feasibility; effect-size with CI; lift estimation. | Not an experiment; observational data only. |
 | `ds_skill.regression` | Modeling continuous `Y`; need linear / Ridge / Lasso with diagnostics (residuals, VIF, leverage). | `Y` is categorical; or only descriptive stats needed. |
@@ -185,7 +185,7 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 
 | 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
 |---|---|---|
-| **Report p-value as business impact** | large N makes trivial effects "significant"; significance ≠ magnitude | pair every p with effect size + units + CI |
+| **Report p-value as business impact** | large N (n>1000) makes trivial effects "significant"; significance ≠ magnitude | pair every p with effect size + units + CI |
 | **Conclude on leaked features** | post-outcome / target-derived `X` inflates accuracy; won't replicate | run the leakage scan (data-readiness dim 6) first; drop offenders |
 | **Force a conclusion on sparse data** | n<5 per cell, >30% missing on `Y`, or constant `Y` → any test is noise | report descriptive-only; route the question to Tier 3 unsupported |
 | **Causal language on observational data** | "X causes Y" needs an experiment or quasi-experiment | use "associated with" / "predicts" / "differs by" unless a causal design exists |
