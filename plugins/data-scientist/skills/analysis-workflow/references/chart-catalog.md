@@ -154,5 +154,11 @@ Method groups listed below come from `method-registry.md`. Do not edit that file
 | **Missing N or missing-count** | Hides sample size, sparse data looks solid | Annotate every chart with N and missing count |
 | **Cherry-picked axis range** | Exaggerates small differences | Start Y-axis at 0 for counts/rates; use full data range |
 | **Decoration over evidence** (excessive grid, 3D effects, clipart) | Distracts from data | Minimize ink; maximize data-ink ratio |
+| **Too many lines on one chart** (>5 series) | Overlapping lines become unreadable spaghetti | Use small multiples (faceted panels), one series per panel |
+| **Connecting discrete categories** (line chart for categorical X) | Implies continuity where none exists | Use bar/dot chart for categorical data |
+| **Color without legend** | Reader can't decode color meaning | Always include legend or direct labels on chart elements |
+| **Too many lines on one chart** (>5 series) | Overlapping lines become unreadable spaghetti | Use small multiples (faceted panels), one series per panel |
+| **Connecting discrete categories** (line chart for categorical X) | Implies continuity where none exists | Use bar/dot chart for categorical data |
+| **Color without legend** | Reader can't decode color meaning | Always include legend or direct labels on chart elements |
 
 Pick the chart that exposes the evidence; reject decoration.
