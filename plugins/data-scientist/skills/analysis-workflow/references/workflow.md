@@ -14,6 +14,20 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 
 ---
 
+## Table of Contents
+
+1. [Stage 1 — Intake](#stage-1--intake) — profile data and understand user goal
+2. [Stage 2 — Readiness](#stage-2--readiness) — 8-dimension quality gate
+3. [Stage 3 — Shaping](#stage-3--shaping) — build analysis views
+4. [Stage 4 — Method Planning](#stage-4--method-planning) — select methods by purpose
+5. [Stage 5 — Execution](#stage-5--execution) — run code, collect evidence
+6. [Stage 6 — Critic](#stage-6--critic) — validate findings before reporting
+7. [Stage 7 — Report](#stage-7--report) — assemble final deliverable
+8. [Stop Conditions Reference](#stop-conditions-reference-for-all-stages)
+9. [Anti-Patterns](#anti-patterns--workflow-red-flags)
+
+---
+
 ## Stage 1 — Intake
 
 **Trigger:** new user request OR new data file/path/query arrives.

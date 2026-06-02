@@ -3,10 +3,26 @@ name: data-shaping
 description: Reshape playbook for building analysis views (join, pivot, melt, aggregate, window ops). Pick grain, record information loss, check leakage. Use when raw data doesn't match analysis unit, need to combine sources, or aggregate. Triggers — reshape data, wrong grain, join tables, pivot/unpivot, analysis view.
 ---
 
+# Data Shaping
 
 Reshape playbook for [workflow.md](workflow.md) Stage 3. Every shaping step produces a **named analysis view** with explicit grain, dropped columns, filters, and aggregation rules. Downstream methods (see [method-registry.md](method-registry.md)) bind to a view, not to the raw table.
 
 Core principle: the source table is *not* the analytical table. Shape it deliberately.
+
+---
+
+## Table of Contents
+
+1. [Grain Decisions](#1-grain-decisions) — what does one row represent?
+2. [Aggregations](#2-aggregations) — collapsing rows safely
+3. [Pivots and Melts](#3-pivots-and-melts) — wide ↔ long transforms
+4. [Filters and Drops](#4-filters-and-drops) — information-loss accounting
+5. [Joins](#5-joins) — combining sources
+6. [Leakage Points During Shaping](#6-leakage-points-during-shaping) — audit every transform
+7. [Resulting `analysis_views` Catalog](#7-resulting-analysis_views-catalog)
+8. [Output Template — `analysis_views[]`](#8-output-template--analysis_views)
+9. [Decision Quick-Reference](#decision-quick-reference)
+10. [Anti-Patterns](#anti-patterns--shaping-red-flags)
 
 ---
 

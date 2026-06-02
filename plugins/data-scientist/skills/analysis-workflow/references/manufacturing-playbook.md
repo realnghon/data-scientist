@@ -3,12 +3,23 @@ name: manufacturing-playbook
 description: Concrete recipes for manufacturing data questions (yield drop, Cpk, SPC, root cause, MSA, OEE). Domain-specific patterns for semiconductor, process, assembly. Use when data has lot/batch/line/operator fields or MFG vocabulary. Triggers — yield, defect, Cpk, control chart, SPC, manufacturing analysis.
 ---
 
-name: manufacturing-playbook
-description: Concrete recipes for manufacturing data questions (yield drop, Cpk, SPC, root cause, MSA, OEE). Domain-specific patterns for semiconductor, process, assembly. Use when data has lot/batch/line/operator fields or MFG vocabulary. Triggers — yield, defect, Cpk, control chart, SPC, manufacturing analysis.
+# Manufacturing Playbook
+
+Concrete recipes for the most common manufacturing-data questions. Each recipe is structured as: when to apply → minimum data → method → common failure modes → recommended cross-checks. Cross-link to `method-registry.md` for method definitions, `chart-catalog.md` for chart selection, `golden-templates.md` for end-to-end workflows.
+
+## Table of Contents
+
+- [Common Field Roles](#common-field-roles-quick-reference) — target and driver vocabulary
+- [Recipe 1: SPC Essentials](#recipe-1-spc-essentials) — control charts, stability
+- [Recipe 2: Capability Analysis (Cp/Cpk)](#recipe-2-capability-analysis-cpcpk)
+- [Recipe 3: Yield/Defect Driver Ranking](#recipe-3-yielddefect-driver-ranking)
+- [Recipe 4: Root Cause — Defect Pareto](#recipe-4-root-cause--defect-pareto)
+- [Recipe 5: Measurement System Analysis (MSA)](#recipe-5-measurement-system-analysis-msa)
+- [Recipe 6: DOE — Simple Screening](#recipe-6-doe--simple-screening)
+- [Recipe 7: OEE Decomposition](#recipe-7-oee-decomposition)
+- [Anti-Patterns](#anti-patterns--manufacturing-red-flags)
+
 ---
-
-
-Concrete recipes for the most common manufacturing-data questions. Each recipe is structured as: when to apply -> minimum data -> method -> common failure modes -> recommended cross-checks. Cross-link to `method-registry.md` for method definitions, `chart-catalog.md` for chart selection, `golden-templates.md` for end-to-end workflows.
 
 ## Common Field Roles (quick reference)
 

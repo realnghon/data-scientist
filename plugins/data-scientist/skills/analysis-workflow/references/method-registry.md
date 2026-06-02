@@ -13,6 +13,22 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 ---
 
+## Table of Contents
+
+1. [Group Comparison](#1-group-comparison) — does Y differ across groups?
+2. [Driver Ranking / Feature Importance](#2-driver-ranking--feature-importance) — which X drives Y?
+3. [Correlation / Pairwise Association](#3-correlation--pairwise-association) — relationship strength
+4. [Time Series — Trend, Seasonality, Change, Anomaly](#4-time-series--trend-seasonality-change-anomaly)
+5. [Hypothesis Tests — A/B, Experiments, NHST](#5-hypothesis-tests--ab-experiments-nhst)
+6. [Regression Modeling — Continuous Y](#6-regression-modeling--continuous-y)
+7. [Classification Modeling — Categorical Y](#7-classification-modeling--categorical-y)
+8. [Survival / Censored-Time Analysis](#8-survival--censored-time-analysis)
+9. [Process Control — SPC, Capability](#9-process-control--spc-capability)
+10. [Exploratory — Quick Scans Before Method Selection](#10-exploratory--quick-scans-before-method-selection)
+11. [Method Selection Decision Tree](#method-selection-decision-tree)
+
+---
+
 ## 1. Group Comparison
 
 **Purpose:** Does `Y` differ by machine, line, batch, shift, supplier, recipe, time bucket?
