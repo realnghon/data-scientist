@@ -63,7 +63,7 @@ Import only the module needed for the current method family. Never `import *` an
 6. Choose methods by analysis purpose, not by method name. Use `references/method-registry.md`.
 7. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
 8. For complex work, split responsibilities by `references/multi-agent-orchestration.md`.
-9. Execute reproducible code. Prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code.
+9. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code.
 10. Cross-check important findings with at least one alternative method when feasible.
 11. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
 
@@ -82,15 +82,19 @@ For non-trivial analyses, create or summarize these artifacts:
 
 ## Human-in-the-Loop Rules
 
-Ask only when the decision materially changes the result:
+🔴 **CHECKPOINT — these are hard gates. STOP and ask the user before proceeding.** Do not silently pick a default and move on when any gate below is triggered.
 
-- Target `Y` is missing, ambiguous, or has multiple plausible candidates.
-- Field semantics are uncertain and affect grouping, time, units, or leakage.
-- Data shaping requires aggregation, pivoting, dropping rows, or imputing values.
-- The data is insufficient for the requested conclusion but can support a narrower analysis.
-- Multiple defensible analysis paths disagree.
+| 🛑 Gate | Trigger condition | Show this before asking |
+|---|---|---|
+| **Target ambiguous** | `Y` is missing, ambiguous, or has 2+ plausible candidates | ranked candidate list + why each fits the question |
+| **Semantics uncertain** | a field's meaning affects grouping, time, units, or leakage | the columns in doubt + your best-guess role for each |
+| **Destructive shaping** | a step aggregates, pivots, drops rows, or imputes values | row-count delta + exactly what information is lost |
+| **Narrowable-only** | data can't answer the broad question but supports a narrower one | the narrower scope that *is* answerable, with N |
+| **Paths disagree** | 2+ defensible methods point different directions | the disagreement + which result you'd trust and why |
 
-If asking, provide 2-3 choices and a recommendation. Do not ask open-ended questions without first showing what the data suggests.
+When a gate fires: provide 2-3 concrete choices + a recommendation. Never ask an open-ended question without first showing what the data suggests.
+
+🛑 In `auto` mode the gates do not block: pick the recommended option, record the decision in the report's Human Decision Log, and flag it visibly instead of stopping. Cap at 5 questions per analysis run (see Operating Modes).
 
 ## Golden Templates
 
