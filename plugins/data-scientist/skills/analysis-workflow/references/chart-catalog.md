@@ -207,7 +207,7 @@ Not every chart is optional. Certain analysis types MUST produce a core set of c
 **Required (3 minimum)**:
 1. **Raw time series line plot** — Show original data with any detected change-points or anomalies overlaid. Include N, frequency, and missing periods.
 2. **Seasonal decomposition** — STL or similar showing trend, seasonal, and residual components. Annotate period and method.
-3. **Autocorrelation (ACF) plot** — Show lag structure up to lag 40 or 2 periods, whichever is shorter. Include significance bands.
+3. **Autocorrelation (ACF) plot** — Show lag structure up to max(40, 2 × suspected_period). For hourly data with possible weekly patterns, use at least lag 336 (2 weeks). Include significance bands and annotate any significant peaks with their lag values.
 
 **Optional but recommended**:
 - Forecast with prediction interval (if forecasting requested)
