@@ -1,0 +1,17 @@
+[
+  {
+    "id": 1,
+    "prompt": "我有一个 CSV 文件 manufacturing_data.csv，包含 process_params（温度、压力）、defect_log（缺陷类型、时间戳）和 batch_meta（批次ID、产线、班次）三张表。帮我分析为什么 Q3 产线 2 的良率下降了。",
+    "expected": "完整 7 阶段工作流输出：intake 识别三张表和目标Y → readiness 评估数据质量 → shaping 构建批次级视图 → planner 选择 ANOVA+随机森林+STL → execution 并跑 → critic 审查 → report 生成带证据矩阵的报告"
+  },
+  {
+    "id": 2,
+    "prompt": "帮我 profile 一下这个 Excel：sales.xlsx",
+    "expected": "走 intake → readiness（仅 profiling 模式），跳过 shaping/execution/critic，输出 data_manifest + readiness_report，不进入方法选择和报告"
+  },
+  {
+    "id": 3,
+    "prompt": "用 t-test 帮我比较一下两个批次（batch_A vs batch_B）的 yield_pct 有没有显著差异。数据在 batches.parquet 里。",
+    "expected": "用户明确指出单一方法 t-test → 跳过 Stage 4 方法规划（method fixed），但保留 readiness+shaping+execution+critic+report 流程"
+  }
+]
