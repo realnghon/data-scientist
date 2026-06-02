@@ -67,6 +67,14 @@ Import only the module needed for the current method family. Never `import *` an
 10. Cross-check important findings with at least one alternative method when feasible.
 11. Produce charts and a concise report. Use `references/chart-catalog.md` and `references/report-standard.md`.
 
+### Shortcut Routing — Skip Stages When The Request Is Narrow
+
+Not every request needs all 11 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
+
+- **One-off statistic** on an already-profiled column ("mean of X") → answer inline; skip readiness, planning, and critic.
+- **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). Then execute + critic. Never silently run a method whose assumptions are violated.
+- **Profile-only** ("just profile this") → run intake + readiness, emit `data_manifest` + `readiness_report`, then stop before method planning — no claims, so no critic.
+
 ## Failure Modes & Recovery
 
 When a stage hits a wall, do not abort the whole analysis. Each row is a three-step fallback: try the first-line fix, escalate to the fallback, and only then stop with a concrete ask.
