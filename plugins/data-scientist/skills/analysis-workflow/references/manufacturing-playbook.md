@@ -1,4 +1,12 @@
-# Manufacturing Playbook
+---
+name: manufacturing-playbook
+description: Concrete recipes for manufacturing data questions (yield drop, Cpk, SPC, root cause, MSA, OEE). Domain-specific patterns for semiconductor, process, assembly. Use when data has lot/batch/line/operator fields or MFG vocabulary. Triggers — yield, defect, Cpk, control chart, SPC, manufacturing analysis.
+---
+
+name: manufacturing-playbook
+description: Concrete recipes for manufacturing data questions (yield drop, Cpk, SPC, root cause, MSA, OEE). Domain-specific patterns for semiconductor, process, assembly. Use when data has lot/batch/line/operator fields or MFG vocabulary. Triggers — yield, defect, Cpk, control chart, SPC, manufacturing analysis.
+---
+
 
 Concrete recipes for the most common manufacturing-data questions. Each recipe is structured as: when to apply -> minimum data -> method -> common failure modes -> recommended cross-checks. Cross-link to `method-registry.md` for method definitions, `chart-catalog.md` for chart selection, `golden-templates.md` for end-to-end workflows.
 
@@ -274,3 +282,21 @@ Question is "did something change", "when did things start getting worse", "is t
 - Aggregated yield can hide station-level failure modes -- drill to station before declaring "yield is fine".
 - Operator effects are sensitive and must be anonymized / aggregated when reported externally.
 - Root-cause claims require process knowledge or designed experiment; observational analysis names suspects, not culprits.
+
+---
+
+## Anti-Patterns — Manufacturing Analysis Red Flags
+
+🚫 These violate MFG-specific principles:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Cp/Cpk on unstable process** | Capability meaningless when out of control | Run SPC first; compute capability only on in-control segment |
+| **Pool data across process changes** (recipe/tool change mid-window) | Different processes mixed, conclusions wrong | Stratify by stable process window; analyze regimes separately |
+| **Ignore nested structure** (wafers in lots, lots in tools) | Independence assumption violated, p-values wrong | Use mixed-effects or cluster by lot/tool; report cluster-robust SE |
+| **Attribute defects without denominator** (count of fails) | Can't distinguish rate from volume | Always normalize: defect rate = defects / opportunities |
+| **Skip gage R&R** (measurement system not validated) | Noise drowns signal, wrong root cause | Run MSA first if measurement variation suspected |
+| **Root cause without timeline** | Correlation without time order ≠ causation | Plot timeline; look for leading/lagging; check process change log |
+| **Compare capability across different specs** | Cp/Cpk not comparable when spec widths differ | Normalize by spec width or report as sigma level (Z-score) |
+
+Manufacturing data has structure (lots, tools, time) and context (specs, process logs) — use them.

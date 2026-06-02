@@ -1,4 +1,8 @@
-# Data Shaping
+---
+name: data-shaping
+description: Reshape playbook for building analysis views (join, pivot, melt, aggregate, window ops). Pick grain, record information loss, check leakage. Use when raw data doesn't match analysis unit, need to combine sources, or aggregate. Triggers — reshape data, wrong grain, join tables, pivot/unpivot, analysis view.
+---
+
 
 Reshape playbook for [workflow.md](workflow.md) Stage 3. Every shaping step produces a **named analysis view** with explicit grain, dropped columns, filters, and aggregation rules. Downstream methods (see [method-registry.md](method-registry.md)) bind to a view, not to the raw table.
 
@@ -239,3 +243,21 @@ Each entry in `analysis_views[]` carries: name, grain, source ops chain, filters
 | "what's typical for this metric?" | `long_metrics` for bulk profiling |
 
 Every view emitted into `analysis_views[]` is the contract for Stage 4 method planning.
+
+---
+
+## Anti-Patterns — Shaping Red Flags
+
+🚫 These silently corrupt the analysis:
+
+| Anti-pattern | Why it breaks | Do this instead |
+|---|---|---|
+| **Aggregate without recording grain** | Downstream doesn't know unit of analysis | Every view must declare grain explicitly (row=?, entity=?, time=?) |
+| **Join without checking match rate** | Low match rate means data loss or key mismatch | Log per-join match rate; <80% triggers investigation |
+| **Drop rows silently** | Sample size collapses, analysis underpowered | Record row count delta for every filter; bounce to readiness if N too small |
+| **Pivot time into columns** (wide-form) | Breaks time-series analysis, hides trends | Keep time as rows (long-form) unless explicitly needed for cross-tab |
+| **Aggregate away the signal** (group-mean hides within-group variation) | Simpson's paradox, station-level failures hidden | Check within-group before declaring pooled effect |
+| **Impute without documenting** | Changes data, biases estimates | Document every imputation strategy in `analysis_views`; never impute Y |
+| **Join on non-unique keys** (1:N inflation) | Duplicates rows, inflates significance | Validate join keys are unique on at least one side; dedupe or aggregate first |
+
+When shaping collapses sample size below readiness thresholds, bounce back to Stage 2 with the new N.
