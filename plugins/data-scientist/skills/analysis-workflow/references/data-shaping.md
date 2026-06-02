@@ -3,10 +3,26 @@ name: data-shaping
 description: Reshape playbook for building analysis views (join, pivot, melt, aggregate, window ops). Pick grain, record information loss, check leakage. Use when raw data doesn't match analysis unit, need to combine sources, or aggregate. Triggers — reshape data, wrong grain, join tables, pivot/unpivot, analysis view.
 ---
 
+# Data Shaping
 
 Reshape playbook for [workflow.md](workflow.md) Stage 3. Every shaping step produces a **named analysis view** with explicit grain, dropped columns, filters, and aggregation rules. Downstream methods (see [method-registry.md](method-registry.md)) bind to a view, not to the raw table.
 
 Core principle: the source table is *not* the analytical table. Shape it deliberately.
+
+---
+
+## Table of Contents
+
+1. [Grain Decisions](#1-grain-decisions) — what does one row represent?
+2. [Aggregations](#2-aggregations) — collapsing rows safely
+3. [Pivots and Melts](#3-pivots-and-melts) — wide ↔ long transforms
+4. [Filters and Drops](#4-filters-and-drops) — information-loss accounting
+5. [Joins](#5-joins) — combining sources
+6. [Leakage Points During Shaping](#6-leakage-points-during-shaping) — audit every transform
+7. [Resulting `analysis_views` Catalog](#7-resulting-analysis_views-catalog)
+8. [Output Template — `analysis_views[]`](#8-output-template--analysis_views)
+9. [Decision Quick-Reference](#decision-quick-reference)
+10. [Anti-Patterns](#anti-patterns--shaping-red-flags)
 
 ---
 
@@ -118,13 +134,15 @@ Mixed grains: if the source has both unit-level and batch-summary rows, split th
 
 ## 5. Joins
 
+🔴 **CHECKPOINT**: 在执行 join 之前，确认 join 类型和验证策略。错误的 join 会导致行数爆炸或数据静默丢失，且难以事后发现。
+
 | Pitfall | Symptom | Fix |
 |---|---|---|
 | 1:N inflation | row count after join > expected | check `merge(..., validate="one_to_one"|"one_to_many"|"many_to_one")`; aggregate the many-side first |
 | time-window join | quality events tied to wrong shift / batch | use `merge_asof` with `tolerance` and `direction` |
 | fuzzy keys | trailing whitespace, casing, type mismatch | normalize keys explicitly: `df["k"] = df["k"].str.strip().str.upper()` and assert dtype equality |
 | many-to-many | combinatorial explosion | pre-aggregate at least one side |
-| left join silently drops | unmatched right side → NaN in critical column | report match rate per join; fail if below threshold |
+| left join silently drops | unmatched right side → NaN in critical column | report match rate per join; fail if below threshold (e.g., <95%) |
 
 ```python
 # Time-window join: align inspection rows to the latest sensor reading <= inspection time
@@ -253,11 +271,14 @@ Every view emitted into `analysis_views[]` is the contract for Stage 4 method pl
 | Anti-pattern | Why it breaks | Do this instead |
 |---|---|---|
 | **Aggregate without recording grain** | Downstream doesn't know unit of analysis | Every view must declare grain explicitly (row=?, entity=?, time=?) |
-| **Join without checking match rate** | Low match rate means data loss or key mismatch | Log per-join match rate; <80% triggers investigation |
-| **Drop rows silently** | Sample size collapses, analysis underpowered | Record row count delta for every filter; bounce to readiness if N too small |
+| **Join without checking match rate** | Low match rate (<80%) means data loss or key mismatch | Log per-join match rate; <80% triggers investigation |
+| **Drop rows silently** | Sample size collapses, analysis underpowered | Record row count delta for every filter; bounce to readiness if N<20 |
 | **Pivot time into columns** (wide-form) | Breaks time-series analysis, hides trends | Keep time as rows (long-form) unless explicitly needed for cross-tab |
 | **Aggregate away the signal** (group-mean hides within-group variation) | Simpson's paradox, station-level failures hidden | Check within-group before declaring pooled effect |
 | **Impute without documenting** | Changes data, biases estimates | Document every imputation strategy in `analysis_views`; never impute Y |
 | **Join on non-unique keys** (1:N inflation) | Duplicates rows, inflates significance | Validate join keys are unique on at least one side; dedupe or aggregate first |
+| **Mix grains in one table** (unit-level + batch-summary rows) | Aggregations produce wrong results, biased stats | Split by row-type flag, aggregate separately to common grain |
+| **Apply rolling window without lag** (window includes current row) | Leaks future information into features | Use `rolling(window).shift(1)` before aggregation |
+| **Normalize using full-dataset stats** | Test set sees training distribution, overfit | Fit scaler on training fold only, apply (don't refit) to validation/test |
 
 When shaping collapses sample size below readiness thresholds, bounce back to Stage 2 with the new N.
