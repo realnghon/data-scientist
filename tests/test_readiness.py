@@ -164,6 +164,67 @@ def test_leakage_detected_by_post_event_naming():
     assert "post_event_flag" in dim.evidence_detail["post_event_cols"]
 
 
+def test_leakage_blocks_target_gated_monetary_field():
+    # revenue only accrues once converted==1, so it is identically 0 for every
+    # non-converter (constant within that class) yet varies among converters.
+    # Correlation with the binary target is ~0.82 — well below the 0.999 perfect-
+    # correlation threshold — so only the class-conditional check catches it.
+    rng = np.random.default_rng(0)
+    n = 400
+    converted = (rng.random(n) < 0.25).astype(int)
+    revenue = converted * rng.gamma(2.0, 40.0, n)
+    visits = rng.poisson(5, n) + 1
+    df = pd.DataFrame({"visits": visits, "revenue": revenue, "converted": converted})
+
+    report = assess_readiness(
+        df, target="converted", candidate_features=["visits", "revenue"]
+    )
+    dim = report.dimensions["leakage"]
+    assert dim.status == "blocked"
+    assert "revenue" in dim.evidence_detail["target_gated_cols"]
+    assert "visits" not in dim.evidence_detail["target_gated_cols"]
+    # The narrowed-scope suggestion should advise dropping the leaked feature.
+    assert any("leakage" in s.lower() for s in report.narrowed_scope_suggestions) or (
+        report.overall_status == "blocked"
+    )
+
+
+def test_leakage_flags_monetary_proxy_name_as_partial():
+    # prior_revenue is measured for everyone before the outcome, so it varies in
+    # BOTH target classes (not gated) — but its name still warrants a caveat to
+    # confirm temporal ordering, which surfaces as a partial, not a block.
+    rng = np.random.default_rng(7)
+    n = 300
+    converted = (rng.random(n) < 0.4).astype(int)
+    prior_revenue = rng.gamma(2.0, 30.0, n) + 5.0
+    df = pd.DataFrame({"prior_revenue": prior_revenue, "converted": converted})
+
+    report = assess_readiness(
+        df, target="converted", candidate_features=["prior_revenue"]
+    )
+    dim = report.dimensions["leakage"]
+    assert dim.status == "partial"
+    assert "prior_revenue" in dim.evidence_detail["proxy_name_suspects"]
+    assert dim.evidence_detail["target_gated_cols"] == []
+
+
+def test_leakage_does_not_flag_legitimate_binary_feature_as_gated():
+    # An A/B arm indicator varies within both outcome classes -> not target-gated,
+    # not a monetary proxy -> the leakage dimension stays clean.
+    rng = np.random.default_rng(3)
+    n = 400
+    variant = rng.integers(0, 2, n)
+    converted = (rng.random(n) < (0.10 + 0.05 * variant)).astype(int)
+    df = pd.DataFrame({"variant": variant, "converted": converted})
+
+    report = assess_readiness(
+        df, target="converted", candidate_features=["variant"]
+    )
+    dim = report.dimensions["leakage"]
+    assert dim.evidence_detail["target_gated_cols"] == []
+    assert dim.status == "ok"
+
+
 def test_variable_role_clarity_ok_with_target_and_features():
     df = _clean_df(n=60)
     report = assess_readiness(
