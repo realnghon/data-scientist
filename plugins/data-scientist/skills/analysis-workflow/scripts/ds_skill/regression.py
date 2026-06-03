@@ -321,7 +321,11 @@ def _fit_regularized(
     with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
         fitted = model.predict(X)
     resid = y - fitted
-    coefficients = {feats[i]: float(model.coef_[i]) for i in range(k)}
+    coef = model.coef_
+    if coef is None:
+        raise RuntimeError("Regularized model was fitted without coefficients.")
+    coef_array = np.asarray(coef, dtype=float)
+    coefficients = {feats[i]: float(coef_array[i]) for i in range(k)}
     intercept = float(model.intercept_)
     r2 = _r_squared(y, fitted)
     adj_r2 = _adj_r_squared(r2, n, k)
