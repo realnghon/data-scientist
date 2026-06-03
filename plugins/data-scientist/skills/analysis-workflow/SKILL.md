@@ -59,17 +59,17 @@ Import only the module needed for the current method family. Never `import *` an
 2. 🔴 **CHECKPOINT (environment selection): Before creating any virtual environment, detect existing Python environments and check if required dependencies are already available.** Check for: (a) active pyenv/conda/venv environments with `python --version` and test import of key packages (pandas, numpy, scipy, matplotlib, statsmodels, sklearn); (b) system Python with dependencies installed. If an adequate environment exists (Python 3.8+ with all required packages), ask the user: "Detected [environment details]. Use this environment or create a fresh isolated one?" Only create a new virtual environment if the user confirms or if no adequate environment is found. Record the chosen environment path in the analysis metadata for reproducibility.
 3. Ingest only enough data to understand structure first: filenames, sheets, columns, row counts, dtypes, and sample rows. For large files, profile with sampling before full reads.
 4. 🔴 **If the user did not provide a target metric `Y`, propose candidate targets and ask for confirmation before proceeding.**
-5. **Build a data profile and readiness assessment before analysis.** Use `references/data-readiness.md` to score all 8 dimensions with numeric values (0-10 scale):
-   1. **Sample size adequacy**: N per cell for grouping, N for modeling (target: ≥30/cell, ≥100 for modeling)
-   2. **Missingness pattern**: % missing, pattern type (MAR/MCAR/MNAR), impact on analysis
-   3. **Target balance** (classification) or **coverage** (regression): class ratios, target variance
-   4. **Time/batch coverage**: for trend/SPC, check if time span and sampling frequency are adequate
-   5. **Multicollinearity**: VIF for candidate drivers (target: all VIF < 10)
-   6. **Leakage detection**: post-outcome columns, target-derived features, future information
-   7. **Grain consistency**: no mixed aggregation levels, all rows at same analysis unit
-   8. **Outlier burden**: % beyond 3 MAD, impact on method choice
+5. **Build a data profile and readiness assessment before analysis.** Score all 8 dimensions defined in `references/data-readiness.md` — **that document is the single source of truth for the dimension list, thresholds, and output envelope; do not maintain a divergent copy here.** Each dimension is scored **`ok` / `partial` / `blocked`** (a status, not a 0-10 number). The canonical eight are:
+   1. **Sample Size Adequacy**: rows per analysis cell (≥30/cell ok, 5–29 partial, <5 blocked)
+   2. **Missingness Pattern**: % missing + mechanism (<10% ok, 10–30% partial, >30% on `Y` blocked)
+   3. **Grain Consistency**: one row per intended unit (duplicate keys → partial/blocked)
+   4. **Time Coverage**: span ≥2 cycles and gap fraction (>10% partial, >30% blocked) for time-aware questions
+   5. **Class / Group Balance**: majority:minority ratio (≤3:1 ok … >100:1 blocked)
+   6. **Leakage Risk**: post-event / target-derived / target-gated / time-order-violating `X` → blocked
+   7. **Variable Role Clarity**: `Y` identified with variation, plausible non-trivial `X` set
+   8. **Reliability Of Measurement**: units, sentinel values, sensor saturation
    
-   Produce `readiness_report` artifact with: (a) numeric score for each dimension, (b) overall gate status (ready / narrowable / blocked), (c) specific remediation steps if narrowable or blocked. If any dimension scores ≤3, that is a red flag requiring either data fixes or scope narrowing.
+   The `ds_skill.readiness.assess_readiness` helper emits exactly this rubric and envelope. Produce the `readiness_report` artifact with: (a) the `ok`/`partial`/`blocked` score + evidence for each dimension, (b) the overall decision — **`ok` → proceed; `partial` → proceed with an explicit `narrowed_scope`; `blocked` → emit `data_request` and stop downstream stages**, (c) remediation steps for every `partial`/`blocked` dimension. Any `blocked` dimension is a hard gate: narrow scope or fix the data before continuing.
 6. Identify whether the data must be reshaped, pivoted, aggregated, or converted to an analysis view. Use `references/data-shaping.md`.
 7. Choose methods by analysis purpose, not by method name. Use `references/method-registry.md`.
 8. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
@@ -165,7 +165,7 @@ For non-trivial analyses, create or summarize these artifacts. **Tier 0 artifact
 ### Tier 1 (Strongly Recommended)
 - `data_profile`: missingness, uniqueness, ranges, category counts, time coverage, suspicious values. Format: CSV or JSON.
 - `analysis_goal`: user goal, target `Y`, candidate drivers `X`, unit of analysis, filters. Format: JSON (embedded in analysis_plan if stand-alone artifact not created).
-- `readiness_report`: **8-dimension scores** (0-10 scale per dimension), overall gate status (ready/narrowable/blocked), specific remediation steps. Format: JSON. **This quantifies data quality.**
+- `readiness_report`: **8-dimension scores** (`ok`/`partial`/`blocked` per dimension, per `references/data-readiness.md`), overall decision (`ok`/`partial`/`blocked`), plus evidence and remediation per dimension. Format: JSON whose envelope matches `data-readiness.md`. **This gates data quality.**
 - `evidence_matrix`: findings by method, agreement/disagreement, confidence level (Tier 1/2/3). Format: JSON or Markdown table.
 
 ### Tier 2 (Situational)
