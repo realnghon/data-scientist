@@ -41,6 +41,27 @@ _LEAKAGE_PREFIX_PATTERNS = (
 )
 _LEAKAGE_SUBSTRINGS = ("root_cause", "rootcause")
 
+# Economic / monetary fields that are frequently realized *after* a conversion or
+# outcome event (e.g. `revenue` only accrues once `converted == 1`). Flagged as a
+# caveat (partial), not an automatic block, because a pre-period measurement of the
+# same name can be a legitimate predictor — the analyst must confirm time ordering.
+_PROXY_NAME_SUBSTRINGS = (
+    "revenue",
+    "sales",
+    "amount",
+    "ltv",
+    "lifetime_value",
+    "gmv",
+    "turnover",
+    "profit",
+    "payment",
+    "paid",
+    "spend",
+    "spent",
+    "charge",
+    "billing",
+)
+
 _UNIT_RANGE_HINTS: dict[str, tuple[float, float]] = {
     # suffix -> (min plausible, max plausible) for the named unit
     "_pct": (0.0, 100.0),
@@ -587,12 +608,70 @@ def _score_balance(
     )
 
 
+def _detect_target_gated(
+    df: pd.DataFrame, target: str | None, candidate_features: list[str]
+) -> list[str]:
+    """Numeric features that are constant within a target class but vary overall.
+
+    This is the signature of a post-outcome / target-gated field: e.g. ``revenue``
+    is identically 0 for every non-converter and only varies among converters, so
+    it is a function of the outcome rather than a pre-outcome predictor. Such a
+    feature can sit well below the perfect-correlation threshold (revenue ~ 0.82
+    with a binary ``converted``) yet still leak, which is exactly the gap the
+    correlation check misses.
+
+    Only fires for a low-cardinality (class-structured) target, requires real
+    overall variation in the feature, and requires at least two adequately-sized
+    classes — one constant, one varying — to avoid flagging sparse columns.
+    """
+    if target is None or target not in df.columns:
+        return []
+    y = df[target].dropna()
+    n_classes = y.nunique()
+    if n_classes < 2 or n_classes > 10:
+        return []  # not a class-structured target; correlation check handles continuous Y
+
+    classes = list(y.unique())
+    gated: list[str] = []
+    for feature in candidate_features:
+        if feature == target or feature not in df.columns:
+            continue
+        x = df[feature]
+        if not pd.api.types.is_numeric_dtype(x):
+            continue
+        pair = pd.concat([x, df[target]], axis=1).dropna()
+        if len(pair) < 10:
+            continue
+        xv = pair.iloc[:, 0]
+        yv = pair.iloc[:, 1]
+        if xv.nunique() <= 1:
+            continue  # constant overall -> uninformative, not leakage (role_clarity covers it)
+
+        constant_classes = 0
+        varying_classes = 0
+        eligible_classes = 0
+        for cls in classes:
+            xc = xv[yv == cls]
+            if len(xc) < 5:
+                continue
+            eligible_classes += 1
+            if xc.nunique() <= 1:
+                constant_classes += 1
+            else:
+                varying_classes += 1
+
+        if eligible_classes >= 2 and constant_classes >= 1 and varying_classes >= 1:
+            gated.append(feature)
+
+    return gated
+
+
 def _score_leakage(
     df: pd.DataFrame, target: str | None, candidate_features: list[str]
 ) -> DimensionScore:
     threshold = (
-        "post-event/target-derived/perfect-corr feature in X -> blocked; "
-        "entity-encoded -> partial; clean -> ok"
+        "post-event/target-derived/perfect-corr/target-gated feature in X -> blocked; "
+        "monetary-proxy name -> partial; clean -> ok"
     )
 
     post_event_cols: list[str] = []
@@ -629,13 +708,38 @@ def _score_leakage(
                 if feature not in perfect_corr_cols:
                     perfect_corr_cols.append(feature)
 
-    blocked_cols = sorted(set(post_event_cols) | set(perfect_corr_cols))
+    # Class-conditional degeneracy: feature gated by a low-cardinality outcome.
+    target_gated_cols = _detect_target_gated(df, target, candidate_features)
+
+    blocked_cols = sorted(
+        set(post_event_cols) | set(perfect_corr_cols) | set(target_gated_cols)
+    )
+
+    # Monetary-proxy names -> soft caveat (partial) unless already a hard blocker.
+    proxy_name_suspects: list[str] = []
+    if target is not None:
+        for feature in candidate_features:
+            if feature == target or feature in blocked_cols:
+                continue
+            lower = str(feature).lower()
+            if any(s in lower for s in _PROXY_NAME_SUBSTRINGS):
+                proxy_name_suspects.append(feature)
 
     if blocked_cols:
         status: Status = "blocked"
+        reasons: list[str] = []
+        if post_event_cols:
+            reasons.append("post-event names")
+        if perfect_corr_cols:
+            reasons.append("perfect correlation with Y")
+        if target_gated_cols:
+            reasons.append("constant-within-a-target-class (post-outcome / target-gated)")
+        evidence = f"Leakage suspects in X: {blocked_cols} ({'; '.join(reasons)})."
+    elif proxy_name_suspects:
+        status = "partial"
         evidence = (
-            f"Leakage suspects in X: {blocked_cols} "
-            f"(post-event names or perfect correlation with Y)."
+            f"Monetary-proxy features {proxy_name_suspects} may be realized after the "
+            f"outcome; confirm each is measured strictly before Y before using as a driver."
         )
     else:
         status = "ok"
@@ -650,6 +754,8 @@ def _score_leakage(
         evidence_detail={
             "post_event_cols": post_event_cols,
             "target_derived": perfect_corr_cols,
+            "target_gated_cols": target_gated_cols,
+            "proxy_name_suspects": proxy_name_suspects,
             "time_order_violations": 0,
         },
     )
