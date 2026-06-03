@@ -55,24 +55,76 @@ Import only the module needed for the current method family. Never `import *` an
 
 ## Core Workflow
 
-1. Read `references/workflow.md`.
+1. 🔴 **MANDATORY**: Read `references/workflow.md` and confirm the 7-stage sequence applies to this analysis. This is a hard prerequisite — the workflow document defines the complete pipeline architecture, stage handoffs, and artifact schemas. Only proceed after loading the workflow structure into context. If the analysis is a one-off statistic or quick lookup (see Shortcut Routing below), you may skip detailed workflow reading but must still confirm which shortcut applies.
 2. 🔴 **CHECKPOINT (environment selection): Before creating any virtual environment, detect existing Python environments and check if required dependencies are already available.** Check for: (a) active pyenv/conda/venv environments with `python --version` and test import of key packages (pandas, numpy, scipy, matplotlib, statsmodels, sklearn); (b) system Python with dependencies installed. If an adequate environment exists (Python 3.8+ with all required packages), ask the user: "Detected [environment details]. Use this environment or create a fresh isolated one?" Only create a new virtual environment if the user confirms or if no adequate environment is found. Record the chosen environment path in the analysis metadata for reproducibility.
 3. Ingest only enough data to understand structure first: filenames, sheets, columns, row counts, dtypes, and sample rows. For large files, profile with sampling before full reads.
 4. 🔴 **If the user did not provide a target metric `Y`, propose candidate targets and ask for confirmation before proceeding.**
-5. Build a data profile and readiness assessment before analysis. Use `references/data-readiness.md`.
+5. **Build a data profile and readiness assessment before analysis.** Use `references/data-readiness.md` to score all 8 dimensions with numeric values (0-10 scale):
+   1. **Sample size adequacy**: N per cell for grouping, N for modeling (target: ≥30/cell, ≥100 for modeling)
+   2. **Missingness pattern**: % missing, pattern type (MAR/MCAR/MNAR), impact on analysis
+   3. **Target balance** (classification) or **coverage** (regression): class ratios, target variance
+   4. **Time/batch coverage**: for trend/SPC, check if time span and sampling frequency are adequate
+   5. **Multicollinearity**: VIF for candidate drivers (target: all VIF < 10)
+   6. **Leakage detection**: post-outcome columns, target-derived features, future information
+   7. **Grain consistency**: no mixed aggregation levels, all rows at same analysis unit
+   8. **Outlier burden**: % beyond 3 MAD, impact on method choice
+   
+   Produce `readiness_report` artifact with: (a) numeric score for each dimension, (b) overall gate status (ready / narrowable / blocked), (c) specific remediation steps if narrowable or blocked. If any dimension scores ≤3, that is a red flag requiring either data fixes or scope narrowing.
 6. Identify whether the data must be reshaped, pivoted, aggregated, or converted to an analysis view. Use `references/data-shaping.md`.
 7. Choose methods by analysis purpose, not by method name. Use `references/method-registry.md`.
 8. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
 9. For complex work, split responsibilities by `references/multi-agent-orchestration.md`.
-10. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code.
-11. **Check for interaction effects and confounding.** When analyzing multiple drivers of a target `Y`, check whether: (a) pairs of features interact (e.g., temperature × equipment_age, where the effect of temperature depends on equipment age); (b) a feature's apparent effect disappears or reverses when controlling for another (Simpson's paradox or confounding). Methods: fit a model with interaction terms, compare coefficients before and after adding suspected confounders, or stratify by levels of a potential confounder. Skip this step only if you have a single predictor or the analysis is purely descriptive.
-12. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable. **Important finding** = any claim where p < 0.05 and the effect size exceeds the minimum practically meaningful threshold (ask the user or use domain defaults: 2% for conversion rates, 0.2 SD for continuous outcomes, 10% relative change for business metrics).
-13. Produce charts and a concise report. **Charts are not optional** — every analysis type has a minimum required chart set defined in `references/chart-catalog.md` → "Minimum Required Charts by Analysis Type". Cross-check that section and produce all required charts for the matched analysis type (A/B test, driver ranking, regression, time series, SPC, root cause, or anomaly detection). For each required chart: (a) call the appropriate `ds_skill.plotting` function or generate with matplotlib/seaborn, (b) save the figure to a file with a descriptive name (e.g., `chart_1_timeseries_with_anomalies.png`), (c) reference the saved file path in the report. If a required chart is skipped, state why in the report. Use `references/report-standard.md` for report structure.
-14. **Clean up temporary artifacts.** After delivering the final report: (a) if a temporary virtual environment was created for this analysis (not a user's existing pyenv/conda environment), remove it with `rm -rf .venv/` or `deactivate && rm -rf $VIRTUAL_ENV`; (b) delete intermediate test files and temporary scripts (e.g., `test.py`, `temp_*.csv`) from the working directory; (c) keep only the final deliverables (report, charts, processed data, reproducible analysis script). List what was cleaned in a brief cleanup summary. Skip cleanup if the user explicitly asks to keep intermediate files or if working in a shared/persistent notebook environment.
+10. 🔴 **CHECK ds_skill helpers before hand-coding**: For each method selected in the previous steps, check if a corresponding `ds_skill.*` helper exists in "Code Helpers — Lazy Import Map" above. **Default behavior: if a helper exists, MUST attempt to import and call it first.** Only fall back to hand-coding if: (a) import fails after trying the sys.path bootstrap in "Make the helpers importable"; (b) helper's signature doesn't match this specific use case after reading its docstring; (c) helper returns an error after 1 retry. Record the decision (used helper vs hand-coded, and why) in the analysis_plan artifact below.
+11. **Generate analysis_plan artifact** before execution. This is a structured JSON file documenting method selection logic for auditability:
+   ```json
+   {
+     "analysis_goal": {
+       "user_question": "原始用户问题",
+       "target_Y": "目标变量",
+       "candidate_X": ["驱动因素1", "驱动因素2"],
+       "analysis_unit": "行的含义",
+       "filters_applied": ["过滤条件"]
+     },
+     "claims": [
+       {
+         "claim": "要验证的结论描述",
+         "primary_method": "主方法名称",
+         "rationale": "为什么选这个方法（数据特征 + 假设匹配）",
+         "assumptions": ["假设1：正态性", "假设2：独立性"],
+         "cross_check": "交叉验证方法",
+         "helper_ref": "ds_skill.module.function OR null (hand-coded)",
+         "helper_decision": "used helper / hand-coded because: <reason>"
+       }
+     ],
+     "rejected_alternatives": [
+       {"method": "被拒方法", "reason": "为什么不用（假设不满足/数据不适配）"}
+     ]
+   }
+   ```
+   The analysis_plan serves as: (a) pre-execution checklist for the user to review; (b) audit trail for "why this method"; (c) template for reproducibility.
+12. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Show: (a) what claims will be tested, (b) which methods, (c) why those methods, (d) which helpers will be used. Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code that implements the plan exactly.
+13. **Check for interaction effects and confounding.** When analyzing multiple drivers of a target `Y`, check whether: (a) pairs of features interact (e.g., temperature × equipment_age, where the effect of temperature depends on equipment age); (b) a feature's apparent effect disappears or reverses when controlling for another (Simpson's paradox or confounding). Methods: fit a model with interaction terms, compare coefficients before and after adding suspected confounders, or stratify by levels of a potential confounder. Skip this step only if you have a single predictor or the analysis is purely descriptive.
+14. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable. **Important finding** = any claim where p < 0.05 and the effect size exceeds the minimum practically meaningful threshold (ask the user or use domain defaults: 2% for conversion rates, 0.2 SD for continuous outcomes, 10% relative change for business metrics).
+15. Produce charts and a concise report. **Charts are not optional** — every analysis type has a minimum required chart set defined in `references/chart-catalog.md` → "Minimum Required Charts by Analysis Type". Cross-check that section and produce all required charts for the matched analysis type (A/B test, driver ranking, regression, time series, SPC, root cause, or anomaly detection). For each required chart: (a) call the appropriate `ds_skill.plotting` function or generate with matplotlib/seaborn, (b) save the figure to a file with a descriptive name (e.g., `chart_1_timeseries_with_anomalies.png`), (c) reference the saved file path in the report. If a required chart is skipped, state why in the report. Use `references/report-standard.md` for report structure.
+16. **Clean up temporary artifacts.** After delivering the final report: (a) if a temporary virtual environment was created for this analysis (not a user's existing pyenv/conda environment), remove it with `rm -rf .venv/` or `deactivate && rm -rf $VIRTUAL_ENV`; (b) delete intermediate test files and temporary scripts (e.g., `test.py`, `temp_*.csv`) from the working directory; (c) keep only the final deliverables (report, charts, processed data, reproducible analysis script). List what was cleaned in a brief cleanup summary. Skip cleanup if the user explicitly asks to keep intermediate files or if working in a shared/persistent notebook environment.
 
 ### Shortcut Routing — Skip Stages When The Request Is Narrow
 
 Not every request needs all 14 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
+
+**Trigger condition table** (check user's exact words):
+
+| User request pattern | Route | Execute steps | Rationale |
+|---------------------|-------|---------------|-----------|
+| "mean of X", "calculate Y", single stat | one-off | inline answer | No readiness/planning needed |
+| "quick look", "just profile" | profile-only | 1-5, skip 6-14 | Data understanding, no claims |
+| "run a t-test on...", explicit method | named-method | 1-5, 7 (assume check), 11-14 | Skip method *selection*, validate assumptions |
+| "全套分析", "analyze this data", "分析数据" | **full pipeline** | 1-14 | Default: complete workflow |
+| "快速看一下", "简单分析" | profile-only | 1-5 | Explicit "quick" keyword |
+
+**Default behavior**: If unsure which route applies, **default to full pipeline** (steps 1-16). The shortcuts are exceptions for clearly narrow requests, not a way to reduce work on ambiguous tasks.
+
+Detailed shortcut rules:
 
 - **One-off statistic** on an already-profiled column ("mean of X") → answer inline; skip readiness, planning, and critic.
 - **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). 🔴 **CHECKPOINT: If assumptions fail, present the alternative and get confirmation before switching.** Then execute + critic. Never silently run a method whose assumptions are violated.
@@ -103,16 +155,22 @@ Stage-to-stage bounces (readiness ↔ shaping, planner → reframe, critic → r
 
 ## Required Artifacts
 
-For non-trivial analyses, create or summarize these artifacts:
+For non-trivial analyses, create or summarize these artifacts. **Tier 0 artifacts are mandatory for all analyses; Tier 1 are strongly recommended for quality/auditability.**
 
-- `data_manifest`: source files/tables, row counts, columns, sheets, detected field roles.
-- `data_profile`: missingness, uniqueness, ranges, category counts, time coverage, suspicious values.
-- `analysis_goal`: user goal, target `Y`, candidate drivers `X`, unit of analysis, filters.
-- `readiness_report`: whether the data can support the requested analysis and what is missing.
-- `analysis_views`: any reshaped or aggregated datasets and what information they lose.
-- `analysis_plan`: selected methods, alternatives considered, assumptions, charts.
-- `evidence_matrix`: findings by method, agreement/disagreement, confidence level.
-- `final_report`: conclusions, charts, limitations, and recommended next actions.
+### Tier 0 (Mandatory)
+- `data_manifest`: source files/tables, row counts, columns, sheets, detected field roles. Format: JSON or structured text.
+- `analysis_plan`: selected methods, alternatives considered, assumptions, helper usage decisions, charts planned. Format: JSON following the structure in step 11. **This is the audit trail for method selection.**
+- `final_report`: conclusions, charts, limitations, and recommended next actions. Format: Markdown with embedded chart references.
+
+### Tier 1 (Strongly Recommended)
+- `data_profile`: missingness, uniqueness, ranges, category counts, time coverage, suspicious values. Format: CSV or JSON.
+- `analysis_goal`: user goal, target `Y`, candidate drivers `X`, unit of analysis, filters. Format: JSON (embedded in analysis_plan if stand-alone artifact not created).
+- `readiness_report`: **8-dimension scores** (0-10 scale per dimension), overall gate status (ready/narrowable/blocked), specific remediation steps. Format: JSON. **This quantifies data quality.**
+- `evidence_matrix`: findings by method, agreement/disagreement, confidence level (Tier 1/2/3). Format: JSON or Markdown table.
+
+### Tier 2 (Situational)
+- `analysis_views`: any reshaped or aggregated datasets and what information they lose. Only if reshaping occurred.
+- `execution_log`: which workflow steps were executed, skipped, or shortcut; reasons for each decision. Format: JSON array. Useful for debugging workflow issues.
 
 ## Human-in-the-Loop Rules
 
