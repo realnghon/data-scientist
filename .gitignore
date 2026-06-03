@@ -60,3 +60,8 @@ Thumbs.db
 
 # Darwin skill evolution intermediate results
 darwin-results/
+
+# `npx skills add` lockfile + local skill cache — regenerated on every install,
+# user-specific, not part of the published plugin.
+skills-lock.json
+.agents/
