@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import importlib.util
 import json
 import math
 import sys
@@ -21,6 +22,21 @@ import pandas as pd
 
 
 SUPPORTED_EXTENSIONS = {".csv", ".txt", ".tsv", ".xlsx", ".xls", ".parquet", ".json", ".jsonl"}
+
+
+def _require_engine(module: str, fmt: str, suffix: str) -> None:
+    """Fail with an actionable hint when an optional file-format engine is absent.
+
+    Excel and Parquet support depend on optional packages (openpyxl, pyarrow) that
+    are not core dependencies. Without this guard pandas raises a terse ImportError;
+    here we name the package and the one-line install instead.
+    """
+    if importlib.util.find_spec(module) is None:
+        raise ImportError(
+            f"Reading {fmt} files ('{suffix}') requires the optional '{module}' package, "
+            f"which is not installed. Install it with `pip install {module}` or "
+            f'`pip install -e ".[io]"` to enable all advertised input formats.'
+        )
 
 
 @dataclass(frozen=True)
@@ -80,6 +96,7 @@ def read_table(path: Path, sheet: str | int | None, sample_rows: int | None) -> 
         return pd.read_csv(path, sep=delimiter, nrows=sample_rows), read_meta
 
     if suffix in [".xlsx", ".xls"]:
+        _require_engine("openpyxl", "Excel", suffix)
         excel = pd.ExcelFile(path)
         selected_sheet = sheet if sheet is not None else excel.sheet_names[0]
         read_meta["sheets"] = excel.sheet_names
@@ -87,6 +104,7 @@ def read_table(path: Path, sheet: str | int | None, sample_rows: int | None) -> 
         return pd.read_excel(path, sheet_name=selected_sheet, nrows=sample_rows), read_meta
 
     if suffix == ".parquet":
+        _require_engine("pyarrow", "Parquet", suffix)
         df = pd.read_parquet(path)
         read_meta["estimated_rows"] = int(len(df))
         return df.head(sample_rows) if sample_rows else df, read_meta

@@ -6,7 +6,7 @@
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-informational.svg">
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-245%20passed-brightgreen.svg">
+  <img alt="Tests" src="https://img.shields.io/badge/tests-248%20passed-brightgreen.svg">
   <img alt="Coverage" src="https://img.shields.io/badge/coverage-89%25-green.svg">
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-8-success.svg">
   <img alt="Status" src="https://img.shields.io/badge/status-stable-brightgreen.svg">
@@ -152,7 +152,7 @@ Stages connected by dotted lines can fan out to parallel subagents on platforms 
 - **8 readiness dimensions** in the data-readiness rubric
 - **7 manufacturing recipes** in the playbook
 - **3 golden templates** for common report shapes
-- **245 tests** in the pytest suite, with focused coverage on high-value helper branches
+- **248 tests** in the pytest suite, with focused coverage on high-value helper branches
 
 ---
 
@@ -195,6 +195,8 @@ npm test                       # → pytest tests
 npm run profile -- path/to/data.csv
 # or directly:
 python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py path/to/data.csv
+# CSV/TSV/JSON work out of the box; for Excel/Parquet input also run:
+#   pip install -e ".[io]"   # installs openpyxl + pyarrow
 
 # Run the deterministic baseline workflow (profile → readiness → shaping → baseline evidence)
 python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py path/to/data.csv --target target_column
