@@ -10,3 +10,8 @@ statsmodels>=0.14.0,<1.0.0
 # Optional: visualization (used by visualization helpers if present)
 # matplotlib>=3.7.0,<4.0.0
 # seaborn>=0.12.0,<1.0.0
+
+# Optional: file-format engines for the advertised input formats.
+# CSV/TSV/JSON need no extra; Excel and Parquet do. Install via `pip install -e ".[io]"`.
+# openpyxl>=3.1.0      # .xlsx / .xls
+# pyarrow>=14.0.0      # .parquet

@@ -11,6 +11,11 @@ pytest-cov>=4.1.0,<8.0.0
 matplotlib>=3.7.0
 seaborn>=0.12.0
 
+# File-format engines (optional at runtime; required to exercise Excel/Parquet
+# reads in profile_dataset and its tests — otherwise those tests silently skip)
+openpyxl>=3.1.0
+pyarrow>=14.0.0
+
 # Type checking
 pyright>=1.1.350
 
