@@ -226,7 +226,7 @@ Alternatives: run `pip install -e .` in the repo once (then `import ds_skill` wo
 
 ### What's available
 
-- `scripts/profile_dataset.py`: standalone CLI + importable profiler for CSV, Excel, Parquet, JSON. Emits the `data_manifest` JSON. Run `python profile_dataset.py <file>`.
+- `scripts/profile_dataset.py`: standalone CLI + importable profiler for CSV, Excel, Parquet, JSON. Emits the `data_manifest` JSON. Run `python profile_dataset.py <file>`. CSV/TSV/JSON work out of the box; **Excel and Parquet need the optional engines** (`pip install openpyxl pyarrow`, or `pip install -e ".[io]"`) — the script fails with that exact hint if they're missing.
 - `scripts/run_full_workflow.py`: deterministic baseline workflow for sequential runtimes and smoke tests. Runs profile → readiness → grain/leakage scan → target correlation baseline, then writes `baseline_artifacts.json` and `baseline_skeleton.md`. Run `python run_full_workflow.py <file> --target <column> --output <dir>`.
 - `scripts/ds_bootstrap.py`: import-path bootstrap + dependency check (above).
 - `scripts/ds_skill/`: the tested method + chart library. Lazy-import only the module you need (see the "Code Helpers — Lazy Import Map" above):

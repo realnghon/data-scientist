@@ -51,6 +51,7 @@ That is all that is required to use the skill, agents, and `/ds-*` commands. To 
 ```bash
 pip install "pandas>=2,<3" "numpy>=1.24,<2" "scipy>=1.10,<2" "scikit-learn>=1.3,<2" "statsmodels>=0.14,<1"
 pip install matplotlib seaborn   # for charts
+pip install openpyxl pyarrow     # for Excel (.xlsx) / Parquet input — CSV/JSON need no extra
 ```
 
 #### Option B — Local development (clone + editable install)
@@ -314,7 +315,7 @@ cd data-scientist
 python -m pytest tests/ -v
 ```
 
-Expected: **244 tests passed, 2 skipped** (skips need optional packages such as `lifelines` for survival curves).
+Expected: **248 passed, 1 skipped** (the skip needs the optional `lifelines` package for survival curves; Excel/Parquet tests now run because `requirements-dev.txt` includes `openpyxl`/`pyarrow`).
 
 ### 2. Try the profile script and baseline workflow
 
