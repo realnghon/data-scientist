@@ -39,10 +39,9 @@ jobs:
     name: pyright (advisory)
     runs-on: ubuntu-latest
     # Advisory only: the helpers are heavy pandas/numpy/scipy code, whose typing
-    # stubs return broad union types — pyright flags those interactions in the
-    # hundreds even though the runtime suite is green. This job surfaces type
-    # findings without gating merges; do not make it required until the stub
-    # noise is addressed (e.g. targeted casts or per-rule downgrades).
+    # stubs return broad union types. Pyright is configured to report the known
+    # pandas/numpy noise as warnings so this job surfaces findings without
+    # leaving a failed CI job while the runtime pytest matrix remains the gate.
     continue-on-error: true
     steps:
       - name: Checkout repository

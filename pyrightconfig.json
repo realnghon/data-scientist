@@ -2,5 +2,13 @@
   "include": ["tests", "plugins/data-scientist/skills/analysis-workflow/scripts"],
   "exclude": ["**/__pycache__", ".local", ".venv", "venv"],
   "extraPaths": ["plugins/data-scientist/skills/analysis-workflow/scripts"],
-  "reportMissingImports": "warning"
+  "reportMissingImports": "warning",
+  "reportArgumentType": "warning",
+  "reportAttributeAccessIssue": "warning",
+  "reportCallIssue": "warning",
+  "reportGeneralTypeIssues": "warning",
+  "reportIndexIssue": "warning",
+  "reportOperatorIssue": "warning",
+  "reportOptionalOperand": "warning",
+  "reportReturnType": "warning"
 }
