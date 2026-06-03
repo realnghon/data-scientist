@@ -33,9 +33,11 @@
 3. **Run the workflow** against a dataset.
 
 ```bash
-# One line — auto-detects your runtime (Claude Code, Codex, Cursor, OpenCode, ...)
+# One line — installs the skill on any runtime (Claude Code, Codex, Cursor, OpenCode, ...)
 npx skills add realnghon/data-scientist
 ```
+
+`npx skills add` installs the **skill** — the workflow plus the bundled `ds_skill` helpers and references — and runs on every supported runtime. The `/ds-*` slash commands and the 7 staged subagents are **plugin surfaces** (Claude Code / Codex); to get those, install the *plugin* from the marketplace instead — `/plugin marketplace add realnghon/data-scientist` then `/plugin install data-scientist@data-scientist` (see [INSTALL.md](INSTALL.md)). The analysis workflow is identical either way; the plugin just adds the command + subagent affordances.
 
 Prefer a manual path? Every runtime's 2-minute setup is in the [Install table](#-install) below. Or skip install entirely and use the skill as plain reference material:
 
@@ -43,13 +45,13 @@ Prefer a manual path? Every runtime's 2-minute setup is in the [Install table](#
 cat plugins/data-scientist/skills/analysis-workflow/SKILL.md
 ```
 
-Then run it. On runtimes with slash commands:
+Then run it. **If you installed the Claude Code / Codex plugin**, use a slash command:
 
 ```text
 /ds-analyze examples/manufacturing_yield/dataset.csv
 ```
 
-On any other runtime, invoke the skill by name:
+On any other runtime — or a skill-only `npx skills add` install — invoke the skill by name:
 
 ```text
 Run the data-scientist skill on data/my_dataset.csv
