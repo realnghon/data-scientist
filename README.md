@@ -4,7 +4,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <a href="CHANGELOG.md"><img alt="Version" src="https://img.shields.io/badge/version-1.0.0-informational.svg"></a>
+  <img alt="Version" src="https://img.shields.io/badge/version-1.0.0-informational.svg">
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
   <img alt="Tests" src="https://img.shields.io/badge/tests-245%20passed-brightgreen.svg">
   <img alt="Coverage" src="https://img.shields.io/badge/coverage-89%25-green.svg">
@@ -177,7 +177,6 @@ data-scientist/
 │       └── assets/            # report_template.md
 ├── tests/                     # pytest suite
 ├── INSTALL.md
-├── CHANGELOG.md
 ├── LICENSE
 └── README.md
 ```
@@ -213,7 +212,7 @@ Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored
 
 ## 🤝 Contributing
 
-Issues and PRs welcome. The highest-leverage contributions are: new entries in the method registry, new golden templates for under-served domains, and new platform integrations. A full contributing guide is on the way — see [CONTRIBUTING.md](CONTRIBUTING.md) (coming soon).
+Issues and PRs welcome. The highest-leverage contributions are: new entries in the method registry, new golden templates for under-served domains, and new platform integrations.
 
 ---
 
