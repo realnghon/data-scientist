@@ -7,6 +7,16 @@ description: Interactive data science analysis for messy structured datasets (CS
 
 Use this skill as an analysis decision system, not as a fixed pipeline. The agent should inspect the user's data, frame the question, decide whether the data is fit for analysis, reshape data when needed, choose defensible methods, execute code, and report conclusions with evidence and limitations.
 
+## Non-Negotiable Gates
+
+These override everything else in this document. Skipping any of them invalidates the analysis.
+
+1. **Route first, and say so.** Before any other action, output one line: `route: full | profile-only | named-method | one-off | blocked — <one-sentence reason>` (see Shortcut Routing). Re-route mid-analysis only if new evidence changes the request shape, and record the change.
+2. **Before executing analysis code**: `data_manifest` + `readiness_report` + `analysis_plan` must exist as artifacts. Missing → create them first (silently in `auto` mode).
+3. **Before writing the final report**: `evidence_matrix` + `critique` (a critic sub-agent's output, or an explicit self-critique pass auditing each claim) must exist. Missing → create them first.
+4. **Before labeling any claim Tier-1 / reliable**: it needs a cross-check method agreeing in direction, an effect size with units, and a CI. Otherwise downgrade to directional.
+5. **`readiness = blocked` stops the pipeline.** Emit a `data_request` and report what's answerable instead — never force a conclusion.
+
 ## Operating Modes
 
 - `guided` is the default. Proceed automatically, but stop at checkpoints (🔴) for user confirmation on high-impact decisions.
@@ -56,7 +66,7 @@ Import only the module needed for the current method family. Never `import *` an
 ## Core Workflow
 
 1. 🔴 **MANDATORY**: Read `references/workflow.md` and confirm the 7-stage sequence applies to this analysis. This is a hard prerequisite — the workflow document defines the complete pipeline architecture, stage handoffs, and artifact schemas. Only proceed after loading the workflow structure into context. If the analysis is a one-off statistic or quick lookup (see Shortcut Routing below), you may skip detailed workflow reading but must still confirm which shortcut applies.
-2. 🔴 **CHECKPOINT (environment selection): Before creating any virtual environment, detect existing Python environments and check if required dependencies are already available.** Check for: (a) active pyenv/conda/venv environments with `python --version` and test import of key packages (pandas, numpy, scipy, matplotlib, statsmodels, sklearn); (b) system Python with dependencies installed. If an adequate environment exists (Python 3.8+ with all required packages), ask the user: "Detected [environment details]. Use this environment or create a fresh isolated one?" Only create a new virtual environment if the user confirms or if no adequate environment is found. Record the chosen environment path in the analysis metadata for reproducibility.
+2. **Environment policy — use what exists, never preemptively isolate.** Test the active Python environment first: `python --version` plus imports of the key packages the analysis needs (pandas, numpy, scipy; matplotlib/statsmodels/sklearn when relevant). If Python ≥3.8 and the required packages import: **use that environment, do not ask, do not create a venv.** Record `python_executable`, `python_version`, package versions, and `venv_created: false` in the analysis metadata. Ask about creating a venv ONLY when: (a) required packages are missing, (b) a version conflict affects a selected method, (c) installing would modify a system/global environment, or (d) the user explicitly requests isolation. Never create `.venv` preemptively.
 3. Ingest only enough data to understand structure first: filenames, sheets, columns, row counts, dtypes, and sample rows. For large files, profile with sampling before full reads.
 4. 🔴 **If the user did not provide a target metric `Y`, propose candidate targets and ask for confirmation before proceeding.**
 5. **Build a data profile and readiness assessment before analysis.** Score all 8 dimensions defined in `references/data-readiness.md` — **that document is the single source of truth for the dimension list, thresholds, and output envelope; do not maintain a divergent copy here.** Each dimension is scored **`ok` / `partial` / `blocked`** (a status, not a 0-10 number). The canonical eight are:
@@ -110,24 +120,30 @@ Import only the module needed for the current method family. Never `import *` an
 
 ### Shortcut Routing — Skip Stages When The Request Is Narrow
 
-Not every request needs all 14 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages"):
+Not every request needs all 14 steps. Route these common shapes directly (full rules in `references/workflow.md` → "When To Skip Stages").
+
+**Record the route (Gate 1):** the first line of work is always `route: <route> — <reason>`. The route also determines which artifacts are owed: `full` → all Tier-0 artifacts; `profile-only` → `data_manifest` + `readiness_report` only (no `analysis_plan`, no `evidence_matrix` — no claims are made); `named-method` → `readiness_report` + assumption checks + `final_report`; `blocked` → `data_manifest` + `readiness_report` + `data_request`.
 
 **Trigger condition table** (check user's exact words):
 
 | User request pattern | Route | Execute steps | Rationale |
 |---------------------|-------|---------------|-----------|
 | "mean of X", "calculate Y", single stat | one-off | inline answer | No readiness/planning needed |
-| "quick look", "just profile" | profile-only | 1-5, skip 6-14 | Data understanding, no claims |
+| "quick look", "just profile", "先看看数据", "profile 一下" | profile-only | 1-5, skip 6-14 | Data understanding, no claims |
 | "run a t-test on...", explicit method | named-method | 1-5, 7 (assume check), 11-14 | Skip method *selection*, validate assumptions |
-| "全套分析", "analyze this data", "分析数据" | **full pipeline** | 1-14 | Default: complete workflow |
-| "快速看一下", "简单分析" | profile-only | 1-5 | Explicit "quick" keyword |
+| "全套分析", "analyze this data", "分析数据", "找出影响 Y 的因素" | **full pipeline** | 1-14 | Default: complete workflow |
+| Readiness scores `blocked` on a gating dimension | blocked | 1-5, then `data_request` + stop | Never force conclusions |
 
-**Default behavior**: If unsure which route applies, **default to full pipeline** (steps 1-16). The shortcuts are exceptions for clearly narrow requests, not a way to reduce work on ambiguous tasks.
+**Boundary rules:**
+- **Default to full.** Any analysis verb without an explicit narrowing word ("analyze", "分析", "找原因", "why did X change") → `full`. The shortcuts are exceptions for *clearly* narrow requests, not a way to reduce work on ambiguous tasks.
+- A narrowing word only counts when it describes the *whole* request: "快速 profile 一下，然后做全套分析" → `full`.
+- `named-method` requires the user to name a concrete statistical method; naming a metric ("compare conversion") is NOT named-method — that's `full` (or one-off if a single descriptive number suffices).
+- If torn between two routes → take the wider one.
 
 Detailed shortcut rules:
 
 - **One-off statistic** on an already-profiled column ("mean of X") → answer inline; skip readiness, planning, and critic.
-- **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). 🔴 **CHECKPOINT: If assumptions fail, present the alternative and get confirmation before switching.** Then execute + critic. Never silently run a method whose assumptions are violated.
+- **User names a specific method** ("run a t-test on Y by line") → respect the choice and skip method *selection*, but still run readiness + shaping, **check the named method's assumptions, and offer the registry alternative if an assumption fails** (unequal variance → Welch t; skewed or n<20/group → Mann-Whitney; >2 groups → ANOVA/Kruskal-Wallis). 🔴 **CHECKPOINT: If assumptions fail, present the alternative and get confirmation before switching** (in `auto` mode: run the alternative as primary, report the named method alongside it with a caveat). Any method switch must be recorded in `analysis_plan.rejected_alternatives` with the failed assumption as the reason. Then execute + critic. Never silently run a method whose assumptions are violated.
 - **Profile-only** ("just profile this") → run intake + readiness, emit `data_manifest` + `readiness_report`, then stop before method planning — no claims, so no critic.
 
 ## Failure Modes & Recovery
@@ -138,7 +154,7 @@ When a stage hits a wall, do not abort the whole analysis. Each row is a three-s
 |---|---|---|
 | **File unreadable / wrong encoding** | retry with explicit encoding + delimiter sniff; sample first 1000 rows | return a data-request naming the format needed; do not invent a manifest |
 | **No plausible target `Y`** | propose ranked candidates from column roles; ask once (guided) | fall back to `exploratory` profile-only mode; report what's needed to define `Y` |
-| **Python environment inadequate** | detect active pyenv/conda/venv with `which python` and test key imports (pandas, numpy, scipy); if imports fail, check if `pip install` is available | 🔴 CHECKPOINT: ask user "Create isolated venv or install to current environment?"; only create new venv if user confirms |
+| **Python environment inadequate** | detect active pyenv/conda/venv with `which python` and test key imports (pandas, numpy, scipy); if imports fail, check if `pip install` is available | 🔴 CHECKPOINT: ask user "Install missing packages to the current environment, or create an isolated venv?"; create a venv only on user confirmation (see Environment policy in step 2) |
 | **Virtual environment creation fails** | retry with `python3 -m venv .venv` instead of `virtualenv`; check disk space | ask user to manually create environment or use system Python; document chosen fallback in analysis metadata |
 | **Dependency installation fails** | retry with `--no-cache-dir` and `--upgrade pip`; try installing packages individually to isolate the failing one | report missing dependencies + minimal reproduction command; offer to run analysis with available packages only (degraded mode) |
 | **Readiness = blocked** (leakage / sparse / mixed grain) | apply the data-readiness narrowing (drop leaked col, restrict to adequate-N subset) | emit the `data_request` artifact and stop downstream stages — never force a conclusion |
@@ -187,6 +203,15 @@ For non-trivial analyses, create or summarize these artifacts. **Tier 0 artifact
 When a gate fires: provide 2-3 concrete choices + a recommendation. Never ask an open-ended question without first showing what the data suggests.
 
 🛑 In `auto` mode the gates do not block: pick the recommended option, record the decision in the report's Human Decision Log, and flag it visibly instead of stopping. Cap at 5 questions per analysis run (see Operating Modes).
+
+## Domain Rules — Financial Time Series
+
+When the data is stock / crypto / fund / market-factor data (price columns, OHLCV, tickers, factor panels):
+
+- **Targets**: raw price level (`close`) is valid for *descriptive trend* statements only. For driver ranking, factor analysis, or any predictive claim, default to returns — `log_return_1d`, `forward_return_5d/20d`, or excess return vs a benchmark when one exists. Present the target choice to the user as price-level (descriptive) vs returns (driver/predictive).
+- **Target-derived features**: anything computed from the target series (momentum, moving averages, volatility of `Y`) must be tagged `target_derived` and excluded from driver ranking. They may appear only as technical-state descriptors, never as "drivers".
+- **Stationarity & autocorrelation**: do not run plain correlation/regression on price levels; use returns or state the non-stationarity caveat and downgrade the claim to directional.
+- **No investment advice**: do not produce buy/sell/hold, position-sizing, or stop-loss recommendations unless the user explicitly asks for trading-strategy analysis. Phrase results as analytical scenarios and risk indicators.
 
 ## Golden Templates
 
@@ -260,5 +285,9 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 | **Silently impute `Y`** | inventing the target biases every downstream estimate | never impute `Y`; imputing `X` requires a documented, reported strategy |
 | **Refit control/CV limits on the judged data** | circular — the limits always "fit" | hold out a known in-control window / keep train-test separation |
 | **Pick a method by name or popularity** | impressive ≠ defensible; the data shape decides | choose by purpose + data type + assumption fit (`method-registry.md`) |
+| **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (see step 2) |
+| **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns (see Domain Rules) |
+| **Call a target-derived feature a "driver"** | mechanically correlated with `Y`; not an independent explanation | tag `target_derived`, exclude from driver ranking |
+| **Claim "comprehensive analysis" when readiness = partial** | over-promises; hides what was dropped | state the `narrowed_scope`: what is answerable, what is not, and why |
 
 When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.

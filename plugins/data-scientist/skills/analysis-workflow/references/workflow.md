@@ -222,6 +222,8 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 
 ## When To Skip Stages
 
+Route names and trigger words live in `SKILL.md` → "Shortcut Routing" (the route decision is recorded as the first line of work, per the Non-Negotiable Gates). This table maps each situation to the stages skipped:
+
 | Situation | Skip | Why |
 |---|---|---|
 | Golden template matches user goal exactly (see `golden-templates.md`) | Stage 4 method planning | Plan is pre-baked; jump straight to execution with the template's plan. |

@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "test": "pytest tests",
-    "profile": "python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py"
+    "profile": "python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py",
+    "eval:l1": "python evals/harness/run_l1.py"
   }
 }
