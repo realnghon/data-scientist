@@ -17,7 +17,7 @@
       "type": "driver",
       "feature": "temperature",
       "direction": "negative",
-      "evidence_regex": "temperature[^\\n]{0,160}(negative|负|下降|降低|-0\\.[2-9])|(负相关|negative)[^\\n]{0,80}temperature"
+      "evidence_regex": "(temperature|温度)[^\\n]{0,160}(negative|负|下降|降低|越低|lower|decrease|-0\\.[2-9])|(负相关|negative)[^\\n]{0,80}(temperature|温度)"
     },
     {
       "id": "pressure_positive_driver",
@@ -48,7 +48,7 @@
       "id": "equipment_age_confound",
       "type": "confound_detected",
       "feature": "equipment_age",
-      "evidence_regex": "equipment[_ ]?age[^\\n]{0,300}(confound|混淆|中介|indirect|间接|spurious|伪相关|through temperature|通过温度)"
+      "evidence_regex": "(equipment[_ ]?age|设备(年龄|寿命))[^\\n]{0,400}(confound|混淆|中介|indirect|间接|spurious|伪相关|伪关联|非独立驱动|through temperature|通过温度|协变量(后)?(消失|解释))"
     }
   ],
   "charts": {"min_count": 2, "required_keywords": []},

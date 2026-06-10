@@ -33,7 +33,7 @@
       "id": "date_format_issue_flagged",
       "type": "quality",
       "feature": "measurement_reliability",
-      "evidence_regex": "(date|日期)[^\\n]{0,160}(format|格式)[^\\n]{0,120}(inconsistent|混合|mixed|不一致)"
+      "evidence_regex": "(order_date|date|日期)[^\\n]{0,160}(format|格式)[^\\n]{0,120}(inconsistent|混合|mixed|不一致)|(order_date|日期)[^\\n]{0,80}(混用|mixed|inconsistent)[^\\n]{0,80}(format|格式)"
     }
   ],
   "charts": {"min_count": 0, "required_keywords": []},

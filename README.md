@@ -204,6 +204,22 @@ python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow
 
 Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored).
 
+## 🧪 Evals — measure & iterate
+
+The plugin ships a two-layer eval harness in [`evals/`](evals/) so changes to the skill text are measured, not guessed:
+
+```bash
+# L1 — deterministic regression over 6 scoreable cases (zero tokens, CI-safe)
+npm run eval:l1
+
+# L2 — agent-in-the-loop: spawn an agent that only sees SKILL.md + the prompt,
+# then machine-score routing, artifact discipline, finding hits, and anti-patterns
+python evals/harness/score_case.py evals/cases/<case> evals/.runs/l2/<run> --json score.json
+```
+
+Eight cases with machine-checkable `ground_truth.json` (injected signals from the data generators): manufacturing drivers + confounding, A/B lift, time-series anomalies, SPC rules + capability, Simpson's paradox + interaction, and three routing/readiness-discipline cases. The improvement loop (run → locate failures → edit skill → re-run → record in `evals/results.tsv`) is documented in [`evals/README.md`](evals/README.md).
+
+
 ---
 
 ## 🗺️ Roadmap
