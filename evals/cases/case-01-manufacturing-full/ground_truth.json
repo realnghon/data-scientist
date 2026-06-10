@@ -1,0 +1,62 @@
+{
+  "case_id": "case-01-manufacturing-full",
+  "dataset": "../../../examples/manufacturing_yield/dataset.csv",
+  "target": "yield_pct",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims", "rejected_alternatives"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "temperature_negative_driver",
+      "type": "driver",
+      "feature": "temperature",
+      "direction": "negative",
+      "evidence_regex": "temperature[^\\n]{0,160}(negative|负|下降|降低|-0\\.[2-9])|(负相关|negative)[^\\n]{0,80}temperature"
+    },
+    {
+      "id": "pressure_positive_driver",
+      "type": "driver",
+      "feature": "pressure",
+      "direction": "positive",
+      "evidence_regex": "pressure[^\\n]{0,160}(positive|正|提升|增加|\\+?0\\.[1-9])|(正相关|positive)[^\\n]{0,80}pressure"
+    },
+    {
+      "id": "line_speed_rejected",
+      "type": "rejected_driver",
+      "feature": "line_speed",
+      "evidence_regex": "line[_ ]?speed[^\\n]{0,200}(noise|噪声|无显著|not significant|no (significant )?effect|排除|rejected|不显著)"
+    },
+    {
+      "id": "operator_c_effect",
+      "type": "driver",
+      "feature": "operator",
+      "evidence_regex": "operator[^\\n]{0,120}C[^\\n]{0,160}(higher|更高|better|最高|\\+?3)"
+    },
+    {
+      "id": "night_shift_effect",
+      "type": "driver",
+      "feature": "shift",
+      "evidence_regex": "(night|夜班)[^\\n]{0,160}(lower|更低|降低|negative|惩罚|-2)"
+    },
+    {
+      "id": "equipment_age_confound",
+      "type": "confound_detected",
+      "feature": "equipment_age",
+      "evidence_regex": "equipment[_ ]?age[^\\n]{0,300}(confound|混淆|中介|indirect|间接|spurious|伪相关|through temperature|通过温度)"
+    }
+  ],
+  "charts": {"min_count": 2, "required_keywords": []},
+  "anti_patterns": [
+    {
+      "id": "no_unqualified_causal_language",
+      "forbidden_regex": "(直接导致了良率|causes yield|证明了因果)",
+      "scope": "final_report"
+    }
+  ]
+}

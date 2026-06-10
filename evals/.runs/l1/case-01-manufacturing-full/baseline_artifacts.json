@@ -1,0 +1,2565 @@
+{
+  "stage": "baseline",
+  "status": "ok",
+  "produced": {
+    "data_manifest": {
+      "status": "ok",
+      "manifest": {
+        "source": "/Users/silaswu/Silas_Develop/data-scientist/examples/manufacturing_yield/dataset.csv",
+        "file_size_bytes": 27021,
+        "read_metadata": {
+          "format": "csv",
+          "delimiter": ",",
+          "estimated_rows": 500
+        },
+        "sampled_rows": 500,
+        "columns": [
+          "run_id",
+          "date",
+          "temperature_c",
+          "pressure_psi",
+          "humidity_pct",
+          "line_speed_uph",
+          "operator",
+          "shift",
+          "equipment_age_days",
+          "yield_pct"
+        ],
+        "dtypes": {
+          "run_id": "int64",
+          "date": "object",
+          "temperature_c": "float64",
+          "pressure_psi": "float64",
+          "humidity_pct": "float64",
+          "line_speed_uph": "int64",
+          "operator": "object",
+          "shift": "object",
+          "equipment_age_days": "int64",
+          "yield_pct": "float64"
+        }
+      },
+      "role_candidates": [
+        {
+          "column": "date",
+          "role": "time",
+          "confidence": 0.9,
+          "evidence": [
+            "datetime-like values or time keyword"
+          ]
+        },
+        {
+          "column": "yield_pct",
+          "role": "target_y",
+          "confidence": 0.86,
+          "evidence": [
+            "name matches target/outcome keyword"
+          ]
+        },
+        {
+          "column": "equipment_age_days",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "line_speed_uph",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "operator",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "shift",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "humidity_pct",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "line_speed_uph",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "pressure_psi",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "temperature_c",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "date",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "run_id",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "humidity_pct",
+          "role": "entity_id",
+          "confidence": 0.7,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        }
+      ],
+      "column_profiles": {
+        "run_id": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 500,
+          "unique_rate": 1.0,
+          "sample_values": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "mean": 250.5,
+          "std": 144.4818327679989,
+          "min": 1.0,
+          "25%": 125.75,
+          "50%": 250.5,
+          "75%": 375.25,
+          "max": 500.0
+        },
+        "date": {
+          "dtype": "datetime64[ns]",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 500,
+          "unique_rate": 1.0,
+          "sample_values": [
+            "2025-01-01T00:00:00",
+            "2025-01-02T00:00:00",
+            "2025-01-03T00:00:00",
+            "2025-01-04T00:00:00",
+            "2025-01-05T00:00:00"
+          ],
+          "min": "2025-01-01T00:00:00",
+          "max": "2026-05-15T00:00:00"
+        },
+        "temperature_c": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 276,
+          "unique_rate": 0.552,
+          "sample_values": [
+            185.9,
+            181.6,
+            187.8,
+            198.6,
+            178.0
+          ],
+          "mean": 181.899,
+          "std": 9.860698034696272,
+          "min": 147.6,
+          "25%": 175.025,
+          "50%": 181.95,
+          "75%": 188.3,
+          "max": 218.8
+        },
+        "pressure_psi": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 181,
+          "unique_rate": 0.362,
+          "sample_values": [
+            54.6,
+            59.5,
+            43.0,
+            52.8,
+            46.7
+          ],
+          "mean": 50.157599999999995,
+          "std": 4.8904309492865226,
+          "min": 36.5,
+          "25%": 47.0,
+          "50%": 50.1,
+          "75%": 53.3,
+          "max": 63.2
+        },
+        "humidity_pct": {
+          "dtype": "float64",
+          "non_null": 493,
+          "missing": 7,
+          "missing_rate": 0.014,
+          "unique": 256,
+          "unique_rate": 0.512,
+          "sample_values": [
+            56.2,
+            52.4,
+            45.5,
+            39.8,
+            50.6
+          ],
+          "mean": 45.80689655172414,
+          "std": 8.060620998253675,
+          "min": 21.8,
+          "25%": 40.2,
+          "50%": 46.0,
+          "75%": 50.9,
+          "max": 65.8
+        },
+        "line_speed_uph": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 73,
+          "unique_rate": 0.146,
+          "sample_values": [
+            112,
+            92,
+            88,
+            100,
+            97
+          ],
+          "mean": 100.494,
+          "std": 14.768011115401059,
+          "min": 56.0,
+          "25%": 91.0,
+          "50%": 100.0,
+          "75%": 110.25,
+          "max": 148.0
+        },
+        "operator": {
+          "dtype": "object",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 4,
+          "unique_rate": 0.008,
+          "sample_values": [
+            "B",
+            "C",
+            "B",
+            "C",
+            "C"
+          ],
+          "top_values": {
+            "D": 129,
+            "A": 129,
+            "B": 127,
+            "C": 115
+          }
+        },
+        "shift": {
+          "dtype": "object",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3,
+          "unique_rate": 0.006,
+          "sample_values": [
+            "Afternoon",
+            "Afternoon",
+            "Night",
+            "Morning",
+            "Night"
+          ],
+          "top_values": {
+            "Morning": 179,
+            "Night": 169,
+            "Afternoon": 152
+          }
+        },
+        "equipment_age_days": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 278,
+          "unique_rate": 0.556,
+          "sample_values": [
+            93,
+            303,
+            137,
+            337,
+            37
+          ],
+          "mean": 183.272,
+          "std": 103.84222856268894,
+          "min": 1.0,
+          "25%": 93.0,
+          "50%": 181.0,
+          "75%": 275.0,
+          "max": 364.0
+        },
+        "yield_pct": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 410,
+          "unique_rate": 0.82,
+          "sample_values": [
+            79.73,
+            89.75,
+            79.5,
+            85.03,
+            81.9
+          ],
+          "mean": 84.24086,
+          "std": 4.058037159955927,
+          "min": 70.63,
+          "25%": 81.56,
+          "50%": 84.13,
+          "75%": 87.1125,
+          "max": 96.87
+        }
+      },
+      "sample_records": [
+        {
+          "run_id": 1,
+          "date": "2025-01-01",
+          "temperature_c": 185.9,
+          "pressure_psi": 54.6,
+          "humidity_pct": 56.2,
+          "line_speed_uph": 112,
+          "operator": "B",
+          "shift": "Afternoon",
+          "equipment_age_days": 93,
+          "yield_pct": 79.73
+        },
+        {
+          "run_id": 2,
+          "date": "2025-01-02",
+          "temperature_c": 181.6,
+          "pressure_psi": 59.5,
+          "humidity_pct": 52.4,
+          "line_speed_uph": 92,
+          "operator": "C",
+          "shift": "Afternoon",
+          "equipment_age_days": 303,
+          "yield_pct": 89.75
+        },
+        {
+          "run_id": 3,
+          "date": "2025-01-03",
+          "temperature_c": 187.8,
+          "pressure_psi": 43.0,
+          "humidity_pct": 45.5,
+          "line_speed_uph": 88,
+          "operator": "B",
+          "shift": "Night",
+          "equipment_age_days": 137,
+          "yield_pct": 79.5
+        },
+        {
+          "run_id": 4,
+          "date": "2025-01-04",
+          "temperature_c": 198.6,
+          "pressure_psi": 52.8,
+          "humidity_pct": 39.8,
+          "line_speed_uph": 100,
+          "operator": "C",
+          "shift": "Morning",
+          "equipment_age_days": 337,
+          "yield_pct": 85.03
+        },
+        {
+          "run_id": 5,
+          "date": "2025-01-05",
+          "temperature_c": 178.0,
+          "pressure_psi": 46.7,
+          "humidity_pct": 50.6,
+          "line_speed_uph": 97,
+          "operator": "C",
+          "shift": "Night",
+          "equipment_age_days": 37,
+          "yield_pct": 81.9
+        },
+        {
+          "run_id": 6,
+          "date": "2025-01-06",
+          "temperature_c": 178.9,
+          "pressure_psi": 47.6,
+          "humidity_pct": 48.1,
+          "line_speed_uph": 93,
+          "operator": "D",
+          "shift": "Morning",
+          "equipment_age_days": 126,
+          "yield_pct": 86.75
+        },
+        {
+          "run_id": 7,
+          "date": "2025-01-07",
+          "temperature_c": 198.5,
+          "pressure_psi": 47.0,
+          "humidity_pct": 52.2,
+          "line_speed_uph": 110,
+          "operator": "C",
+          "shift": "Afternoon",
+          "equipment_age_days": 274,
+          "yield_pct": 79.52
+        },
+        {
+          "run_id": 8,
+          "date": "2025-01-08",
+          "temperature_c": 189.3,
+          "pressure_psi": 45.7,
+          "humidity_pct": 50.1,
+          "line_speed_uph": 114,
+          "operator": "B",
+          "shift": "Morning",
+          "equipment_age_days": 163,
+          "yield_pct": 80.54
+        },
+        {
+          "run_id": 9,
+          "date": "2025-01-09",
+          "temperature_c": 178.5,
+          "pressure_psi": 50.2,
+          "humidity_pct": 53.4,
+          "line_speed_uph": 101,
+          "operator": "D",
+          "shift": "Night",
+          "equipment_age_days": 318,
+          "yield_pct": 84.53
+        },
+        {
+          "run_id": 10,
+          "date": "2025-01-10",
+          "temperature_c": 186.2,
+          "pressure_psi": 45.8,
+          "humidity_pct": 40.7,
+          "line_speed_uph": 122,
+          "operator": "A",
+          "shift": "Night",
+          "equipment_age_days": 76,
+          "yield_pct": 81.26
+        }
+      ],
+      "data_risks": []
+    },
+    "readiness_report": {
+      "overall_status": "partial",
+      "dimensions": {
+        "sample_size": {
+          "status": "ok",
+          "evidence": "Total rows = 500."
+        },
+        "missingness": {
+          "status": "ok",
+          "evidence": "Overall 0% missing; worst column 1%."
+        },
+        "grain": {
+          "status": "ok",
+          "evidence": "No duplicate keys on ['run_id']."
+        },
+        "time_coverage": {
+          "status": "ok",
+          "evidence": "No time column requested; dimension not applicable."
+        },
+        "balance": {
+          "status": "ok",
+          "evidence": "No categorical target or group column; imbalance not applicable."
+        },
+        "leakage": {
+          "status": "ok",
+          "evidence": "No leakage suspects in candidate features."
+        },
+        "role_clarity": {
+          "status": "partial",
+          "evidence": "Target 'yield_pct' present with variation, but no candidate features supplied."
+        },
+        "measurement_reliability": {
+          "status": "ok",
+          "evidence": "No sentinel, saturation, or unit-mismatch flags detected."
+        }
+      },
+      "caveats": [
+        "role_clarity: Target 'yield_pct' present with variation, but no candidate features supplied."
+      ],
+      "narrowed_scope_suggestions": [
+        "Confirm the target and feature set with the requester before proceeding."
+      ],
+      "data_request": []
+    },
+    "shaping": {
+      "grain": {
+        "keys_tested": [
+          "run_id",
+          "date",
+          "temperature_c",
+          "pressure_psi",
+          "humidity_pct",
+          "line_speed_uph",
+          "operator",
+          "shift",
+          "equipment_age_days",
+          "yield_pct"
+        ],
+        "is_unique": true,
+        "n_total_rows": 500,
+        "n_unique_keys": 500,
+        "duplicate_examples": [],
+        "inferred_grain": "one row per (run_id, date, temperature_c, pressure_psi, humidity_pct, line_speed_uph, operator, shift, equipment_age_days, yield_pct)"
+      },
+      "leakage": {
+        "target": "yield_pct",
+        "flagged_columns": [],
+        "name_based_flags": [],
+        "correlation_based_flags": [],
+        "time_based_flags": []
+      }
+    },
+    "baseline_evidence": {
+      "correlation": [
+        {
+          "feature": "temperature_c",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": -0.7439454806222547,
+          "p_value": 3.142970122202668e-89,
+          "p_adjusted": 3.7715641466432015e-88,
+          "significant_after_fdr": true,
+          "n": 500,
+          "effect_strength": 0.7439454806222547,
+          "interpretation": "very strong negative"
+        },
+        {
+          "feature": "temperature_c",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": -0.7334833010671301,
+          "p_value": 1.5252895018395806e-85,
+          "p_adjusted": 9.151737011037483e-85,
+          "significant_after_fdr": true,
+          "n": 500,
+          "effect_strength": 0.7334833010671301,
+          "interpretation": "very strong negative"
+        },
+        {
+          "feature": "pressure_psi",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": 0.27455251240872647,
+          "p_value": 4.25966952039756e-10,
+          "p_adjusted": 1.703867808159024e-09,
+          "significant_after_fdr": true,
+          "n": 500,
+          "effect_strength": 0.27455251240872647,
+          "interpretation": "weak positive"
+        },
+        {
+          "feature": "pressure_psi",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": 0.2513824813971065,
+          "p_value": 1.2066885126058753e-08,
+          "p_adjusted": 3.6200655378176256e-08,
+          "significant_after_fdr": true,
+          "n": 500,
+          "effect_strength": 0.2513824813971065,
+          "interpretation": "weak positive"
+        },
+        {
+          "feature": "temperature_c",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.1500935060866825,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.1500935060866825,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "feature": "humidity_pct",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": -0.12660024424076052,
+          "p_value": 0.0048749720717834195,
+          "p_adjusted": 0.011699932972280207,
+          "significant_after_fdr": true,
+          "n": 493,
+          "effect_strength": 0.12660024424076052,
+          "interpretation": "weak negative"
+        },
+        {
+          "feature": "equipment_age_days",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": -0.10296871205412388,
+          "p_value": 0.021289447337476966,
+          "p_adjusted": 0.04257889467495393,
+          "significant_after_fdr": true,
+          "n": 500,
+          "effect_strength": 0.10296871205412388,
+          "interpretation": "weak negative"
+        },
+        {
+          "feature": "humidity_pct",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": -0.09162562553810506,
+          "p_value": 0.041998603743010496,
+          "p_adjusted": 0.06884998005488677,
+          "significant_after_fdr": false,
+          "n": 493,
+          "effect_strength": 0.09162562553810506,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "line_speed_uph",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": -0.08932282210032774,
+          "p_value": 0.045899986703257845,
+          "p_adjusted": 0.06884998005488677,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.08932282210032774,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "equipment_age_days",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": -0.0862680054505214,
+          "p_value": 0.05388270912855359,
+          "p_adjusted": 0.0718436121714048,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.0862680054505214,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "line_speed_uph",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": -0.0716070293437104,
+          "p_value": 0.10977000868575892,
+          "p_adjusted": 0.1317240104229107,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.0716070293437104,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "run_id",
+          "target": "yield_pct",
+          "method": "spearman",
+          "coefficient": 0.023485066813639332,
+          "p_value": 0.600348127343608,
+          "p_adjusted": 0.6095353883038579,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.023485066813639332,
+          "interpretation": "negligible positive"
+        },
+        {
+          "feature": "run_id",
+          "target": "yield_pct",
+          "method": "pearson",
+          "coefficient": 0.02289515247424425,
+          "p_value": 0.6095353883038579,
+          "p_adjusted": 0.6095353883038579,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.02289515247424425,
+          "interpretation": "negligible positive"
+        },
+        {
+          "feature": "humidity_pct",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.013000351766787741,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 493,
+          "effect_strength": 0.013000351766787741,
+          "interpretation": "negligible dependence"
+        },
+        {
+          "feature": "pressure_psi",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.010977519232327683,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.010977519232327683,
+          "interpretation": "negligible dependence"
+        },
+        {
+          "feature": "line_speed_uph",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.000958552119120533,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.000958552119120533,
+          "interpretation": "negligible dependence"
+        },
+        {
+          "feature": "run_id",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.0006718170893860748,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.0006718170893860748,
+          "interpretation": "negligible dependence"
+        },
+        {
+          "feature": "equipment_age_days",
+          "target": "yield_pct",
+          "method": "mutual_info",
+          "coefficient": 0.0,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 500,
+          "effect_strength": 0.0,
+          "interpretation": "negligible dependence"
+        }
+      ],
+      "driver_ranking": [
+        {
+          "rank": 1,
+          "feature": "temperature_c",
+          "method": "pearson",
+          "strength": 0.7439454806222547,
+          "interpretation": "very strong negative"
+        },
+        {
+          "rank": 2,
+          "feature": "temperature_c",
+          "method": "spearman",
+          "strength": 0.7334833010671301,
+          "interpretation": "very strong negative"
+        },
+        {
+          "rank": 3,
+          "feature": "pressure_psi",
+          "method": "pearson",
+          "strength": 0.27455251240872647,
+          "interpretation": "weak positive"
+        },
+        {
+          "rank": 4,
+          "feature": "pressure_psi",
+          "method": "spearman",
+          "strength": 0.2513824813971065,
+          "interpretation": "weak positive"
+        },
+        {
+          "rank": 5,
+          "feature": "temperature_c",
+          "method": "mutual_info",
+          "strength": 0.1500935060866825,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "rank": 6,
+          "feature": "humidity_pct",
+          "method": "pearson",
+          "strength": 0.12660024424076052,
+          "interpretation": "weak negative"
+        },
+        {
+          "rank": 7,
+          "feature": "equipment_age_days",
+          "method": "spearman",
+          "strength": 0.10296871205412388,
+          "interpretation": "weak negative"
+        },
+        {
+          "rank": 8,
+          "feature": "humidity_pct",
+          "method": "spearman",
+          "strength": 0.09162562553810506,
+          "interpretation": "negligible negative"
+        },
+        {
+          "rank": 9,
+          "feature": "line_speed_uph",
+          "method": "spearman",
+          "strength": 0.08932282210032774,
+          "interpretation": "negligible negative"
+        },
+        {
+          "rank": 10,
+          "feature": "equipment_age_days",
+          "method": "pearson",
+          "strength": 0.0862680054505214,
+          "interpretation": "negligible negative"
+        }
+      ]
+    },
+    "warnings": []
+  },
+  "carry_forward": {
+    "data_manifest": {
+      "status": "ok",
+      "manifest": {
+        "source": "/Users/silaswu/Silas_Develop/data-scientist/examples/manufacturing_yield/dataset.csv",
+        "file_size_bytes": 27021,
+        "read_metadata": {
+          "format": "csv",
+          "delimiter": ",",
+          "estimated_rows": 500
+        },
+        "sampled_rows": 500,
+        "columns": [
+          "run_id",
+          "date",
+          "temperature_c",
+          "pressure_psi",
+          "humidity_pct",
+          "line_speed_uph",
+          "operator",
+          "shift",
+          "equipment_age_days",
+          "yield_pct"
+        ],
+        "dtypes": {
+          "run_id": "int64",
+          "date": "object",
+          "temperature_c": "float64",
+          "pressure_psi": "float64",
+          "humidity_pct": "float64",
+          "line_speed_uph": "int64",
+          "operator": "object",
+          "shift": "object",
+          "equipment_age_days": "int64",
+          "yield_pct": "float64"
+        }
+      },
+      "role_candidates": [
+        {
+          "column": "date",
+          "role": "time",
+          "confidence": 0.9,
+          "evidence": [
+            "datetime-like values or time keyword"
+          ]
+        },
+        {
+          "column": "yield_pct",
+          "role": "target_y",
+          "confidence": 0.86,
+          "evidence": [
+            "name matches target/outcome keyword"
+          ]
+        },
+        {
+          "column": "equipment_age_days",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "line_speed_uph",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "operator",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "shift",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "humidity_pct",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "line_speed_uph",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "pressure_psi",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "temperature_c",
+          "role": "process_parameter",
+          "confidence": 0.82,
+          "evidence": [
+            "numeric column matches process parameter keyword"
+          ]
+        },
+        {
+          "column": "date",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "run_id",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "humidity_pct",
+          "role": "entity_id",
+          "confidence": 0.7,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        }
+      ],
+      "column_profiles": {
+        "run_id": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 500,
+          "unique_rate": 1.0,
+          "sample_values": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "mean": 250.5,
+          "std": 144.4818327679989,
+          "min": 1.0,
+          "25%": 125.75,
+          "50%": 250.5,
+          "75%": 375.25,
+          "max": 500.0
+        },
+        "date": {
+          "dtype": "datetime64[ns]",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 500,
+          "unique_rate": 1.0,
+          "sample_values": [
+            "2025-01-01T00:00:00",
+            "2025-01-02T00:00:00",
+            "2025-01-03T00:00:00",
+            "2025-01-04T00:00:00",
+            "2025-01-05T00:00:00"
+          ],
+          "min": "2025-01-01T00:00:00",
+          "max": "2026-05-15T00:00:00"
+        },
+        "temperature_c": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 276,
+          "unique_rate": 0.552,
+          "sample_values": [
+            185.9,
+            181.6,
+            187.8,
+            198.6,
+            178.0
+          ],
+          "mean": 181.899,
+          "std": 9.860698034696272,
+          "min": 147.6,
+          "25%": 175.025,
+          "50%": 181.95,
+          "75%": 188.3,
+          "max": 218.8
+        },
+        "pressure_psi": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 181,
+          "unique_rate": 0.362,
+          "sample_values": [
+            54.6,
+            59.5,
+            43.0,
+            52.8,
+            46.7
+          ],
+          "mean": 50.157599999999995,
+          "std": 4.8904309492865226,
+          "min": 36.5,
+          "25%": 47.0,
+          "50%": 50.1,
+          "75%": 53.3,
+          "max": 63.2
+        },
+        "humidity_pct": {
+          "dtype": "float64",
+          "non_null": 493,
+          "missing": 7,
+          "missing_rate": 0.014,
+          "unique": 256,
+          "unique_rate": 0.512,
+          "sample_values": [
+            56.2,
+            52.4,
+            45.5,
+            39.8,
+            50.6
+          ],
+          "mean": 45.80689655172414,
+          "std": 8.060620998253675,
+          "min": 21.8,
+          "25%": 40.2,
+          "50%": 46.0,
+          "75%": 50.9,
+          "max": 65.8
+        },
+        "line_speed_uph": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 73,
+          "unique_rate": 0.146,
+          "sample_values": [
+            112,
+            92,
+            88,
+            100,
+            97
+          ],
+          "mean": 100.494,
+          "std": 14.768011115401059,
+          "min": 56.0,
+          "25%": 91.0,
+          "50%": 100.0,
+          "75%": 110.25,
+          "max": 148.0
+        },
+        "operator": {
+          "dtype": "object",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 4,
+          "unique_rate": 0.008,
+          "sample_values": [
+            "B",
+            "C",
+            "B",
+            "C",
+            "C"
+          ],
+          "top_values": {
+            "D": 129,
+            "A": 129,
+            "B": 127,
+            "C": 115
+          }
+        },
+        "shift": {
+          "dtype": "object",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3,
+          "unique_rate": 0.006,
+          "sample_values": [
+            "Afternoon",
+            "Afternoon",
+            "Night",
+            "Morning",
+            "Night"
+          ],
+          "top_values": {
+            "Morning": 179,
+            "Night": 169,
+            "Afternoon": 152
+          }
+        },
+        "equipment_age_days": {
+          "dtype": "int64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 278,
+          "unique_rate": 0.556,
+          "sample_values": [
+            93,
+            303,
+            137,
+            337,
+            37
+          ],
+          "mean": 183.272,
+          "std": 103.84222856268894,
+          "min": 1.0,
+          "25%": 93.0,
+          "50%": 181.0,
+          "75%": 275.0,
+          "max": 364.0
+        },
+        "yield_pct": {
+          "dtype": "float64",
+          "non_null": 500,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 410,
+          "unique_rate": 0.82,
+          "sample_values": [
+            79.73,
+            89.75,
+            79.5,
+            85.03,
+            81.9
+          ],
+          "mean": 84.24086,
+          "std": 4.058037159955927,
+          "min": 70.63,
+          "25%": 81.56,
+          "50%": 84.13,
+          "75%": 87.1125,
+          "max": 96.87
+        }
+      },
+      "sample_records": [
+        {
+          "run_id": 1,
+          "date": "2025-01-01",
+          "temperature_c": 185.9,
+          "pressure_psi": 54.6,
+          "humidity_pct": 56.2,
+          "line_speed_uph": 112,
+          "operator": "B",
+          "shift": "Afternoon",
+          "equipment_age_days": 93,
+          "yield_pct": 79.73
+        },
+        {
+          "run_id": 2,
+          "date": "2025-01-02",
+          "temperature_c": 181.6,
+          "pressure_psi": 59.5,
+          "humidity_pct": 52.4,
+          "line_speed_uph": 92,
+          "operator": "C",
+          "shift": "Afternoon",
+          "equipment_age_days": 303,
+          "yield_pct": 89.75
+        },
+        {
+          "run_id": 3,
+          "date": "2025-01-03",
+          "temperature_c": 187.8,
+          "pressure_psi": 43.0,
+          "humidity_pct": 45.5,
+          "line_speed_uph": 88,
+          "operator": "B",
+          "shift": "Night",
+          "equipment_age_days": 137,
+          "yield_pct": 79.5
+        },
+        {
+          "run_id": 4,
+          "date": "2025-01-04",
+          "temperature_c": 198.6,
+          "pressure_psi": 52.8,
+          "humidity_pct": 39.8,
+          "line_speed_uph": 100,
+          "operator": "C",
+          "shift": "Morning",
+          "equipment_age_days": 337,
+          "yield_pct": 85.03
+        },
+        {
+          "run_id": 5,
+          "date": "2025-01-05",
+          "temperature_c": 178.0,
+          "pressure_psi": 46.7,
+          "humidity_pct": 50.6,
+          "line_speed_uph": 97,
+          "operator": "C",
+          "shift": "Night",
+          "equipment_age_days": 37,
+          "yield_pct": 81.9
+        },
+        {
+          "run_id": 6,
+          "date": "2025-01-06",
+          "temperature_c": 178.9,
+          "pressure_psi": 47.6,
+          "humidity_pct": 48.1,
+          "line_speed_uph": 93,
+          "operator": "D",
+          "shift": "Morning",
+          "equipment_age_days": 126,
+          "yield_pct": 86.75
+        },
+        {
+          "run_id": 7,
+          "date": "2025-01-07",
+          "temperature_c": 198.5,
+          "pressure_psi": 47.0,
+          "humidity_pct": 52.2,
+          "line_speed_uph": 110,
+          "operator": "C",
+          "shift": "Afternoon",
+          "equipment_age_days": 274,
+          "yield_pct": 79.52
+        },
+        {
+          "run_id": 8,
+          "date": "2025-01-08",
+          "temperature_c": 189.3,
+          "pressure_psi": 45.7,
+          "humidity_pct": 50.1,
+          "line_speed_uph": 114,
+          "operator": "B",
+          "shift": "Morning",
+          "equipment_age_days": 163,
+          "yield_pct": 80.54
+        },
+        {
+          "run_id": 9,
+          "date": "2025-01-09",
+          "temperature_c": 178.5,
+          "pressure_psi": 50.2,
+          "humidity_pct": 53.4,
+          "line_speed_uph": 101,
+          "operator": "D",
+          "shift": "Night",
+          "equipment_age_days": 318,
+          "yield_pct": 84.53
+        },
+        {
+          "run_id": 10,
+          "date": "2025-01-10",
+          "temperature_c": 186.2,
+          "pressure_psi": 45.8,
+          "humidity_pct": 40.7,
+          "line_speed_uph": 122,
+          "operator": "A",
+          "shift": "Night",
+          "equipment_age_days": 76,
+          "yield_pct": 81.26
+        }
+      ],
+      "data_risks": []
+    },
+    "field_role_candidates": [
+      {
+        "column": "date",
+        "role": "time",
+        "confidence": 0.9,
+        "evidence": [
+          "datetime-like values or time keyword"
+        ]
+      },
+      {
+        "column": "yield_pct",
+        "role": "target_y",
+        "confidence": 0.86,
+        "evidence": [
+          "name matches target/outcome keyword"
+        ]
+      },
+      {
+        "column": "equipment_age_days",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "line_speed_uph",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "operator",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "shift",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "humidity_pct",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "line_speed_uph",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "pressure_psi",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "temperature_c",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "date",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "run_id",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "humidity_pct",
+        "role": "entity_id",
+        "confidence": 0.7,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      }
+    ],
+    "readiness_report": {
+      "overall_status": "partial",
+      "dimensions": {
+        "sample_size": {
+          "status": "ok",
+          "evidence": "Total rows = 500."
+        },
+        "missingness": {
+          "status": "ok",
+          "evidence": "Overall 0% missing; worst column 1%."
+        },
+        "grain": {
+          "status": "ok",
+          "evidence": "No duplicate keys on ['run_id']."
+        },
+        "time_coverage": {
+          "status": "ok",
+          "evidence": "No time column requested; dimension not applicable."
+        },
+        "balance": {
+          "status": "ok",
+          "evidence": "No categorical target or group column; imbalance not applicable."
+        },
+        "leakage": {
+          "status": "ok",
+          "evidence": "No leakage suspects in candidate features."
+        },
+        "role_clarity": {
+          "status": "partial",
+          "evidence": "Target 'yield_pct' present with variation, but no candidate features supplied."
+        },
+        "measurement_reliability": {
+          "status": "ok",
+          "evidence": "No sentinel, saturation, or unit-mismatch flags detected."
+        }
+      },
+      "caveats": [
+        "role_clarity: Target 'yield_pct' present with variation, but no candidate features supplied."
+      ],
+      "narrowed_scope_suggestions": [
+        "Confirm the target and feature set with the requester before proceeding."
+      ],
+      "data_request": []
+    },
+    "analysis_views": [],
+    "analysis_plan": {},
+    "evidence_matrix": [
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.7439454806222547,
+        "p_value": 3.142970122202668e-89,
+        "p_adjusted": 3.7715641466432015e-88,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.7439454806222547,
+        "interpretation": "very strong negative"
+      },
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.7334833010671301,
+        "p_value": 1.5252895018395806e-85,
+        "p_adjusted": 9.151737011037483e-85,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.7334833010671301,
+        "interpretation": "very strong negative"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": 0.27455251240872647,
+        "p_value": 4.25966952039756e-10,
+        "p_adjusted": 1.703867808159024e-09,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.27455251240872647,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": 0.2513824813971065,
+        "p_value": 1.2066885126058753e-08,
+        "p_adjusted": 3.6200655378176256e-08,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.2513824813971065,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.1500935060866825,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.1500935060866825,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.12660024424076052,
+        "p_value": 0.0048749720717834195,
+        "p_adjusted": 0.011699932972280207,
+        "significant_after_fdr": true,
+        "n": 493,
+        "effect_strength": 0.12660024424076052,
+        "interpretation": "weak negative"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.10296871205412388,
+        "p_value": 0.021289447337476966,
+        "p_adjusted": 0.04257889467495393,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.10296871205412388,
+        "interpretation": "weak negative"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.09162562553810506,
+        "p_value": 0.041998603743010496,
+        "p_adjusted": 0.06884998005488677,
+        "significant_after_fdr": false,
+        "n": 493,
+        "effect_strength": 0.09162562553810506,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.08932282210032774,
+        "p_value": 0.045899986703257845,
+        "p_adjusted": 0.06884998005488677,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.08932282210032774,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.0862680054505214,
+        "p_value": 0.05388270912855359,
+        "p_adjusted": 0.0718436121714048,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0862680054505214,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.0716070293437104,
+        "p_value": 0.10977000868575892,
+        "p_adjusted": 0.1317240104229107,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0716070293437104,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": 0.023485066813639332,
+        "p_value": 0.600348127343608,
+        "p_adjusted": 0.6095353883038579,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.023485066813639332,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": 0.02289515247424425,
+        "p_value": 0.6095353883038579,
+        "p_adjusted": 0.6095353883038579,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.02289515247424425,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.013000351766787741,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 493,
+        "effect_strength": 0.013000351766787741,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.010977519232327683,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.010977519232327683,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.000958552119120533,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.000958552119120533,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.0006718170893860748,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0006718170893860748,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.0,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0,
+        "interpretation": "negligible dependence"
+      }
+    ],
+    "critique": {}
+  },
+  "next_stage_hint": {
+    "stages": [
+      "method-planner",
+      "execution",
+      "critic",
+      "report"
+    ],
+    "can_parallelize": false,
+    "rationale": "Baseline pipeline complete. Hand off to method-planner for full method selection, then fan-out execution, critic, and report."
+  },
+  "blockers": [],
+  "human_questions": [],
+  "pipeline": "run_full_workflow",
+  "generated_at": "2026-06-10T15:41:50.870417+00:00",
+  "source_file": "/Users/silaswu/Silas_Develop/data-scientist/examples/manufacturing_yield/dataset.csv",
+  "target": "yield_pct",
+  "data_manifest": {
+    "status": "ok",
+    "manifest": {
+      "source": "/Users/silaswu/Silas_Develop/data-scientist/examples/manufacturing_yield/dataset.csv",
+      "file_size_bytes": 27021,
+      "read_metadata": {
+        "format": "csv",
+        "delimiter": ",",
+        "estimated_rows": 500
+      },
+      "sampled_rows": 500,
+      "columns": [
+        "run_id",
+        "date",
+        "temperature_c",
+        "pressure_psi",
+        "humidity_pct",
+        "line_speed_uph",
+        "operator",
+        "shift",
+        "equipment_age_days",
+        "yield_pct"
+      ],
+      "dtypes": {
+        "run_id": "int64",
+        "date": "object",
+        "temperature_c": "float64",
+        "pressure_psi": "float64",
+        "humidity_pct": "float64",
+        "line_speed_uph": "int64",
+        "operator": "object",
+        "shift": "object",
+        "equipment_age_days": "int64",
+        "yield_pct": "float64"
+      }
+    },
+    "role_candidates": [
+      {
+        "column": "date",
+        "role": "time",
+        "confidence": 0.9,
+        "evidence": [
+          "datetime-like values or time keyword"
+        ]
+      },
+      {
+        "column": "yield_pct",
+        "role": "target_y",
+        "confidence": 0.86,
+        "evidence": [
+          "name matches target/outcome keyword"
+        ]
+      },
+      {
+        "column": "equipment_age_days",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "line_speed_uph",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "operator",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "shift",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "humidity_pct",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "line_speed_uph",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "pressure_psi",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "temperature_c",
+        "role": "process_parameter",
+        "confidence": 0.82,
+        "evidence": [
+          "numeric column matches process parameter keyword"
+        ]
+      },
+      {
+        "column": "date",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "run_id",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "humidity_pct",
+        "role": "entity_id",
+        "confidence": 0.7,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      }
+    ],
+    "column_profiles": {
+      "run_id": {
+        "dtype": "int64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 500,
+        "unique_rate": 1.0,
+        "sample_values": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mean": 250.5,
+        "std": 144.4818327679989,
+        "min": 1.0,
+        "25%": 125.75,
+        "50%": 250.5,
+        "75%": 375.25,
+        "max": 500.0
+      },
+      "date": {
+        "dtype": "datetime64[ns]",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 500,
+        "unique_rate": 1.0,
+        "sample_values": [
+          "2025-01-01T00:00:00",
+          "2025-01-02T00:00:00",
+          "2025-01-03T00:00:00",
+          "2025-01-04T00:00:00",
+          "2025-01-05T00:00:00"
+        ],
+        "min": "2025-01-01T00:00:00",
+        "max": "2026-05-15T00:00:00"
+      },
+      "temperature_c": {
+        "dtype": "float64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 276,
+        "unique_rate": 0.552,
+        "sample_values": [
+          185.9,
+          181.6,
+          187.8,
+          198.6,
+          178.0
+        ],
+        "mean": 181.899,
+        "std": 9.860698034696272,
+        "min": 147.6,
+        "25%": 175.025,
+        "50%": 181.95,
+        "75%": 188.3,
+        "max": 218.8
+      },
+      "pressure_psi": {
+        "dtype": "float64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 181,
+        "unique_rate": 0.362,
+        "sample_values": [
+          54.6,
+          59.5,
+          43.0,
+          52.8,
+          46.7
+        ],
+        "mean": 50.157599999999995,
+        "std": 4.8904309492865226,
+        "min": 36.5,
+        "25%": 47.0,
+        "50%": 50.1,
+        "75%": 53.3,
+        "max": 63.2
+      },
+      "humidity_pct": {
+        "dtype": "float64",
+        "non_null": 493,
+        "missing": 7,
+        "missing_rate": 0.014,
+        "unique": 256,
+        "unique_rate": 0.512,
+        "sample_values": [
+          56.2,
+          52.4,
+          45.5,
+          39.8,
+          50.6
+        ],
+        "mean": 45.80689655172414,
+        "std": 8.060620998253675,
+        "min": 21.8,
+        "25%": 40.2,
+        "50%": 46.0,
+        "75%": 50.9,
+        "max": 65.8
+      },
+      "line_speed_uph": {
+        "dtype": "int64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 73,
+        "unique_rate": 0.146,
+        "sample_values": [
+          112,
+          92,
+          88,
+          100,
+          97
+        ],
+        "mean": 100.494,
+        "std": 14.768011115401059,
+        "min": 56.0,
+        "25%": 91.0,
+        "50%": 100.0,
+        "75%": 110.25,
+        "max": 148.0
+      },
+      "operator": {
+        "dtype": "object",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 4,
+        "unique_rate": 0.008,
+        "sample_values": [
+          "B",
+          "C",
+          "B",
+          "C",
+          "C"
+        ],
+        "top_values": {
+          "D": 129,
+          "A": 129,
+          "B": 127,
+          "C": 115
+        }
+      },
+      "shift": {
+        "dtype": "object",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 3,
+        "unique_rate": 0.006,
+        "sample_values": [
+          "Afternoon",
+          "Afternoon",
+          "Night",
+          "Morning",
+          "Night"
+        ],
+        "top_values": {
+          "Morning": 179,
+          "Night": 169,
+          "Afternoon": 152
+        }
+      },
+      "equipment_age_days": {
+        "dtype": "int64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 278,
+        "unique_rate": 0.556,
+        "sample_values": [
+          93,
+          303,
+          137,
+          337,
+          37
+        ],
+        "mean": 183.272,
+        "std": 103.84222856268894,
+        "min": 1.0,
+        "25%": 93.0,
+        "50%": 181.0,
+        "75%": 275.0,
+        "max": 364.0
+      },
+      "yield_pct": {
+        "dtype": "float64",
+        "non_null": 500,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 410,
+        "unique_rate": 0.82,
+        "sample_values": [
+          79.73,
+          89.75,
+          79.5,
+          85.03,
+          81.9
+        ],
+        "mean": 84.24086,
+        "std": 4.058037159955927,
+        "min": 70.63,
+        "25%": 81.56,
+        "50%": 84.13,
+        "75%": 87.1125,
+        "max": 96.87
+      }
+    },
+    "sample_records": [
+      {
+        "run_id": 1,
+        "date": "2025-01-01",
+        "temperature_c": 185.9,
+        "pressure_psi": 54.6,
+        "humidity_pct": 56.2,
+        "line_speed_uph": 112,
+        "operator": "B",
+        "shift": "Afternoon",
+        "equipment_age_days": 93,
+        "yield_pct": 79.73
+      },
+      {
+        "run_id": 2,
+        "date": "2025-01-02",
+        "temperature_c": 181.6,
+        "pressure_psi": 59.5,
+        "humidity_pct": 52.4,
+        "line_speed_uph": 92,
+        "operator": "C",
+        "shift": "Afternoon",
+        "equipment_age_days": 303,
+        "yield_pct": 89.75
+      },
+      {
+        "run_id": 3,
+        "date": "2025-01-03",
+        "temperature_c": 187.8,
+        "pressure_psi": 43.0,
+        "humidity_pct": 45.5,
+        "line_speed_uph": 88,
+        "operator": "B",
+        "shift": "Night",
+        "equipment_age_days": 137,
+        "yield_pct": 79.5
+      },
+      {
+        "run_id": 4,
+        "date": "2025-01-04",
+        "temperature_c": 198.6,
+        "pressure_psi": 52.8,
+        "humidity_pct": 39.8,
+        "line_speed_uph": 100,
+        "operator": "C",
+        "shift": "Morning",
+        "equipment_age_days": 337,
+        "yield_pct": 85.03
+      },
+      {
+        "run_id": 5,
+        "date": "2025-01-05",
+        "temperature_c": 178.0,
+        "pressure_psi": 46.7,
+        "humidity_pct": 50.6,
+        "line_speed_uph": 97,
+        "operator": "C",
+        "shift": "Night",
+        "equipment_age_days": 37,
+        "yield_pct": 81.9
+      },
+      {
+        "run_id": 6,
+        "date": "2025-01-06",
+        "temperature_c": 178.9,
+        "pressure_psi": 47.6,
+        "humidity_pct": 48.1,
+        "line_speed_uph": 93,
+        "operator": "D",
+        "shift": "Morning",
+        "equipment_age_days": 126,
+        "yield_pct": 86.75
+      },
+      {
+        "run_id": 7,
+        "date": "2025-01-07",
+        "temperature_c": 198.5,
+        "pressure_psi": 47.0,
+        "humidity_pct": 52.2,
+        "line_speed_uph": 110,
+        "operator": "C",
+        "shift": "Afternoon",
+        "equipment_age_days": 274,
+        "yield_pct": 79.52
+      },
+      {
+        "run_id": 8,
+        "date": "2025-01-08",
+        "temperature_c": 189.3,
+        "pressure_psi": 45.7,
+        "humidity_pct": 50.1,
+        "line_speed_uph": 114,
+        "operator": "B",
+        "shift": "Morning",
+        "equipment_age_days": 163,
+        "yield_pct": 80.54
+      },
+      {
+        "run_id": 9,
+        "date": "2025-01-09",
+        "temperature_c": 178.5,
+        "pressure_psi": 50.2,
+        "humidity_pct": 53.4,
+        "line_speed_uph": 101,
+        "operator": "D",
+        "shift": "Night",
+        "equipment_age_days": 318,
+        "yield_pct": 84.53
+      },
+      {
+        "run_id": 10,
+        "date": "2025-01-10",
+        "temperature_c": 186.2,
+        "pressure_psi": 45.8,
+        "humidity_pct": 40.7,
+        "line_speed_uph": 122,
+        "operator": "A",
+        "shift": "Night",
+        "equipment_age_days": 76,
+        "yield_pct": 81.26
+      }
+    ],
+    "data_risks": []
+  },
+  "readiness_report": {
+    "overall_status": "partial",
+    "dimensions": {
+      "sample_size": {
+        "status": "ok",
+        "evidence": "Total rows = 500."
+      },
+      "missingness": {
+        "status": "ok",
+        "evidence": "Overall 0% missing; worst column 1%."
+      },
+      "grain": {
+        "status": "ok",
+        "evidence": "No duplicate keys on ['run_id']."
+      },
+      "time_coverage": {
+        "status": "ok",
+        "evidence": "No time column requested; dimension not applicable."
+      },
+      "balance": {
+        "status": "ok",
+        "evidence": "No categorical target or group column; imbalance not applicable."
+      },
+      "leakage": {
+        "status": "ok",
+        "evidence": "No leakage suspects in candidate features."
+      },
+      "role_clarity": {
+        "status": "partial",
+        "evidence": "Target 'yield_pct' present with variation, but no candidate features supplied."
+      },
+      "measurement_reliability": {
+        "status": "ok",
+        "evidence": "No sentinel, saturation, or unit-mismatch flags detected."
+      }
+    },
+    "caveats": [
+      "role_clarity: Target 'yield_pct' present with variation, but no candidate features supplied."
+    ],
+    "narrowed_scope_suggestions": [
+      "Confirm the target and feature set with the requester before proceeding."
+    ],
+    "data_request": []
+  },
+  "shaping": {
+    "grain": {
+      "keys_tested": [
+        "run_id",
+        "date",
+        "temperature_c",
+        "pressure_psi",
+        "humidity_pct",
+        "line_speed_uph",
+        "operator",
+        "shift",
+        "equipment_age_days",
+        "yield_pct"
+      ],
+      "is_unique": true,
+      "n_total_rows": 500,
+      "n_unique_keys": 500,
+      "duplicate_examples": [],
+      "inferred_grain": "one row per (run_id, date, temperature_c, pressure_psi, humidity_pct, line_speed_uph, operator, shift, equipment_age_days, yield_pct)"
+    },
+    "leakage": {
+      "target": "yield_pct",
+      "flagged_columns": [],
+      "name_based_flags": [],
+      "correlation_based_flags": [],
+      "time_based_flags": []
+    }
+  },
+  "baseline_evidence": {
+    "correlation": [
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.7439454806222547,
+        "p_value": 3.142970122202668e-89,
+        "p_adjusted": 3.7715641466432015e-88,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.7439454806222547,
+        "interpretation": "very strong negative"
+      },
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.7334833010671301,
+        "p_value": 1.5252895018395806e-85,
+        "p_adjusted": 9.151737011037483e-85,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.7334833010671301,
+        "interpretation": "very strong negative"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": 0.27455251240872647,
+        "p_value": 4.25966952039756e-10,
+        "p_adjusted": 1.703867808159024e-09,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.27455251240872647,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": 0.2513824813971065,
+        "p_value": 1.2066885126058753e-08,
+        "p_adjusted": 3.6200655378176256e-08,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.2513824813971065,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "temperature_c",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.1500935060866825,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.1500935060866825,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.12660024424076052,
+        "p_value": 0.0048749720717834195,
+        "p_adjusted": 0.011699932972280207,
+        "significant_after_fdr": true,
+        "n": 493,
+        "effect_strength": 0.12660024424076052,
+        "interpretation": "weak negative"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.10296871205412388,
+        "p_value": 0.021289447337476966,
+        "p_adjusted": 0.04257889467495393,
+        "significant_after_fdr": true,
+        "n": 500,
+        "effect_strength": 0.10296871205412388,
+        "interpretation": "weak negative"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.09162562553810506,
+        "p_value": 0.041998603743010496,
+        "p_adjusted": 0.06884998005488677,
+        "significant_after_fdr": false,
+        "n": 493,
+        "effect_strength": 0.09162562553810506,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": -0.08932282210032774,
+        "p_value": 0.045899986703257845,
+        "p_adjusted": 0.06884998005488677,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.08932282210032774,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.0862680054505214,
+        "p_value": 0.05388270912855359,
+        "p_adjusted": 0.0718436121714048,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0862680054505214,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": -0.0716070293437104,
+        "p_value": 0.10977000868575892,
+        "p_adjusted": 0.1317240104229107,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0716070293437104,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "spearman",
+        "coefficient": 0.023485066813639332,
+        "p_value": 0.600348127343608,
+        "p_adjusted": 0.6095353883038579,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.023485066813639332,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "pearson",
+        "coefficient": 0.02289515247424425,
+        "p_value": 0.6095353883038579,
+        "p_adjusted": 0.6095353883038579,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.02289515247424425,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "humidity_pct",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.013000351766787741,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 493,
+        "effect_strength": 0.013000351766787741,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "pressure_psi",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.010977519232327683,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.010977519232327683,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "line_speed_uph",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.000958552119120533,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.000958552119120533,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "run_id",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.0006718170893860748,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0006718170893860748,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "equipment_age_days",
+        "target": "yield_pct",
+        "method": "mutual_info",
+        "coefficient": 0.0,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 500,
+        "effect_strength": 0.0,
+        "interpretation": "negligible dependence"
+      }
+    ],
+    "driver_ranking": [
+      {
+        "rank": 1,
+        "feature": "temperature_c",
+        "method": "pearson",
+        "strength": 0.7439454806222547,
+        "interpretation": "very strong negative"
+      },
+      {
+        "rank": 2,
+        "feature": "temperature_c",
+        "method": "spearman",
+        "strength": 0.7334833010671301,
+        "interpretation": "very strong negative"
+      },
+      {
+        "rank": 3,
+        "feature": "pressure_psi",
+        "method": "pearson",
+        "strength": 0.27455251240872647,
+        "interpretation": "weak positive"
+      },
+      {
+        "rank": 4,
+        "feature": "pressure_psi",
+        "method": "spearman",
+        "strength": 0.2513824813971065,
+        "interpretation": "weak positive"
+      },
+      {
+        "rank": 5,
+        "feature": "temperature_c",
+        "method": "mutual_info",
+        "strength": 0.1500935060866825,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "rank": 6,
+        "feature": "humidity_pct",
+        "method": "pearson",
+        "strength": 0.12660024424076052,
+        "interpretation": "weak negative"
+      },
+      {
+        "rank": 7,
+        "feature": "equipment_age_days",
+        "method": "spearman",
+        "strength": 0.10296871205412388,
+        "interpretation": "weak negative"
+      },
+      {
+        "rank": 8,
+        "feature": "humidity_pct",
+        "method": "spearman",
+        "strength": 0.09162562553810506,
+        "interpretation": "negligible negative"
+      },
+      {
+        "rank": 9,
+        "feature": "line_speed_uph",
+        "method": "spearman",
+        "strength": 0.08932282210032774,
+        "interpretation": "negligible negative"
+      },
+      {
+        "rank": 10,
+        "feature": "equipment_age_days",
+        "method": "pearson",
+        "strength": 0.0862680054505214,
+        "interpretation": "negligible negative"
+      }
+    ]
+  },
+  "warnings": []
+}

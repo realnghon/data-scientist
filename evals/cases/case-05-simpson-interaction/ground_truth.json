@@ -1,0 +1,54 @@
+{
+  "case_id": "case-05-simpson-interaction",
+  "dataset": "dataset.csv",
+  "target": "sales_amount",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims", "rejected_alternatives"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "simpson_paradox_detected",
+      "type": "confound_detected",
+      "feature": "region_product_mix",
+      "evidence_regex": "(Simpson|辛普森|悖论|paradox|reverses?|反转|逆转)|((control|控制|分层|stratif)\\w*[^\\n]{0,160}(product|产品)[^\\n]{0,200}(B[^\\n]{0,80}(高|best|highest|lead)))"
+    },
+    {
+      "id": "region_b_best_within_product",
+      "type": "claim",
+      "feature": "region",
+      "evidence_regex": "(region[_ ]?B|B ?地区|地区 ?B)[^\\n]{0,200}(highest|最高|best|最好|领先|更高)"
+    },
+    {
+      "id": "product_mix_explains_pooled",
+      "type": "claim",
+      "feature": "product_type",
+      "evidence_regex": "(product (mix|type)|产品(组合|类型|结构))[^\\n]{0,240}(explain|解释|drive|导致|due to|因为|混淆|confound)|(A ?(地区|region)|region[_ ]?A)[^\\n]{0,200}(premium|高价|产品 ?Y|product[_ ]?Y)"
+    },
+    {
+      "id": "price_promo_interaction",
+      "type": "interaction",
+      "feature": "price_x_promotion",
+      "evidence_regex": "(price|价格)[^\\n]{0,80}(×|x|\\*|interaction|交互)[^\\n]{0,80}(promo|促销)|(promo|促销)[^\\n]{0,120}(elasticity|弹性|amplif|放大|更强|stronger)"
+    },
+    {
+      "id": "noise_index_rejected",
+      "type": "rejected_driver",
+      "feature": "noise_index",
+      "evidence_regex": "noise[_ ]?index[^\\n]{0,200}(noise|噪声|not significant|无显著|不显著|排除|rejected|no effect)"
+    }
+  ],
+  "charts": {"min_count": 2, "required_keywords": []},
+  "anti_patterns": [
+    {
+      "id": "no_pooled_only_conclusion",
+      "forbidden_regex": "(A 地区销售效率最高|region A is the most efficient)",
+      "scope": "final_report"
+    }
+  ]
+}

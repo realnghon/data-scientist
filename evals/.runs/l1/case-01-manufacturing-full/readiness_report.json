@@ -1,0 +1,44 @@
+{
+  "overall_status": "partial",
+  "dimensions": {
+    "sample_size": {
+      "status": "ok",
+      "evidence": "Total rows = 500."
+    },
+    "missingness": {
+      "status": "ok",
+      "evidence": "Overall 0% missing; worst column 1%."
+    },
+    "grain": {
+      "status": "ok",
+      "evidence": "No duplicate keys on ['run_id']."
+    },
+    "time_coverage": {
+      "status": "ok",
+      "evidence": "No time column requested; dimension not applicable."
+    },
+    "balance": {
+      "status": "ok",
+      "evidence": "No categorical target or group column; imbalance not applicable."
+    },
+    "leakage": {
+      "status": "ok",
+      "evidence": "No leakage suspects in candidate features."
+    },
+    "role_clarity": {
+      "status": "partial",
+      "evidence": "Target 'yield_pct' present with variation, but no candidate features supplied."
+    },
+    "measurement_reliability": {
+      "status": "ok",
+      "evidence": "No sentinel, saturation, or unit-mismatch flags detected."
+    }
+  },
+  "caveats": [
+    "role_clarity: Target 'yield_pct' present with variation, but no candidate features supplied."
+  ],
+  "narrowed_scope_suggestions": [
+    "Confirm the target and feature set with the requester before proceeding."
+  ],
+  "data_request": []
+}

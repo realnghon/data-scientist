@@ -1,0 +1,1 @@
+我们刚跑完一个 A/B 实验，数据在 dataset.csv（10000 个用户，variant 列区分 control/treatment，包含 converted 和 revenue）。请分析 treatment 是否显著提升了转化率和收入，效果有多大，能不能上线。

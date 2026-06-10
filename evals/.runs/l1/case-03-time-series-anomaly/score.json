@@ -1,0 +1,31 @@
+{
+  "case_id": "case-03-time-series-anomaly",
+  "run_dir": "/Users/silaswu/Silas_Develop/data-scientist/evals/.runs/l1/case-03-time-series-anomaly",
+  "subset": "l1",
+  "score": 100.0,
+  "passed": 3,
+  "total": 3,
+  "checks": [
+    {
+      "category": "routing_must",
+      "id": "produce:data_manifest",
+      "passed": true,
+      "weight": 3.0,
+      "detail": "/Users/silaswu/Silas_Develop/data-scientist/evals/.runs/l1/case-03-time-series-anomaly/data_manifest.json"
+    },
+    {
+      "category": "routing_must",
+      "id": "produce:readiness_report",
+      "passed": true,
+      "weight": 3.0,
+      "detail": "/Users/silaswu/Silas_Develop/data-scientist/evals/.runs/l1/case-03-time-series-anomaly/readiness_report.json"
+    },
+    {
+      "category": "artifact_schema",
+      "id": "schema:readiness_report",
+      "passed": true,
+      "weight": 2.0,
+      "detail": "ok"
+    }
+  ]
+}

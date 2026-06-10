@@ -1,0 +1,48 @@
+{
+  "overall_status": "partial",
+  "dimensions": {
+    "sample_size": {
+      "status": "ok",
+      "evidence": "Total rows = 10000."
+    },
+    "missingness": {
+      "status": "ok",
+      "evidence": "Overall 0% missing; worst column 0%."
+    },
+    "grain": {
+      "status": "ok",
+      "evidence": "No duplicate keys on ['user_id']."
+    },
+    "time_coverage": {
+      "status": "ok",
+      "evidence": "No time column requested; dimension not applicable."
+    },
+    "balance": {
+      "status": "partial",
+      "evidence": "'converted' majority:minority = 6.62:1; balanced metric (PR-AUC, F1)."
+    },
+    "leakage": {
+      "status": "ok",
+      "evidence": "No leakage suspects in candidate features."
+    },
+    "role_clarity": {
+      "status": "partial",
+      "evidence": "Target 'converted' present with variation, but no candidate features supplied."
+    },
+    "measurement_reliability": {
+      "status": "partial",
+      "evidence": "Possible saturation in columns ['converted']; document fix."
+    }
+  },
+  "caveats": [
+    "balance: 'converted' majority:minority = 6.62:1; balanced metric (PR-AUC, F1).",
+    "role_clarity: Target 'converted' present with variation, but no candidate features supplied.",
+    "measurement_reliability: Possible saturation in columns ['converted']; document fix."
+  ],
+  "narrowed_scope_suggestions": [
+    "Use class-balanced metrics (PR-AUC, F1) or resampling; avoid raw accuracy.",
+    "Confirm the target and feature set with the requester before proceeding.",
+    "Recode sentinel values as NaN and document the fix before modeling."
+  ],
+  "data_request": []
+}

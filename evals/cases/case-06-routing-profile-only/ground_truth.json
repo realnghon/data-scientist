@@ -1,0 +1,42 @@
+{
+  "case_id": "case-06-routing-profile-only",
+  "dataset": "../../../examples/manufacturing_yield/dataset.csv",
+  "target": null,
+  "routing": {
+    "expected_route": "profile-only",
+    "must_produce_artifacts": ["data_manifest", "readiness_report"],
+    "must_not_produce": ["analysis_plan", "evidence_matrix"]
+  },
+  "artifacts": {
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "profile_covers_structure",
+      "type": "quality",
+      "feature": "profile",
+      "evidence_regex": "(500|行|rows)[^\\n]{0,160}(10|列|columns)|(columns?|列)[^\\n]{0,300}(yield_pct)"
+    },
+    {
+      "id": "missingness_noted",
+      "type": "quality",
+      "feature": "missingness",
+      "evidence_regex": "(humidity)[^\\n]{0,160}(missing|缺失|NaN|1\\.?[0-9]?%)"
+    },
+    {
+      "id": "no_statistical_conclusions",
+      "type": "routing_discipline",
+      "feature": "scope",
+      "evidence_regex": null,
+      "note": "checked via must_not_produce + anti_patterns"
+    }
+  ],
+  "charts": {"min_count": 0, "required_keywords": []},
+  "anti_patterns": [
+    {
+      "id": "no_hypothesis_tests_in_profile",
+      "forbidden_regex": "(p[ -]?value|p ?[=<>] ?0\\.|显著性检验结果|t-test result|回归系数)",
+      "scope": "final_report"
+    }
+  ]
+}

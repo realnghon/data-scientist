@@ -1,0 +1,1732 @@
+{
+  "stage": "baseline",
+  "status": "ok",
+  "produced": {
+    "data_manifest": {
+      "status": "ok",
+      "manifest": {
+        "source": "/Users/silaswu/Silas_Develop/data-scientist/evals/cases/case-05-simpson-interaction/dataset.csv",
+        "file_size_bytes": 86428,
+        "read_metadata": {
+          "format": "csv",
+          "delimiter": ",",
+          "estimated_rows": 3000
+        },
+        "sampled_rows": 3000,
+        "columns": [
+          "order_id",
+          "region",
+          "product_type",
+          "price",
+          "promotion",
+          "noise_index",
+          "sales_amount"
+        ],
+        "dtypes": {
+          "order_id": "int64",
+          "region": "object",
+          "product_type": "object",
+          "price": "float64",
+          "promotion": "int64",
+          "noise_index": "float64",
+          "sales_amount": "float64"
+        }
+      },
+      "role_candidates": [
+        {
+          "column": "product_type",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "order_id",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "region",
+          "role": "group",
+          "confidence": 0.58,
+          "evidence": [
+            "categorical column with moderate cardinality"
+          ]
+        }
+      ],
+      "column_profiles": {
+        "order_id": {
+          "dtype": "int64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3000,
+          "unique_rate": 1.0,
+          "sample_values": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "mean": 1500.5,
+          "std": 866.1697293256098,
+          "min": 1.0,
+          "25%": 750.75,
+          "50%": 1500.5,
+          "75%": 2250.25,
+          "max": 3000.0
+        },
+        "region": {
+          "dtype": "object",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3,
+          "unique_rate": 0.001,
+          "sample_values": [
+            "B",
+            "C",
+            "A",
+            "A",
+            "A"
+          ],
+          "top_values": {
+            "B": 1041,
+            "A": 986,
+            "C": 973
+          }
+        },
+        "product_type": {
+          "dtype": "object",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2,
+          "unique_rate": 0.000667,
+          "sample_values": [
+            "X",
+            "X",
+            "X",
+            "Y",
+            "Y"
+          ],
+          "top_values": {
+            "X": 1866,
+            "Y": 1134
+          }
+        },
+        "price": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2128,
+          "unique_rate": 0.709333,
+          "sample_values": [
+            36.06,
+            30.88,
+            37.89,
+            106.08,
+            100.98
+          ],
+          "mean": 55.83265666666666,
+          "std": 31.27466412685415,
+          "min": 16.48,
+          "25%": 30.8675,
+          "50%": 36.42,
+          "75%": 91.8925,
+          "max": 126.09
+        },
+        "promotion": {
+          "dtype": "int64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2,
+          "unique_rate": 0.000667,
+          "sample_values": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean": 0.288,
+          "std": 0.4529065850609783,
+          "min": 0.0,
+          "25%": 0.0,
+          "50%": 0.0,
+          "75%": 1.0,
+          "max": 1.0
+        },
+        "noise_index": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2059,
+          "unique_rate": 0.686333,
+          "sample_values": [
+            48.98,
+            42.05,
+            58.68,
+            45.09,
+            44.71
+          ],
+          "mean": 50.28104666666667,
+          "std": 9.9265774002985,
+          "min": 19.06,
+          "25%": 43.4375,
+          "50%": 50.04,
+          "75%": 56.98,
+          "max": 80.31
+        },
+        "sales_amount": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2426,
+          "unique_rate": 0.808667,
+          "sample_values": [
+            53.06,
+            38.5,
+            41.45,
+            95.06,
+            100.67
+          ],
+          "mean": 75.47921666666666,
+          "std": 32.57827972524549,
+          "min": 22.4,
+          "25%": 48.26,
+          "50%": 59.95,
+          "75%": 109.22,
+          "max": 172.07
+        }
+      },
+      "sample_records": [
+        {
+          "order_id": 1,
+          "region": "B",
+          "product_type": "X",
+          "price": 36.06,
+          "promotion": 0,
+          "noise_index": 48.98,
+          "sales_amount": 53.06
+        },
+        {
+          "order_id": 2,
+          "region": "C",
+          "product_type": "X",
+          "price": 30.88,
+          "promotion": 0,
+          "noise_index": 42.05,
+          "sales_amount": 38.5
+        },
+        {
+          "order_id": 3,
+          "region": "A",
+          "product_type": "X",
+          "price": 37.89,
+          "promotion": 0,
+          "noise_index": 58.68,
+          "sales_amount": 41.45
+        },
+        {
+          "order_id": 4,
+          "region": "A",
+          "product_type": "Y",
+          "price": 106.08,
+          "promotion": 0,
+          "noise_index": 45.09,
+          "sales_amount": 95.06
+        },
+        {
+          "order_id": 5,
+          "region": "A",
+          "product_type": "Y",
+          "price": 100.98,
+          "promotion": 0,
+          "noise_index": 44.71,
+          "sales_amount": 100.67
+        },
+        {
+          "order_id": 6,
+          "region": "A",
+          "product_type": "Y",
+          "price": 90.63,
+          "promotion": 0,
+          "noise_index": 37.42,
+          "sales_amount": 106.83
+        },
+        {
+          "order_id": 7,
+          "region": "C",
+          "product_type": "Y",
+          "price": 101.66,
+          "promotion": 0,
+          "noise_index": 48.1,
+          "sales_amount": 109.96
+        },
+        {
+          "order_id": 8,
+          "region": "C",
+          "product_type": "X",
+          "price": 38.35,
+          "promotion": 1,
+          "noise_index": 50.31,
+          "sales_amount": 41.34
+        },
+        {
+          "order_id": 9,
+          "region": "B",
+          "product_type": "X",
+          "price": 29.18,
+          "promotion": 0,
+          "noise_index": 64.16,
+          "sales_amount": 58.05
+        },
+        {
+          "order_id": 10,
+          "region": "B",
+          "product_type": "X",
+          "price": 21.96,
+          "promotion": 0,
+          "noise_index": 49.8,
+          "sales_amount": 55.45
+        }
+      ],
+      "data_risks": []
+    },
+    "readiness_report": {
+      "overall_status": "partial",
+      "dimensions": {
+        "sample_size": {
+          "status": "ok",
+          "evidence": "Total rows = 3000."
+        },
+        "missingness": {
+          "status": "ok",
+          "evidence": "Overall 0% missing; worst column 0%."
+        },
+        "grain": {
+          "status": "ok",
+          "evidence": "No duplicate keys on ['order_id']."
+        },
+        "time_coverage": {
+          "status": "ok",
+          "evidence": "No time column requested; dimension not applicable."
+        },
+        "balance": {
+          "status": "ok",
+          "evidence": "No categorical target or group column; imbalance not applicable."
+        },
+        "leakage": {
+          "status": "ok",
+          "evidence": "No leakage suspects in candidate features."
+        },
+        "role_clarity": {
+          "status": "partial",
+          "evidence": "Target 'sales_amount' present with variation, but no candidate features supplied."
+        },
+        "measurement_reliability": {
+          "status": "partial",
+          "evidence": "Possible saturation in columns ['promotion']; document fix."
+        }
+      },
+      "caveats": [
+        "role_clarity: Target 'sales_amount' present with variation, but no candidate features supplied.",
+        "measurement_reliability: Possible saturation in columns ['promotion']; document fix."
+      ],
+      "narrowed_scope_suggestions": [
+        "Confirm the target and feature set with the requester before proceeding.",
+        "Recode sentinel values as NaN and document the fix before modeling."
+      ],
+      "data_request": []
+    },
+    "shaping": {
+      "grain": {
+        "keys_tested": [
+          "order_id",
+          "region",
+          "product_type",
+          "price",
+          "promotion",
+          "noise_index",
+          "sales_amount"
+        ],
+        "is_unique": true,
+        "n_total_rows": 3000,
+        "n_unique_keys": 3000,
+        "duplicate_examples": [],
+        "inferred_grain": "one row per (order_id, region, product_type, price, promotion, noise_index, sales_amount)"
+      },
+      "leakage": {
+        "target": "sales_amount",
+        "flagged_columns": [],
+        "name_based_flags": [],
+        "correlation_based_flags": [],
+        "time_based_flags": []
+      }
+    },
+    "baseline_evidence": {
+      "correlation": [
+        {
+          "feature": "price",
+          "target": "sales_amount",
+          "method": "pearson",
+          "coefficient": 0.8841827684249607,
+          "p_value": 0.0,
+          "p_adjusted": 0.0,
+          "significant_after_fdr": true,
+          "n": 3000,
+          "effect_strength": 0.8841827684249607,
+          "interpretation": "very strong positive"
+        },
+        {
+          "feature": "price",
+          "target": "sales_amount",
+          "method": "spearman",
+          "coefficient": 0.5858473102504924,
+          "p_value": 5.137944856651582e-276,
+          "p_adjusted": 2.0551779426606327e-275,
+          "significant_after_fdr": true,
+          "n": 3000,
+          "effect_strength": 0.5858473102504924,
+          "interpretation": "strong positive"
+        },
+        {
+          "feature": "price",
+          "target": "sales_amount",
+          "method": "mutual_info",
+          "coefficient": 0.24998369345842877,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.24998369345842877,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "feature": "promotion",
+          "target": "sales_amount",
+          "method": "spearman",
+          "coefficient": 0.16701381210212934,
+          "p_value": 3.302249941092722e-20,
+          "p_adjusted": 8.805999842913925e-20,
+          "significant_after_fdr": true,
+          "n": 3000,
+          "effect_strength": 0.16701381210212934,
+          "interpretation": "weak positive"
+        },
+        {
+          "feature": "promotion",
+          "target": "sales_amount",
+          "method": "mutual_info",
+          "coefficient": 0.15127238164214124,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.15127238164214124,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "feature": "promotion",
+          "target": "sales_amount",
+          "method": "pearson",
+          "coefficient": 0.12506863578054814,
+          "p_value": 6.2232229809318114e-12,
+          "p_adjusted": 1.2446445961863623e-11,
+          "significant_after_fdr": true,
+          "n": 3000,
+          "effect_strength": 0.12506863578054814,
+          "interpretation": "weak positive"
+        },
+        {
+          "feature": "order_id",
+          "target": "sales_amount",
+          "method": "spearman",
+          "coefficient": 0.013693744982272655,
+          "p_value": 0.45339933705213287,
+          "p_adjusted": 0.7254389392834126,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.013693744982272655,
+          "interpretation": "negligible positive"
+        },
+        {
+          "feature": "noise_index",
+          "target": "sales_amount",
+          "method": "spearman",
+          "coefficient": -0.009473418787850246,
+          "p_value": 0.603986761509419,
+          "p_adjusted": 0.7643769897225566,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.009473418787850246,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "noise_index",
+          "target": "sales_amount",
+          "method": "pearson",
+          "coefficient": -0.006289687770569626,
+          "p_value": 0.7305753985265652,
+          "p_adjusted": 0.7643769897225566,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.006289687770569626,
+          "interpretation": "negligible negative"
+        },
+        {
+          "feature": "order_id",
+          "target": "sales_amount",
+          "method": "pearson",
+          "coefficient": 0.005474683181825946,
+          "p_value": 0.7643769897225566,
+          "p_adjusted": 0.7643769897225566,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.005474683181825946,
+          "interpretation": "negligible positive"
+        },
+        {
+          "feature": "noise_index",
+          "target": "sales_amount",
+          "method": "mutual_info",
+          "coefficient": 0.00534440921698164,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.00534440921698164,
+          "interpretation": "negligible dependence"
+        },
+        {
+          "feature": "order_id",
+          "target": "sales_amount",
+          "method": "mutual_info",
+          "coefficient": 0.0,
+          "p_value": null,
+          "p_adjusted": null,
+          "significant_after_fdr": false,
+          "n": 3000,
+          "effect_strength": 0.0,
+          "interpretation": "negligible dependence"
+        }
+      ],
+      "driver_ranking": [
+        {
+          "rank": 1,
+          "feature": "price",
+          "method": "pearson",
+          "strength": 0.8841827684249607,
+          "interpretation": "very strong positive"
+        },
+        {
+          "rank": 2,
+          "feature": "price",
+          "method": "spearman",
+          "strength": 0.5858473102504924,
+          "interpretation": "strong positive"
+        },
+        {
+          "rank": 3,
+          "feature": "price",
+          "method": "mutual_info",
+          "strength": 0.24998369345842877,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "rank": 4,
+          "feature": "promotion",
+          "method": "spearman",
+          "strength": 0.16701381210212934,
+          "interpretation": "weak positive"
+        },
+        {
+          "rank": 5,
+          "feature": "promotion",
+          "method": "mutual_info",
+          "strength": 0.15127238164214124,
+          "interpretation": "moderate dependence"
+        },
+        {
+          "rank": 6,
+          "feature": "promotion",
+          "method": "pearson",
+          "strength": 0.12506863578054814,
+          "interpretation": "weak positive"
+        },
+        {
+          "rank": 7,
+          "feature": "order_id",
+          "method": "spearman",
+          "strength": 0.013693744982272655,
+          "interpretation": "negligible positive"
+        },
+        {
+          "rank": 8,
+          "feature": "noise_index",
+          "method": "spearman",
+          "strength": 0.009473418787850246,
+          "interpretation": "negligible negative"
+        },
+        {
+          "rank": 9,
+          "feature": "noise_index",
+          "method": "pearson",
+          "strength": 0.006289687770569626,
+          "interpretation": "negligible negative"
+        },
+        {
+          "rank": 10,
+          "feature": "order_id",
+          "method": "pearson",
+          "strength": 0.005474683181825946,
+          "interpretation": "negligible positive"
+        }
+      ]
+    },
+    "warnings": []
+  },
+  "carry_forward": {
+    "data_manifest": {
+      "status": "ok",
+      "manifest": {
+        "source": "/Users/silaswu/Silas_Develop/data-scientist/evals/cases/case-05-simpson-interaction/dataset.csv",
+        "file_size_bytes": 86428,
+        "read_metadata": {
+          "format": "csv",
+          "delimiter": ",",
+          "estimated_rows": 3000
+        },
+        "sampled_rows": 3000,
+        "columns": [
+          "order_id",
+          "region",
+          "product_type",
+          "price",
+          "promotion",
+          "noise_index",
+          "sales_amount"
+        ],
+        "dtypes": {
+          "order_id": "int64",
+          "region": "object",
+          "product_type": "object",
+          "price": "float64",
+          "promotion": "int64",
+          "noise_index": "float64",
+          "sales_amount": "float64"
+        }
+      },
+      "role_candidates": [
+        {
+          "column": "product_type",
+          "role": "group",
+          "confidence": 0.82,
+          "evidence": [
+            "name matches manufacturing/group keyword"
+          ]
+        },
+        {
+          "column": "order_id",
+          "role": "entity_id",
+          "confidence": 0.78,
+          "evidence": [
+            "id keyword or high uniqueness"
+          ]
+        },
+        {
+          "column": "region",
+          "role": "group",
+          "confidence": 0.58,
+          "evidence": [
+            "categorical column with moderate cardinality"
+          ]
+        }
+      ],
+      "column_profiles": {
+        "order_id": {
+          "dtype": "int64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3000,
+          "unique_rate": 1.0,
+          "sample_values": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "mean": 1500.5,
+          "std": 866.1697293256098,
+          "min": 1.0,
+          "25%": 750.75,
+          "50%": 1500.5,
+          "75%": 2250.25,
+          "max": 3000.0
+        },
+        "region": {
+          "dtype": "object",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 3,
+          "unique_rate": 0.001,
+          "sample_values": [
+            "B",
+            "C",
+            "A",
+            "A",
+            "A"
+          ],
+          "top_values": {
+            "B": 1041,
+            "A": 986,
+            "C": 973
+          }
+        },
+        "product_type": {
+          "dtype": "object",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2,
+          "unique_rate": 0.000667,
+          "sample_values": [
+            "X",
+            "X",
+            "X",
+            "Y",
+            "Y"
+          ],
+          "top_values": {
+            "X": 1866,
+            "Y": 1134
+          }
+        },
+        "price": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2128,
+          "unique_rate": 0.709333,
+          "sample_values": [
+            36.06,
+            30.88,
+            37.89,
+            106.08,
+            100.98
+          ],
+          "mean": 55.83265666666666,
+          "std": 31.27466412685415,
+          "min": 16.48,
+          "25%": 30.8675,
+          "50%": 36.42,
+          "75%": 91.8925,
+          "max": 126.09
+        },
+        "promotion": {
+          "dtype": "int64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2,
+          "unique_rate": 0.000667,
+          "sample_values": [
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "mean": 0.288,
+          "std": 0.4529065850609783,
+          "min": 0.0,
+          "25%": 0.0,
+          "50%": 0.0,
+          "75%": 1.0,
+          "max": 1.0
+        },
+        "noise_index": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2059,
+          "unique_rate": 0.686333,
+          "sample_values": [
+            48.98,
+            42.05,
+            58.68,
+            45.09,
+            44.71
+          ],
+          "mean": 50.28104666666667,
+          "std": 9.9265774002985,
+          "min": 19.06,
+          "25%": 43.4375,
+          "50%": 50.04,
+          "75%": 56.98,
+          "max": 80.31
+        },
+        "sales_amount": {
+          "dtype": "float64",
+          "non_null": 3000,
+          "missing": 0,
+          "missing_rate": 0.0,
+          "unique": 2426,
+          "unique_rate": 0.808667,
+          "sample_values": [
+            53.06,
+            38.5,
+            41.45,
+            95.06,
+            100.67
+          ],
+          "mean": 75.47921666666666,
+          "std": 32.57827972524549,
+          "min": 22.4,
+          "25%": 48.26,
+          "50%": 59.95,
+          "75%": 109.22,
+          "max": 172.07
+        }
+      },
+      "sample_records": [
+        {
+          "order_id": 1,
+          "region": "B",
+          "product_type": "X",
+          "price": 36.06,
+          "promotion": 0,
+          "noise_index": 48.98,
+          "sales_amount": 53.06
+        },
+        {
+          "order_id": 2,
+          "region": "C",
+          "product_type": "X",
+          "price": 30.88,
+          "promotion": 0,
+          "noise_index": 42.05,
+          "sales_amount": 38.5
+        },
+        {
+          "order_id": 3,
+          "region": "A",
+          "product_type": "X",
+          "price": 37.89,
+          "promotion": 0,
+          "noise_index": 58.68,
+          "sales_amount": 41.45
+        },
+        {
+          "order_id": 4,
+          "region": "A",
+          "product_type": "Y",
+          "price": 106.08,
+          "promotion": 0,
+          "noise_index": 45.09,
+          "sales_amount": 95.06
+        },
+        {
+          "order_id": 5,
+          "region": "A",
+          "product_type": "Y",
+          "price": 100.98,
+          "promotion": 0,
+          "noise_index": 44.71,
+          "sales_amount": 100.67
+        },
+        {
+          "order_id": 6,
+          "region": "A",
+          "product_type": "Y",
+          "price": 90.63,
+          "promotion": 0,
+          "noise_index": 37.42,
+          "sales_amount": 106.83
+        },
+        {
+          "order_id": 7,
+          "region": "C",
+          "product_type": "Y",
+          "price": 101.66,
+          "promotion": 0,
+          "noise_index": 48.1,
+          "sales_amount": 109.96
+        },
+        {
+          "order_id": 8,
+          "region": "C",
+          "product_type": "X",
+          "price": 38.35,
+          "promotion": 1,
+          "noise_index": 50.31,
+          "sales_amount": 41.34
+        },
+        {
+          "order_id": 9,
+          "region": "B",
+          "product_type": "X",
+          "price": 29.18,
+          "promotion": 0,
+          "noise_index": 64.16,
+          "sales_amount": 58.05
+        },
+        {
+          "order_id": 10,
+          "region": "B",
+          "product_type": "X",
+          "price": 21.96,
+          "promotion": 0,
+          "noise_index": 49.8,
+          "sales_amount": 55.45
+        }
+      ],
+      "data_risks": []
+    },
+    "field_role_candidates": [
+      {
+        "column": "product_type",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "order_id",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "region",
+        "role": "group",
+        "confidence": 0.58,
+        "evidence": [
+          "categorical column with moderate cardinality"
+        ]
+      }
+    ],
+    "readiness_report": {
+      "overall_status": "partial",
+      "dimensions": {
+        "sample_size": {
+          "status": "ok",
+          "evidence": "Total rows = 3000."
+        },
+        "missingness": {
+          "status": "ok",
+          "evidence": "Overall 0% missing; worst column 0%."
+        },
+        "grain": {
+          "status": "ok",
+          "evidence": "No duplicate keys on ['order_id']."
+        },
+        "time_coverage": {
+          "status": "ok",
+          "evidence": "No time column requested; dimension not applicable."
+        },
+        "balance": {
+          "status": "ok",
+          "evidence": "No categorical target or group column; imbalance not applicable."
+        },
+        "leakage": {
+          "status": "ok",
+          "evidence": "No leakage suspects in candidate features."
+        },
+        "role_clarity": {
+          "status": "partial",
+          "evidence": "Target 'sales_amount' present with variation, but no candidate features supplied."
+        },
+        "measurement_reliability": {
+          "status": "partial",
+          "evidence": "Possible saturation in columns ['promotion']; document fix."
+        }
+      },
+      "caveats": [
+        "role_clarity: Target 'sales_amount' present with variation, but no candidate features supplied.",
+        "measurement_reliability: Possible saturation in columns ['promotion']; document fix."
+      ],
+      "narrowed_scope_suggestions": [
+        "Confirm the target and feature set with the requester before proceeding.",
+        "Recode sentinel values as NaN and document the fix before modeling."
+      ],
+      "data_request": []
+    },
+    "analysis_views": [],
+    "analysis_plan": {},
+    "evidence_matrix": [
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.8841827684249607,
+        "p_value": 0.0,
+        "p_adjusted": 0.0,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.8841827684249607,
+        "interpretation": "very strong positive"
+      },
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.5858473102504924,
+        "p_value": 5.137944856651582e-276,
+        "p_adjusted": 2.0551779426606327e-275,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.5858473102504924,
+        "interpretation": "strong positive"
+      },
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.24998369345842877,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.24998369345842877,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.16701381210212934,
+        "p_value": 3.302249941092722e-20,
+        "p_adjusted": 8.805999842913925e-20,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.16701381210212934,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.15127238164214124,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.15127238164214124,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.12506863578054814,
+        "p_value": 6.2232229809318114e-12,
+        "p_adjusted": 1.2446445961863623e-11,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.12506863578054814,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.013693744982272655,
+        "p_value": 0.45339933705213287,
+        "p_adjusted": 0.7254389392834126,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.013693744982272655,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": -0.009473418787850246,
+        "p_value": 0.603986761509419,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.009473418787850246,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": -0.006289687770569626,
+        "p_value": 0.7305753985265652,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.006289687770569626,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.005474683181825946,
+        "p_value": 0.7643769897225566,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.005474683181825946,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.00534440921698164,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.00534440921698164,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.0,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.0,
+        "interpretation": "negligible dependence"
+      }
+    ],
+    "critique": {}
+  },
+  "next_stage_hint": {
+    "stages": [
+      "method-planner",
+      "execution",
+      "critic",
+      "report"
+    ],
+    "can_parallelize": false,
+    "rationale": "Baseline pipeline complete. Hand off to method-planner for full method selection, then fan-out execution, critic, and report."
+  },
+  "blockers": [],
+  "human_questions": [],
+  "pipeline": "run_full_workflow",
+  "generated_at": "2026-06-10T15:41:53.409615+00:00",
+  "source_file": "/Users/silaswu/Silas_Develop/data-scientist/evals/cases/case-05-simpson-interaction/dataset.csv",
+  "target": "sales_amount",
+  "data_manifest": {
+    "status": "ok",
+    "manifest": {
+      "source": "/Users/silaswu/Silas_Develop/data-scientist/evals/cases/case-05-simpson-interaction/dataset.csv",
+      "file_size_bytes": 86428,
+      "read_metadata": {
+        "format": "csv",
+        "delimiter": ",",
+        "estimated_rows": 3000
+      },
+      "sampled_rows": 3000,
+      "columns": [
+        "order_id",
+        "region",
+        "product_type",
+        "price",
+        "promotion",
+        "noise_index",
+        "sales_amount"
+      ],
+      "dtypes": {
+        "order_id": "int64",
+        "region": "object",
+        "product_type": "object",
+        "price": "float64",
+        "promotion": "int64",
+        "noise_index": "float64",
+        "sales_amount": "float64"
+      }
+    },
+    "role_candidates": [
+      {
+        "column": "product_type",
+        "role": "group",
+        "confidence": 0.82,
+        "evidence": [
+          "name matches manufacturing/group keyword"
+        ]
+      },
+      {
+        "column": "order_id",
+        "role": "entity_id",
+        "confidence": 0.78,
+        "evidence": [
+          "id keyword or high uniqueness"
+        ]
+      },
+      {
+        "column": "region",
+        "role": "group",
+        "confidence": 0.58,
+        "evidence": [
+          "categorical column with moderate cardinality"
+        ]
+      }
+    ],
+    "column_profiles": {
+      "order_id": {
+        "dtype": "int64",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 3000,
+        "unique_rate": 1.0,
+        "sample_values": [
+          1,
+          2,
+          3,
+          4,
+          5
+        ],
+        "mean": 1500.5,
+        "std": 866.1697293256098,
+        "min": 1.0,
+        "25%": 750.75,
+        "50%": 1500.5,
+        "75%": 2250.25,
+        "max": 3000.0
+      },
+      "region": {
+        "dtype": "object",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 3,
+        "unique_rate": 0.001,
+        "sample_values": [
+          "B",
+          "C",
+          "A",
+          "A",
+          "A"
+        ],
+        "top_values": {
+          "B": 1041,
+          "A": 986,
+          "C": 973
+        }
+      },
+      "product_type": {
+        "dtype": "object",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 2,
+        "unique_rate": 0.000667,
+        "sample_values": [
+          "X",
+          "X",
+          "X",
+          "Y",
+          "Y"
+        ],
+        "top_values": {
+          "X": 1866,
+          "Y": 1134
+        }
+      },
+      "price": {
+        "dtype": "float64",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 2128,
+        "unique_rate": 0.709333,
+        "sample_values": [
+          36.06,
+          30.88,
+          37.89,
+          106.08,
+          100.98
+        ],
+        "mean": 55.83265666666666,
+        "std": 31.27466412685415,
+        "min": 16.48,
+        "25%": 30.8675,
+        "50%": 36.42,
+        "75%": 91.8925,
+        "max": 126.09
+      },
+      "promotion": {
+        "dtype": "int64",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 2,
+        "unique_rate": 0.000667,
+        "sample_values": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "mean": 0.288,
+        "std": 0.4529065850609783,
+        "min": 0.0,
+        "25%": 0.0,
+        "50%": 0.0,
+        "75%": 1.0,
+        "max": 1.0
+      },
+      "noise_index": {
+        "dtype": "float64",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 2059,
+        "unique_rate": 0.686333,
+        "sample_values": [
+          48.98,
+          42.05,
+          58.68,
+          45.09,
+          44.71
+        ],
+        "mean": 50.28104666666667,
+        "std": 9.9265774002985,
+        "min": 19.06,
+        "25%": 43.4375,
+        "50%": 50.04,
+        "75%": 56.98,
+        "max": 80.31
+      },
+      "sales_amount": {
+        "dtype": "float64",
+        "non_null": 3000,
+        "missing": 0,
+        "missing_rate": 0.0,
+        "unique": 2426,
+        "unique_rate": 0.808667,
+        "sample_values": [
+          53.06,
+          38.5,
+          41.45,
+          95.06,
+          100.67
+        ],
+        "mean": 75.47921666666666,
+        "std": 32.57827972524549,
+        "min": 22.4,
+        "25%": 48.26,
+        "50%": 59.95,
+        "75%": 109.22,
+        "max": 172.07
+      }
+    },
+    "sample_records": [
+      {
+        "order_id": 1,
+        "region": "B",
+        "product_type": "X",
+        "price": 36.06,
+        "promotion": 0,
+        "noise_index": 48.98,
+        "sales_amount": 53.06
+      },
+      {
+        "order_id": 2,
+        "region": "C",
+        "product_type": "X",
+        "price": 30.88,
+        "promotion": 0,
+        "noise_index": 42.05,
+        "sales_amount": 38.5
+      },
+      {
+        "order_id": 3,
+        "region": "A",
+        "product_type": "X",
+        "price": 37.89,
+        "promotion": 0,
+        "noise_index": 58.68,
+        "sales_amount": 41.45
+      },
+      {
+        "order_id": 4,
+        "region": "A",
+        "product_type": "Y",
+        "price": 106.08,
+        "promotion": 0,
+        "noise_index": 45.09,
+        "sales_amount": 95.06
+      },
+      {
+        "order_id": 5,
+        "region": "A",
+        "product_type": "Y",
+        "price": 100.98,
+        "promotion": 0,
+        "noise_index": 44.71,
+        "sales_amount": 100.67
+      },
+      {
+        "order_id": 6,
+        "region": "A",
+        "product_type": "Y",
+        "price": 90.63,
+        "promotion": 0,
+        "noise_index": 37.42,
+        "sales_amount": 106.83
+      },
+      {
+        "order_id": 7,
+        "region": "C",
+        "product_type": "Y",
+        "price": 101.66,
+        "promotion": 0,
+        "noise_index": 48.1,
+        "sales_amount": 109.96
+      },
+      {
+        "order_id": 8,
+        "region": "C",
+        "product_type": "X",
+        "price": 38.35,
+        "promotion": 1,
+        "noise_index": 50.31,
+        "sales_amount": 41.34
+      },
+      {
+        "order_id": 9,
+        "region": "B",
+        "product_type": "X",
+        "price": 29.18,
+        "promotion": 0,
+        "noise_index": 64.16,
+        "sales_amount": 58.05
+      },
+      {
+        "order_id": 10,
+        "region": "B",
+        "product_type": "X",
+        "price": 21.96,
+        "promotion": 0,
+        "noise_index": 49.8,
+        "sales_amount": 55.45
+      }
+    ],
+    "data_risks": []
+  },
+  "readiness_report": {
+    "overall_status": "partial",
+    "dimensions": {
+      "sample_size": {
+        "status": "ok",
+        "evidence": "Total rows = 3000."
+      },
+      "missingness": {
+        "status": "ok",
+        "evidence": "Overall 0% missing; worst column 0%."
+      },
+      "grain": {
+        "status": "ok",
+        "evidence": "No duplicate keys on ['order_id']."
+      },
+      "time_coverage": {
+        "status": "ok",
+        "evidence": "No time column requested; dimension not applicable."
+      },
+      "balance": {
+        "status": "ok",
+        "evidence": "No categorical target or group column; imbalance not applicable."
+      },
+      "leakage": {
+        "status": "ok",
+        "evidence": "No leakage suspects in candidate features."
+      },
+      "role_clarity": {
+        "status": "partial",
+        "evidence": "Target 'sales_amount' present with variation, but no candidate features supplied."
+      },
+      "measurement_reliability": {
+        "status": "partial",
+        "evidence": "Possible saturation in columns ['promotion']; document fix."
+      }
+    },
+    "caveats": [
+      "role_clarity: Target 'sales_amount' present with variation, but no candidate features supplied.",
+      "measurement_reliability: Possible saturation in columns ['promotion']; document fix."
+    ],
+    "narrowed_scope_suggestions": [
+      "Confirm the target and feature set with the requester before proceeding.",
+      "Recode sentinel values as NaN and document the fix before modeling."
+    ],
+    "data_request": []
+  },
+  "shaping": {
+    "grain": {
+      "keys_tested": [
+        "order_id",
+        "region",
+        "product_type",
+        "price",
+        "promotion",
+        "noise_index",
+        "sales_amount"
+      ],
+      "is_unique": true,
+      "n_total_rows": 3000,
+      "n_unique_keys": 3000,
+      "duplicate_examples": [],
+      "inferred_grain": "one row per (order_id, region, product_type, price, promotion, noise_index, sales_amount)"
+    },
+    "leakage": {
+      "target": "sales_amount",
+      "flagged_columns": [],
+      "name_based_flags": [],
+      "correlation_based_flags": [],
+      "time_based_flags": []
+    }
+  },
+  "baseline_evidence": {
+    "correlation": [
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.8841827684249607,
+        "p_value": 0.0,
+        "p_adjusted": 0.0,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.8841827684249607,
+        "interpretation": "very strong positive"
+      },
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.5858473102504924,
+        "p_value": 5.137944856651582e-276,
+        "p_adjusted": 2.0551779426606327e-275,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.5858473102504924,
+        "interpretation": "strong positive"
+      },
+      {
+        "feature": "price",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.24998369345842877,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.24998369345842877,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.16701381210212934,
+        "p_value": 3.302249941092722e-20,
+        "p_adjusted": 8.805999842913925e-20,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.16701381210212934,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.15127238164214124,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.15127238164214124,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "feature": "promotion",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.12506863578054814,
+        "p_value": 6.2232229809318114e-12,
+        "p_adjusted": 1.2446445961863623e-11,
+        "significant_after_fdr": true,
+        "n": 3000,
+        "effect_strength": 0.12506863578054814,
+        "interpretation": "weak positive"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": 0.013693744982272655,
+        "p_value": 0.45339933705213287,
+        "p_adjusted": 0.7254389392834126,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.013693744982272655,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "spearman",
+        "coefficient": -0.009473418787850246,
+        "p_value": 0.603986761509419,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.009473418787850246,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": -0.006289687770569626,
+        "p_value": 0.7305753985265652,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.006289687770569626,
+        "interpretation": "negligible negative"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "pearson",
+        "coefficient": 0.005474683181825946,
+        "p_value": 0.7643769897225566,
+        "p_adjusted": 0.7643769897225566,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.005474683181825946,
+        "interpretation": "negligible positive"
+      },
+      {
+        "feature": "noise_index",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.00534440921698164,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.00534440921698164,
+        "interpretation": "negligible dependence"
+      },
+      {
+        "feature": "order_id",
+        "target": "sales_amount",
+        "method": "mutual_info",
+        "coefficient": 0.0,
+        "p_value": null,
+        "p_adjusted": null,
+        "significant_after_fdr": false,
+        "n": 3000,
+        "effect_strength": 0.0,
+        "interpretation": "negligible dependence"
+      }
+    ],
+    "driver_ranking": [
+      {
+        "rank": 1,
+        "feature": "price",
+        "method": "pearson",
+        "strength": 0.8841827684249607,
+        "interpretation": "very strong positive"
+      },
+      {
+        "rank": 2,
+        "feature": "price",
+        "method": "spearman",
+        "strength": 0.5858473102504924,
+        "interpretation": "strong positive"
+      },
+      {
+        "rank": 3,
+        "feature": "price",
+        "method": "mutual_info",
+        "strength": 0.24998369345842877,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "rank": 4,
+        "feature": "promotion",
+        "method": "spearman",
+        "strength": 0.16701381210212934,
+        "interpretation": "weak positive"
+      },
+      {
+        "rank": 5,
+        "feature": "promotion",
+        "method": "mutual_info",
+        "strength": 0.15127238164214124,
+        "interpretation": "moderate dependence"
+      },
+      {
+        "rank": 6,
+        "feature": "promotion",
+        "method": "pearson",
+        "strength": 0.12506863578054814,
+        "interpretation": "weak positive"
+      },
+      {
+        "rank": 7,
+        "feature": "order_id",
+        "method": "spearman",
+        "strength": 0.013693744982272655,
+        "interpretation": "negligible positive"
+      },
+      {
+        "rank": 8,
+        "feature": "noise_index",
+        "method": "spearman",
+        "strength": 0.009473418787850246,
+        "interpretation": "negligible negative"
+      },
+      {
+        "rank": 9,
+        "feature": "noise_index",
+        "method": "pearson",
+        "strength": 0.006289687770569626,
+        "interpretation": "negligible negative"
+      },
+      {
+        "rank": 10,
+        "feature": "order_id",
+        "method": "pearson",
+        "strength": 0.005474683181825946,
+        "interpretation": "negligible positive"
+      }
+    ]
+  },
+  "warnings": []
+}

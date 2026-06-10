@@ -1,0 +1,45 @@
+{
+  "case_id": "case-07-routing-named-method",
+  "dataset": "../../../examples/ab_test/dataset.csv",
+  "target": "revenue",
+  "routing": {
+    "expected_route": "named-method",
+    "must_produce_artifacts": ["readiness_report", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {},
+  "findings": [
+    {
+      "id": "assumption_check_performed",
+      "type": "quality",
+      "feature": "assumptions",
+      "evidence_regex": "(normality|正态|skew|偏态|偏斜|variance|方差|Levene|Shapiro|lognormal|对数正态|零膨胀|zero[- ]inflat)"
+    },
+    {
+      "id": "violation_detected",
+      "type": "claim",
+      "feature": "assumption_violation",
+      "evidence_regex": "(violat|不满足|违反|severely skewed|严重(右)?偏|not normal|非正态|假设.{0,20}(失败|不成立))"
+    },
+    {
+      "id": "alternative_offered",
+      "type": "claim",
+      "feature": "alternative_method",
+      "evidence_regex": "(Mann[- ]?Whitney|Wilcoxon|Welch|bootstrap|permutation|置换检验|非参数|non[- ]?parametric)"
+    },
+    {
+      "id": "original_method_not_silently_run",
+      "type": "routing_discipline",
+      "feature": "method_discipline",
+      "evidence_regex": "(t-?test[^\\n]{0,240}(不适用|不可靠|caution|警告|caveat|limitation|局限)|(为什么|why)[^\\n]{0,80}(不|not)[^\\n]{0,40}t-?test|both .{0,40}reported|同时报告)"
+    }
+  ],
+  "charts": {"min_count": 1, "required_keywords": []},
+  "anti_patterns": [
+    {
+      "id": "no_silent_invalid_ttest",
+      "forbidden_regex": "(t-test 显示显著差异，分析完成。$)",
+      "scope": "final_report"
+    }
+  ]
+}

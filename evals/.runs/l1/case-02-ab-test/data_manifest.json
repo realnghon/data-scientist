@@ -1,0 +1,311 @@
+{
+  "status": "ok",
+  "manifest": {
+    "source": "/Users/silaswu/Silas_Develop/data-scientist/examples/ab_test/dataset.csv",
+    "file_size_bytes": 505059,
+    "read_metadata": {
+      "format": "csv",
+      "delimiter": ",",
+      "estimated_rows": 10000
+    },
+    "sampled_rows": 10000,
+    "columns": [
+      "user_id",
+      "variant",
+      "converted",
+      "revenue",
+      "signup_date",
+      "device",
+      "country"
+    ],
+    "dtypes": {
+      "user_id": "int64",
+      "variant": "object",
+      "converted": "int64",
+      "revenue": "float64",
+      "signup_date": "object",
+      "device": "object",
+      "country": "object"
+    }
+  },
+  "role_candidates": [
+    {
+      "column": "signup_date",
+      "role": "time",
+      "confidence": 0.9,
+      "evidence": [
+        "datetime-like values or time keyword"
+      ]
+    },
+    {
+      "column": "user_id",
+      "role": "entity_id",
+      "confidence": 0.78,
+      "evidence": [
+        "id keyword or high uniqueness"
+      ]
+    },
+    {
+      "column": "country",
+      "role": "group",
+      "confidence": 0.58,
+      "evidence": [
+        "categorical column with moderate cardinality"
+      ]
+    },
+    {
+      "column": "device",
+      "role": "group",
+      "confidence": 0.58,
+      "evidence": [
+        "categorical column with moderate cardinality"
+      ]
+    },
+    {
+      "column": "variant",
+      "role": "group",
+      "confidence": 0.58,
+      "evidence": [
+        "categorical column with moderate cardinality"
+      ]
+    }
+  ],
+  "column_profiles": {
+    "user_id": {
+      "dtype": "int64",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 10000,
+      "unique_rate": 1.0,
+      "sample_values": [
+        6253,
+        4685,
+        1732,
+        4743,
+        4522
+      ],
+      "mean": 5000.5,
+      "std": 2886.8956799071675,
+      "min": 1.0,
+      "25%": 2500.75,
+      "50%": 5000.5,
+      "75%": 7500.25,
+      "max": 10000.0
+    },
+    "variant": {
+      "dtype": "object",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 2,
+      "unique_rate": 0.0002,
+      "sample_values": [
+        "treatment",
+        "control",
+        "control",
+        "control",
+        "control"
+      ],
+      "top_values": {
+        "treatment": 5000,
+        "control": 5000
+      }
+    },
+    "converted": {
+      "dtype": "int64",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 2,
+      "unique_rate": 0.0002,
+      "sample_values": [
+        0,
+        0,
+        0,
+        1,
+        0
+      ],
+      "mean": 0.1312,
+      "std": 0.3376358390277602,
+      "min": 0.0,
+      "25%": 0.0,
+      "50%": 0.0,
+      "75%": 0.0,
+      "max": 1.0
+    },
+    "revenue": {
+      "dtype": "float64",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 1211,
+      "unique_rate": 0.1211,
+      "sample_values": [
+        0.0,
+        0.0,
+        0.0,
+        6.15,
+        0.0
+      ],
+      "mean": 6.564914,
+      "std": 23.11734210507783,
+      "min": 0.0,
+      "25%": 0.0,
+      "50%": 0.0,
+      "75%": 0.0,
+      "max": 492.2
+    },
+    "signup_date": {
+      "dtype": "datetime64[ns]",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 5000,
+      "unique_rate": 0.5,
+      "sample_values": [
+        "2025-03-05T08:20:00",
+        "2025-03-17T06:20:00",
+        "2025-03-07T00:15:00",
+        "2025-03-17T11:10:00",
+        "2025-03-16T16:45:00"
+      ],
+      "min": "2025-03-01T00:00:00",
+      "max": "2025-03-18T08:35:00"
+    },
+    "device": {
+      "dtype": "object",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 3,
+      "unique_rate": 0.0003,
+      "sample_values": [
+        "mobile",
+        "mobile",
+        "mobile",
+        "mobile",
+        "desktop"
+      ],
+      "top_values": {
+        "mobile": 5973,
+        "desktop": 3551,
+        "tablet": 476
+      }
+    },
+    "country": {
+      "dtype": "object",
+      "non_null": 10000,
+      "missing": 0,
+      "missing_rate": 0.0,
+      "unique": 4,
+      "unique_rate": 0.0004,
+      "sample_values": [
+        "CA",
+        "US",
+        "AU",
+        "US",
+        "US"
+      ],
+      "top_values": {
+        "US": 4957,
+        "UK": 2545,
+        "CA": 1470,
+        "AU": 1028
+      }
+    }
+  },
+  "sample_records": [
+    {
+      "user_id": 6253,
+      "variant": "treatment",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-05 08:20:00",
+      "device": "mobile",
+      "country": "CA"
+    },
+    {
+      "user_id": 4685,
+      "variant": "control",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-17 06:20:00",
+      "device": "mobile",
+      "country": "US"
+    },
+    {
+      "user_id": 1732,
+      "variant": "control",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-07 00:15:00",
+      "device": "mobile",
+      "country": "AU"
+    },
+    {
+      "user_id": 4743,
+      "variant": "control",
+      "converted": 1,
+      "revenue": 6.15,
+      "signup_date": "2025-03-17 11:10:00",
+      "device": "mobile",
+      "country": "US"
+    },
+    {
+      "user_id": 4522,
+      "variant": "control",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-16 16:45:00",
+      "device": "desktop",
+      "country": "US"
+    },
+    {
+      "user_id": 6341,
+      "variant": "treatment",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-05 15:40:00",
+      "device": "desktop",
+      "country": "UK"
+    },
+    {
+      "user_id": 577,
+      "variant": "control",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-03 00:00:00",
+      "device": "mobile",
+      "country": "US"
+    },
+    {
+      "user_id": 5203,
+      "variant": "treatment",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-01 16:50:00",
+      "device": "mobile",
+      "country": "US"
+    },
+    {
+      "user_id": 6364,
+      "variant": "treatment",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-05 17:35:00",
+      "device": "mobile",
+      "country": "US"
+    },
+    {
+      "user_id": 440,
+      "variant": "control",
+      "converted": 0,
+      "revenue": 0.0,
+      "signup_date": "2025-03-02 12:35:00",
+      "device": "desktop",
+      "country": "US"
+    }
+  ],
+  "data_risks": []
+}

@@ -1,0 +1,54 @@
+{
+  "case_id": "case-03-time-series-anomaly",
+  "dataset": "../../../examples/time_series/dataset.csv",
+  "target": "sensor_value",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims", "rejected_alternatives"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "daily_seasonality",
+      "type": "pattern",
+      "feature": "seasonality",
+      "evidence_regex": "(daily|日|24[ -]?(h|小时))[^\\n]{0,120}(season|周期|cycle|季节)"
+    },
+    {
+      "id": "weekly_seasonality",
+      "type": "pattern",
+      "feature": "seasonality",
+      "evidence_regex": "(weekly|周|168[ -]?(h|小时)|7[ -]?(day|天))[^\\n]{0,120}(season|周期|cycle|季节|pattern|模式)"
+    },
+    {
+      "id": "upward_trend",
+      "type": "pattern",
+      "feature": "trend",
+      "evidence_regex": "(upward|上升|increasing|增长)[^\\n]{0,80}(trend|趋势)|(trend|趋势)[^\\n]{0,80}(upward|上升|increasing)"
+    },
+    {
+      "id": "spike_anomalies",
+      "type": "anomaly",
+      "feature": "spikes",
+      "evidence_regex": "(spike|尖峰|突增|突发)"
+    },
+    {
+      "id": "drift_anomaly_systematic",
+      "type": "anomaly",
+      "feature": "drift",
+      "evidence_regex": "(drift|漂移|渐变)[^\\n]{0,300}(systematic|系统性|sustained|持续|sensor (degradation|aging)|传感器(老化|退化))"
+    },
+    {
+      "id": "outage_anomaly",
+      "type": "anomaly",
+      "feature": "outage",
+      "evidence_regex": "(outage|中断|断电|零值|zero|drop to 0|掉零)"
+    }
+  ],
+  "charts": {"min_count": 3, "required_keywords": []},
+  "anti_patterns": []
+}
