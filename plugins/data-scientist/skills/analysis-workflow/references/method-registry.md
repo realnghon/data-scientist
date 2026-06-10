@@ -17,13 +17,14 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 1. [Group Comparison](#1-group-comparison) — does Y differ across groups?
 2. [Driver Ranking / Feature Importance](#2-driver-ranking--feature-importance) — which X drives Y?
+   - [2a. Simpson's Paradox & Interaction Detection](#2a-simpsons-paradox--interaction-detection)
 3. [Correlation / Pairwise Association](#3-correlation--pairwise-association) — relationship strength
 4. [Time Series — Trend, Seasonality, Change, Anomaly](#4-time-series--trend-seasonality-change-anomaly)
 5. [Hypothesis Tests — A/B, Experiments, NHST](#5-hypothesis-tests--ab-experiments-nhst)
 6. [Regression Modeling — Continuous Y](#6-regression-modeling--continuous-y)
 7. [Classification Modeling — Categorical Y](#7-classification-modeling--categorical-y)
 8. [Survival / Censored-Time Analysis](#8-survival--censored-time-analysis)
-9. [Process Control — SPC, Capability](#9-process-control--spc-capability)
+9. [Process Control — SPC, Capability](#9-process-control--spc-capability) — Western Electric 8 rules + Cp/Cpk workflow
 10. [Exploratory — Quick Scans Before Method Selection](#10-exploratory--quick-scans-before-method-selection)
 11. [Method Selection Decision Tree](#method-selection-decision-tree)
 
@@ -82,6 +83,34 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 **Confidence calibration:** high if rank order stable across two model families and across bootstrap resamples; medium if top-3 stable but tail noisy; low if rank flips between methods.
 
 **Reusable helper:** `ds_skill.correlation.correlation_with_target(df, target, candidate_features=None, methods=("pearson","spearman"), include_mi=True, fdr_alpha=0.05)` ranks every feature against `Y` with BH-FDR-adjusted p-values and a mutual-information row per feature (robust default). `ds_skill.analysis_methods.rank_numeric_drivers(df, target, candidate_features)` gives 0–1 strength scores. For model-based importance, fit `ds_skill.regression.fit_linear_regression` / `fit_ridge` and read coefficients. Chart: `ds_skill.plotting.plot_feature_importance`.
+
+### 2a. Simpson's Paradox & Interaction Detection
+
+**Purpose:** Does a driver ranking or group comparison **reverse direction** when stratified by a lurking variable? Is there an interaction effect that makes pooled analysis misleading?
+
+**Use when:** you have a natural blocking/stratification variable (region, product line, shift, operator, device type) and suspect the pooled relationship hides segment-level heterogeneity.
+
+🔴 **Mandatory check when:** comparing groups (A/B, treatment/control), ranking drivers in manufacturing/ops/sales data with obvious strata, or when domain knowledge suggests the effect "depends on" another variable.
+
+**Primary methods:**
+1. **Stratified vs pooled comparison**: compute the effect (correlation, mean difference, regression coefficient) within each stratum separately, then compare to the pooled (all-data) effect. If **pooled and stratified disagree in direction or rank order** → Simpson's paradox.
+2. **Interaction term in regression**: fit `Y ~ X + Z + X:Z` where `Z` is the suspected moderator. If `X:Z` coefficient is significant (p < 0.05) and meaningfully sized → interaction present, report stratified results.
+3. **Stratified crosstab / contingency table**: for categorical X and Y, build separate 2×2 tables per stratum and check whether the association flips (odds ratio >1 pooled but <1 within strata, or vice versa).
+
+**Simpson detection protocol**:
+- For **driver ranking**: rank drivers within each stratum (e.g., region A/B/C separately), then check if the pooled ranking matches. If pooled says "driver X is #1" but X ranks #3+ in every stratum → report the stratified result as primary and flag the paradox.
+- For **A/B test**: compute treatment effect within each segment (mobile/desktop, new/returning, etc.). If pooled shows positive lift but all segments show negative (or opposite) → Simpson, investigate sample-composition shift.
+- For **group comparison**: compare means of group 1 vs 2 overall, then within each stratum. If overall ranking disagrees with within-stratum ranking → paradox.
+
+**Alternatives & rejections:**
+- Reporting only pooled results when strata exist → rejected; always stratify first, then decide pooled vs stratified as primary.
+- Ignoring interaction terms in regression → rejected when domain knowledge suggests "effect depends on Z."
+
+**Cross-checks:** visualize stratum-specific effects side-by-side (faceted scatter, grouped bar chart showing effect per stratum + pooled); mixed-effects model with random slopes per stratum (if enough data).
+
+**Confidence calibration:** high if stratified results are consistent across strata and disagree with pooled; medium if only 1-2 strata flip; low if sample sizes per stratum are tiny (<30).
+
+**Reusable helper:** No single-function helper for Simpson detection yet (build crosstabs + stratified correlations manually); `ds_skill.regression.fit_interaction_model(df, target, x, moderator)` fits the interaction term. Chart: `ds_skill.plotting.plot_stratified_effect` (conceptual; implement as faceted scatter or grouped barplot).
 
 ---
 
@@ -253,20 +282,36 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 🔴 **Reject when:** process mix changes within the chart; measurements are aggregated rates over inconsistent denominators (without using p/u chart); insufficient ordered subgroups for limit estimation (<20 subgroups).
 
 **Primary methods:**
-- Continuous individuals → **I-MR chart**.
+- Continuous individuals → **I-MR chart** (individuals + moving range).
 - Continuous subgroups → **Xbar-R** (subgroup n ≤ 8) or **Xbar-S** (n > 8).
 - Proportion defective → **p-chart** (variable denominator) or **np-chart** (constant).
 - Defect count per unit → **c-chart** (constant opportunity) or **u-chart** (variable).
-- Capability vs spec → **Cp / Cpk** (within-process) and **Pp / Ppk** (overall).
+- Capability vs spec → **Cp / Cpk** (within-process, short-term) and **Pp / Ppk** (overall, long-term).
 - Drift detection → **EWMA** or **CUSUM** for small shifts.
+- **Out-of-control detection** → Western Electric / Nelson run rules (8 rules, see below).
+
+**Western Electric / Nelson Run Rules** (apply to I-MR, Xbar-R/S charts; fire on violated rule number):
+1. One point beyond ±3σ from center line (hard limit violation).
+2. **Nine consecutive points on same side of center** (sustained shift).
+3. Six consecutive increasing or decreasing points (trend/drift).
+4. Fourteen consecutive alternating up/down (over-adjustment).
+5. Two out of three consecutive points beyond ±2σ on same side (moderate shift).
+6. **Four out of five consecutive points beyond ±1σ on same side** (smaller sustained shift).
+7. Fifteen consecutive points within ±1σ band (stratification / reduced variation / wrong subgrouping).
+8. Eight consecutive points beyond ±1σ on either side (mixture pattern).
+
+**Critical workflow for capability**: ① Run I-MR / Xbar-R chart, ② check rules 1-8, ③ **only if all rules pass** (process is stable), ④ compute Cp/Cpk on the stable segment, ⑤ if unstable, isolate special-cause segments and compute Cp/Cpk only on in-control segments. Never compute capability on a full dataset that contains out-of-control points — the within-subgroup variance estimate is biased by between-shift noise.
 
 **Alternatives & rejections:**
-- Cp/Cpk on unstable process → rejected; stability must be established first.
+- Cp/Cpk on unstable process → rejected; stability must be established first (run rules 1-8).
 - Cp/Cpk on non-normal data without transformation → rejected; use non-normal capability (e.g. Johnson transform) or report Ppk only.
+- Pooled/overall Cp when process has shifted mid-window → rejected; use Pp/Ppk or segment the data.
 
-**Cross-checks:** Western Electric / Nelson run rules in addition to ±3σ; capability after confirming stability; histogram with spec lines.
+**Cross-checks:** Western Electric / Nelson run rules (all 8) in addition to ±3σ; capability after confirming stability; histogram with spec lines + normality check (Shapiro-Wilk if n<5000, Anderson-Darling otherwise).
 
-**Confidence calibration:** high if both control limits and run rules agree the process is in/out; low if a single rule fires on a noisy chart.
+**Simpson paradox check for stratified processes**: When comparing driver effects or A/B results within a manufacturing/service process, **always stratify by the natural blocking variable** (line, shift, operator, machine) and check whether pooled vs stratified conclusions agree. If pooled ranks driver A highest but stratified ranks driver B highest within every stratum → Simpson's paradox, report the stratified result as primary.
+
+**Confidence calibration:** high if both control limits and ≥2 run rules agree the process is in/out; medium if single-rule violation on a noisy chart; low if rule 7/8 fires alone (often false positive without context).
 
 **Reusable helper:** `ds_skill.spc.individuals_mr_chart(...)`, `xbar_r_chart(...)`, `p_chart(...)`, `c_chart(...)`, `u_chart(...)` build the control chart; `ds_skill.spc.apply_nelson_rules(chart)` / `apply_western_electric_rules(chart)` add run-rule violations; `ds_skill.spc.cp/cpk/pp/ppk(...)` and `capability_summary(...)` compute capability after stability is confirmed. Charts: `ds_skill.plotting.plot_control_chart`, `plot_capability_histogram`.
 
