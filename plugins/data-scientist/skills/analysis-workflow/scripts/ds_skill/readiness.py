@@ -360,18 +360,23 @@ def _score_grain(
         )
 
     # Build candidate key columns
+    # Priority: ID column (entity-level uniqueness) > group + time (aggregated grain)
     key_cols: list[str] = []
-    for col in (group_col, time_col):
-        if col is not None and col in df.columns:
-            key_cols.append(col)
 
-    # Heuristic: look for entity-like columns when no group_col is given
-    if not key_cols:
-        for col in df.columns:
-            name = str(col).lower()
-            if name.endswith("_id") or name in {"id", "entity_id", "key"}:
+    # 1. Try to find an entity ID column first (row-level unique key)
+    for col in df.columns:
+        name = str(col).lower()
+        if name.endswith("_id") or name in {"id", "entity_id", "key", "order_id", "user_id", "run_id"}:
+            # Check if it's actually unique (cardinality ≥ 95% of rows → likely a unique key)
+            if df[col].nunique() >= 0.95 * len(df):
                 key_cols.append(col)
                 break
+
+    # 2. If no unique ID found, fall back to group + time (grain at aggregated level)
+    if not key_cols:
+        for col in (group_col, time_col):
+            if col is not None and col in df.columns:
+                key_cols.append(col)
 
     intended = " + ".join(key_cols) if key_cols else "<all rows>"
     if not key_cols:
