@@ -65,3 +65,4 @@ darwin-results/
 # user-specific, not part of the published plugin.
 skills-lock.json
 .agents/
+evals/.runs/
