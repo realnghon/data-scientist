@@ -276,6 +276,7 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 - Do not force a conclusion when data is too sparse, biased, ambiguous, or low quality.
 - Separate `reliable conclusions`, `directional signals`, and `unsupported findings`.
 - Explain method choices and rejected alternatives in plain language.
+- **Cite known spec ranges or optimal zones** when reporting process/manufacturing parameter effects. Example: "temperature shows optimal yield at 180-200°C" not just "temperature affects yield". If the data reveals a range (via binning, quantiles, or piecewise analysis) but no documented spec exists, report the data-driven range with caveat "optimal range observed in data: X-Y, pending process validation."
 - Preserve reproducibility: record transformations, filters, random seeds, and package versions for every stochastic or version-sensitive step.
 
 ## Anti-Patterns — Red-Flag Blacklist
