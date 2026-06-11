@@ -1,0 +1,55 @@
+{
+  "case_id": "case-05-simpson-v2",
+  "datasets": ["dataset_v2.csv"],
+  "format": "time series with grouping (1200 orders, 24 months, 3 regions, 2 product lines)",
+  "target": "sales_amount",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "simpson_detected",
+      "type": "claim",
+      "feature": "simpson_paradox",
+      "evidence_regex": "(Simpson|辛普森|paradox|悖论|reversal|反转)[^\\n]{0,300}(overall.*within|整体.*分组|pooled.*stratif|aggregate.*region)"
+    },
+    {
+      "id": "premium_overall_positive",
+      "type": "claim",
+      "feature": "premium_trend_overall",
+      "evidence_regex": "(Premium|高端)[^\\n]{0,300}(overall|整体|pooled|总体)[^\\n]{0,200}(positive.*trend|上升|增长|growing|increas)"
+    },
+    {
+      "id": "premium_within_region_negative",
+      "type": "claim",
+      "feature": "premium_trend_stratified",
+      "evidence_regex": "((South|West|南|西)[^\\n]{0,300}Premium[^\\n]{0,200}(declin|下降|负|negative))|(Premium[^\\n]{0,300}(South|West)[^\\n]{0,200}(declin|下降|负))"
+    },
+    {
+      "id": "market_shift_explanation",
+      "type": "claim",
+      "feature": "mechanism",
+      "evidence_regex": "(market.*shift|市场.*转移|composition.*change|结构.*变化)[^\\n]{0,300}(South.*North|南.*北|region.*mix)"
+    },
+    {
+      "id": "stratification_executed",
+      "type": "quality",
+      "feature": "method",
+      "evidence_regex": "(stratif|分层|by.*region|按.*地区|group.*by.*region|per.*region)"
+    }
+  ],
+  "charts": {"min_count": 2},
+  "anti_patterns": [
+    {
+      "id": "aggregate_away_signal",
+      "forbidden_regex": "Premium.*(positive|增长|上升).*overall.*(?!.*(stratif|分层|region|地区))",
+      "scope": "final_report"
+    }
+  ]
+}
