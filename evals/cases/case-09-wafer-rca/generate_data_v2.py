@@ -74,7 +74,7 @@ for wid in wafer_ids:
         cd_nm = np.random.uniform(85, 95)
 
     wafer_params[wid]['litho_cd_nm'] = cd_nm
-    wafer_params[wid]['litho_focus_um'] = np.random.uniform(0.8, 1.2)
+    wafer_params[wid]['litho_focus_um'] = np.random.uniform(-0.15, 0.15)  # within spec -0.2 to +0.2
     wafer_params[wid]['litho_dose_mj'] = np.random.uniform(28, 32)
 
     wafer_params[wid]['etch_rate_nm_min'] = np.random.uniform(45, 55)
