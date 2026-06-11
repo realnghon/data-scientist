@@ -29,7 +29,7 @@
       "id": "noise_rejected",
       "type": "negative_claim",
       "feature": "noise",
-      "evidence_regex": "(pressure|humidity|line.?speed|operator|shift|压力|湿度|线速|操作员|班次)[^\\n]{0,200}(no (significant|显著)|无.*效应|noise|噪声|weak|弱|not.*driver|非.*驱动)"
+      "evidence_regex": "((pressure|humidity|line.?speed|operator|shift|压力|湿度|线速|操作员|班次)[^\\n]{0,200}(no.*(significant|显著)|无.*效应|无.*影响|noise|噪声|weak|弱|not.*driver|非.*驱动))|((no.*(significant|显著)|无.*效应|无.*影响|noise|噪声)[^\\n]{0,200}(pressure|humidity|line.?speed|operator|shift|压力|湿度|线速|操作员|班次))"
     },
     {
       "id": "interaction_check_executed",
