@@ -81,11 +81,12 @@ For group comparison: imbalance is fine as long as each group has adequate n; th
 
 ### 6. Leakage Risk
 
-Inspect every candidate `X` against `Y` in time:
+Inspect every candidate `X` against `Y` in time and causal order:
 
 - **Post-event columns:** any field recorded after `Y` (e.g. `defect_root_cause` when predicting `is_defective`). Blocked if present in `X`.
 - **Target-derived features:** field is a function of `Y` (e.g. `monthly_revenue` predicting `customer_value`). Blocked.
 - **Time order violation:** `X.timestamp > Y.timestamp` for any row. Blocked.
+- **Same-event measurement:** `X` and `Y` measured at the same stage/station/timestamp (e.g., both from `final_test` when predicting yield). Flag as **partial** with caveat: `X` may be an effect of `Y` rather than a cause. If an upstream predictor exists, exclude same-event features from driver ranking.
 - **Group-level leakage:** entity ID encoded in `X` and target also varies by entity → effectively memorizes. Partial; require entity-aware cross-validation.
 - **Pipeline leakage:** scaler/imputer fit on full data before split. Partial; require fit-on-train-only.
 

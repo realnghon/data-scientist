@@ -279,6 +279,8 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 | **Conclude on leaked features** | post-outcome / target-derived `X` inflates accuracy; won't replicate | run the leakage scan (data-readiness dim 6) first; drop offenders |
 | **Force a conclusion on sparse data** | n<5 per cell, >30% missing on `Y`, or constant `Y` → any test is noise | report descriptive-only; route the question to Tier 3 unsupported |
 | **Causal language on observational data** | "X causes Y" needs an experiment or quasi-experiment | use "associated with" / "predicts" / "differs by" unless a causal design exists |
+| **Correlate against same-row outcomes** | features measured *after* or *alongside* Y (same timestamp, same event) may be effects not causes | verify time order; exclude concurrent/post-event features from driver ranking |
+| **Skip pivot on entity×attribute long data** | driver ranking on unpivoted data mixes entity-level signal with measurement-type noise | pivot to entity-level (one row per wafer/patient/customer, attributes as columns) before ranking drivers |
 | **Aggregate away the signal** | group-mean hides Simpson's paradox and station-level failure modes | check within-group before declaring a pooled effect |
 | **Cp/Cpk on an unstable process** | capability on an out-of-control process is a meaningless number | confirm SPC stability first; compute capability on the in-control segment only |
 | **Single method, no cross-check** | one test can fire on an artifact; no triangulation | every Tier-1 claim needs a second method agreeing in direction |
