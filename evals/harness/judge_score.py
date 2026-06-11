@@ -111,7 +111,7 @@ def spawn_judge_agent(
 
     # Spawn agent via claude CLI
     result = subprocess.run(
-        ["claude", "-p", str(prompt_file), "--no-context"],
+        ["claude", "-p", str(prompt_file)],
         capture_output=True,
         text=True,
         timeout=180
