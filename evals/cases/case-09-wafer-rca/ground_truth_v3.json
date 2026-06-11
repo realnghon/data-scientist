@@ -1,0 +1,61 @@
+{
+  "case_id": "case-09-wafer-rca-v3",
+  "datasets": ["fab_log_v3.csv", "metrology_inline_v3.csv", "final_test_v3.csv"],
+  "format": "multi-source multi-step (4 fab steps, 3 tables, 1200+300 rows)",
+  "target": "yield_pct",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims", "data_transformations"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "three_table_join",
+      "type": "transformation",
+      "feature": "data_integration",
+      "evidence_regex": "(join|merge|整合|连接).{0,400}(fab.*log.*metrology.*final|三.*表|3.*table)"
+    },
+    {
+      "id": "multi_step_trace",
+      "type": "transformation",
+      "feature": "step_handling",
+      "evidence_regex": "(litho|etch|deposit|implant).{0,400}(step|站点|stage|4.*step)"
+    },
+    {
+      "id": "chamber_c2_root_cause",
+      "type": "claim",
+      "feature": "chamber",
+      "evidence_regex": "(chamber|机台).{0,400}(C2).{0,400}(root|根|driver|驱动|cause|原因)"
+    },
+    {
+      "id": "cd_nm_mechanism",
+      "type": "claim",
+      "feature": "cd_nm",
+      "evidence_regex": "(cd[_\\s]?nm|critical[\\s_]?dimension).{0,400}(out.*spec|超.*规格|82|85.*95|偏离)"
+    },
+    {
+      "id": "litho_step_identified",
+      "type": "claim",
+      "feature": "litho",
+      "evidence_regex": "(litho|光刻).{0,400}(chamber|C2|cd[_\\s]?nm|关键)"
+    },
+    {
+      "id": "recipe_noise_rejected",
+      "type": "negative_claim",
+      "feature": "recipe",
+      "evidence_regex": "(recipe|配方).{0,400}(not|无|weak|弱|noise|噪声|排除)"
+    },
+    {
+      "id": "final_test_leakage_flagged",
+      "type": "quality",
+      "feature": "leakage",
+      "evidence_regex": "(final[_\\s]?test|最终.*良测|speed|leakage).{0,400}(same.*event|同.*站|泄漏|排除|不.*驱动)"
+    }
+  ],
+  "charts": {"min_count": 2},
+  "anti_patterns": []
+}

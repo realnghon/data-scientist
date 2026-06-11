@@ -1,0 +1,11 @@
+我们半导体 fab 有 300 片晶圆的良率数据（yield_pct），怀疑制程某个环节出了问题。
+
+数据分为三部分：
+1. fab_log_v3.csv — 制程记录，每片晶圆经过 4 个站点（litho/etch/deposit/implant），记录了 chamber、recipe、process_time、waiting_time
+2. metrology_inline_v3.csv — 每站的在线测量（cd_nm、etch_depth 等）
+3. final_test_v3.csv — 最终良测（yield_pct、speed、leakage）
+
+请帮我：
+1. 整合这三份数据
+2. 找出导致良率低的根本原因（哪个站点、哪个 chamber、什么参数）
+3. 排除无关因素（recipe、waiting_time 等）
