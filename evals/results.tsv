@@ -1,3 +1,4 @@
 timestamp	commit	skill	old_score	new_score	status	dimension	note	eval_mode
 2026-06-11T00:45:03+08:00	c546147	data-scientist	-	100.0	baseline	skill硬化后基线	L2 4案例(01/06/07/08): 路由4/4正确, 产物gate全过, 结论命中15/15; 两处ground-truth正则中文同义词校准(非skill修改)	l2
 2026-06-11T06:48:47+08:00	6e11194	data-scientist	-	82.9	keep	SPC+Simpson方法补充	method-registry增 Western Electric 8 rules + Simpson分层检测协议; case-04: 6.2→75%(产出完整SPC报告+失控点+Cp/Cpk), case-05: 29.5→90.9%(识别悖论+分层排序+混杂); 剩余gap:时段行号vs日期、交互项命名	l2
+2026-06-11T12:44:07+08:00	71bd493	data-scientist	73.1	76.9	keep	case-09 v2 data_transformations定义	SKILL.md analysis_plan增data_transformations字段(join/pivot/aggregation记录); case-09 v2重跑: 73.1→76.9% (+3.8pp), 新增PASS: data_transformations存在、join记录; 剩余FAIL: cd_nm机制未提(agent聚焦chamber层面)、recipe/waiting未明确排除、同站特征未标记	l2

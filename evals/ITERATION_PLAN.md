@@ -101,8 +101,9 @@
 
 | 迭代 | 案例 | 版本 | 得分 | 关键 FAIL | Skill 改进 | 验证得分 |
 |---|---|---|---|---|---|---|
-| R1 | case-09 | v1 | 86.4% | cd_nm 未识别为根因 | same-event leakage | - |
-| R2 | case-09 | v2 | - | - | - | - |
+| R1 | case-09 | v1 | 86.4% | cd_nm 未识别为根因（same-event leakage） | same-event leakage 检查 | - |
+| R2 | case-09 | v2 首次 | 57.7% | chamber_c2 正则不匹配、data_transformations 缺失 | - | - |
+| R2 | case-09 | v2 正则修正 | 73.1% | data_transformations 缺失、join 未记录、cd_nm 机制未提及、same_event 未标记 | analysis_plan 增 data_transformations 字段 | 进行中 |
 
 ## 目标
 
