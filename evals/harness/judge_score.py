@@ -1,17 +1,15 @@
 """
-LLM-as-Judge evaluation scorer.
+LLM-as-Judge evaluation scorer using Agent tool (no API key needed).
 
-Replaces keyword regex matching with multi-dimensional quality assessment by Claude.
-Addresses "teaching to the test" problem where agents game regex patterns.
+Spawns subagent to evaluate analysis quality across 5 dimensions.
+Replaces keyword regex matching with semantic quality assessment.
 """
 import json
-import hashlib
+import subprocess
 from pathlib import Path
 from typing import Dict, Any, List
-import anthropic
-import os
 
-# Judge evaluation dimensions
+
 JUDGE_DIMENSIONS = {
     "correctness": {
         "weight": 5.0,
@@ -57,153 +55,140 @@ JUDGE_DIMENSIONS = {
     }
 }
 
-JUDGE_PROMPT_TEMPLATE = """你是数据科学方法论的严格评审员。评估以下分析报告在 **{dimension}** 维度的质量。
+
+def spawn_judge_agent(
+    dimension: str,
+    agent_output: str,
+    ground_truth: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Spawn subagent to judge single dimension"""
+
+    # Format ground truth context
+    gt_context = f"Case ID: {ground_truth['case_id']}\nTarget: {ground_truth.get('target', 'N/A')}"
+    if dimension in ["correctness", "completeness"]:
+        gt_context += "\n\n预期发现:\n"
+        for f in ground_truth.get("findings", []):
+            gt_context += f"  - {f['id']}: {f.get('feature', 'N/A')} ({f['type']})\n"
+
+    # Build judge prompt
+    criteria_text = "\n".join(f"- {c}" for c in JUDGE_DIMENSIONS[dimension]["criteria"])
+
+    prompt = f"""你是数据科学方法论评审员。评估以下分析在 **{dimension}** 维度的质量。
 
 ## 评估标准
-{criteria}
+{criteria_text}
 
-## 参考标准（Ground Truth）
-{ground_truth_context}
+## 参考标准
+{gt_context}
 
-## Agent 分析输出
-{agent_output}
+## Agent 分析输出（前 3000 字）
+{agent_output[:3000]}
 
-## 评分规则
-- 0分：完全不满足标准或存在致命缺陷
-- 1分：部分满足但有重大遗漏或错误
+## 任务
+评分 0-3：
+- 0分：完全不满足或有致命缺陷
+- 1分：部分满足但有重大遗漏
 - 2分：基本满足标准
-- 3分：完全满足标准且无明显瑕疵
+- 3分：完全满足且无明显瑕疵
 
-输出 JSON 格式：
+输出 JSON：
 {{
   "score": <0-3>,
   "rationale": "<150字内说明评分理由>",
-  "evidence_quotes": ["<支撑评分的报告原文片段，最多3条>"],
-  "defects": ["<发现的问题，若无则为空数组>"]
+  "evidence": ["<支撑评分的原文片段，最多2条>"],
+  "defects": ["<发现的问题，若无则空数组>"]
 }}
 
 关键原则：
-1. 区分"提到关键词"与"真正执行分析" - 仅列举术语而无证据链，扣分
-2. 数值的自然性 - 异常精确匹配（如33.0%而非32.8%）标记为可疑
-3. 逻辑一致性 - 交叉检查报告不同部分，发现矛盾必须扣分
-4. 不被冗长形式化迷惑 - 关注核心推理链条是否成立
-"""
+1. 区分"提到术语"vs"真正执行"
+2. 数值异常精确匹配标记为可疑
+3. 发现逻辑矛盾必须扣分
+4. 关注核心推理链而非冗长形式"""
+
+    # Write prompt to temp file
+    prompt_file = Path(f"/tmp/judge_{dimension}.txt")
+    prompt_file.write_text(prompt)
+
+    # Spawn agent via claude CLI
+    result = subprocess.run(
+        ["claude", "-p", str(prompt_file), "--no-context"],
+        capture_output=True,
+        text=True,
+        timeout=180
+    )
+
+    if result.returncode != 0:
+        raise RuntimeError(f"Judge agent failed: {result.stderr}")
+
+    # Extract JSON from agent output
+    output = result.stdout.strip()
+    # Find JSON block in output
+    if "```json" in output:
+        json_text = output.split("```json")[1].split("```")[0].strip()
+    elif "{" in output:
+        json_text = output[output.index("{"):output.rindex("}")+1]
+    else:
+        raise ValueError(f"No JSON found in agent output: {output[:200]}")
+
+    return json.loads(json_text)
 
 
-class LLMJudge:
-    def __init__(self, model: str = "claude-opus-4", cache_dir: str = ".runs/judge_cache"):
-        self.model = model
-        self.cache_dir = Path(cache_dir)
-        self.cache_dir.mkdir(parents=True, exist_ok=True)
-        api_key = os.getenv("ANTHROPIC_API_KEY")
-        if not api_key:
-            raise ValueError("ANTHROPIC_API_KEY not set")
-        self.client = anthropic.Anthropic(api_key=api_key)
+def score_case_with_agent_judge(
+    case_dir: Path,
+    run_dir: Path,
+    dimensions: List[str] = None
+) -> Dict[str, Any]:
+    """Score case using agent-spawned LLM judges"""
 
-    def _format_ground_truth(self, gt: Dict[str, Any], dimension: str) -> str:
-        """Format ground truth context for judge prompt"""
-        lines = [f"Case ID: {gt['case_id']}", f"Target: {gt.get('target', 'N/A')}"]
+    if dimensions is None:
+        dimensions = list(JUDGE_DIMENSIONS.keys())
 
-        if dimension in ["correctness", "completeness"]:
-            lines.append("\n预期发现（Findings）:")
-            for f in gt.get("findings", []):
-                lines.append(f"  - {f['id']}: {f.get('feature', 'N/A')} ({f['type']})")
+    # Load ground truth
+    gt_path = case_dir / "ground_truth.json"
+    if not gt_path.exists():
+        # Try v2 variants
+        for variant in ["ground_truth_v2.json", "ground_truth_v3.json"]:
+            alt = case_dir / variant
+            if alt.exists():
+                gt_path = alt
+                break
 
-        if dimension == "rigor" and "routing" in gt:
-            lines.append(f"\n路由要求: {gt['routing'].get('expected_route', 'N/A')}")
-            lines.append(f"必须产出: {', '.join(gt['routing'].get('must_produce_artifacts', []))}")
+    gt = json.loads(gt_path.read_text())
 
-        return "\n".join(lines)
+    # Load agent report
+    report_path = run_dir / "final_report.md"
+    if not report_path.exists():
+        raise FileNotFoundError(f"Agent report not found: {report_path}")
+    agent_output = report_path.read_text()
 
-    def score_dimension(
-        self,
-        dimension: str,
-        agent_output: str,
-        ground_truth: Dict[str, Any],
-        case_id: str
-    ) -> Dict[str, Any]:
-        """Score single dimension with LLM judge (cached)"""
-        # Cache key based on content hash
-        content_hash = hashlib.sha256(
-            f"{case_id}:{dimension}:{agent_output}".encode()
-        ).hexdigest()[:12]
-        cache_path = self.cache_dir / f"{content_hash}.json"
+    # Score each dimension with spawned agent
+    judge_scores = {}
+    total_weighted = 0.0
+    total_weight = 0.0
 
-        if cache_path.exists():
-            return json.loads(cache_path.read_text())
+    print(f"Scoring {gt['case_id']} with agent judges...")
+    for dim in dimensions:
+        print(f"  Spawning judge for {dim}...")
+        result = spawn_judge_agent(dim, agent_output, gt)
+        judge_scores[dim] = result
+        total_weighted += result["score"] * JUDGE_DIMENSIONS[dim]["weight"]
+        total_weight += JUDGE_DIMENSIONS[dim]["weight"]
 
-        # Format prompt
-        prompt = JUDGE_PROMPT_TEMPLATE.format(
-            dimension=dimension,
-            criteria="\n".join(f"- {c}" for c in JUDGE_DIMENSIONS[dimension]["criteria"]),
-            ground_truth_context=self._format_ground_truth(ground_truth, dimension),
-            agent_output=agent_output[:8000]  # Truncate to avoid token limit
-        )
+    # Aggregate
+    overall_score = (total_weighted / (total_weight * 3)) * 100
 
-        # Call Claude API
-        response = self.client.messages.create(
-            model=self.model,
-            messages=[{"role": "user", "content": prompt}],
-            max_tokens=1024,
-            temperature=0.0  # Deterministic scoring
-        )
+    all_defects = []
+    for dim, result in judge_scores.items():
+        for defect in result.get("defects", []):
+            all_defects.append({"dimension": dim, "defect": defect})
 
-        # Parse JSON response
-        result = json.loads(response.content[0].text)
-
-        # Cache result
-        cache_path.write_text(json.dumps(result, ensure_ascii=False, indent=2))
-        return result
-
-    def score_case(
-        self,
-        case_dir: Path,
-        run_dir: Path,
-        dimensions: List[str] = None
-    ) -> Dict[str, Any]:
-        """Score complete case using LLM judge"""
-        if dimensions is None:
-            dimensions = list(JUDGE_DIMENSIONS.keys())
-
-        # Load ground truth
-        gt_path = case_dir / "ground_truth.json"
-        if not gt_path.exists():
-            raise FileNotFoundError(f"Ground truth not found: {gt_path}")
-        gt = json.loads(gt_path.read_text())
-
-        # Load agent report
-        report_path = run_dir / "final_report.md"
-        if not report_path.exists():
-            raise FileNotFoundError(f"Agent report not found: {report_path}")
-        agent_output = report_path.read_text()
-
-        # Score each dimension
-        judge_scores = {}
-        total_weighted = 0.0
-        total_weight = 0.0
-
-        for dim in dimensions:
-            result = self.score_dimension(dim, agent_output, gt, gt["case_id"])
-            judge_scores[dim] = result
-            total_weighted += result["score"] * JUDGE_DIMENSIONS[dim]["weight"]
-            total_weight += JUDGE_DIMENSIONS[dim]["weight"]
-
-        # Aggregate score (0-100 scale)
-        overall_score = (total_weighted / (total_weight * 3)) * 100  # Normalize to 0-100
-
-        # Collect all defects
-        all_defects = []
-        for dim, result in judge_scores.items():
-            for defect in result.get("defects", []):
-                all_defects.append({"dimension": dim, "defect": defect})
-
-        return {
-            "case_id": gt["case_id"],
-            "judge_scores": judge_scores,
-            "overall_score": round(overall_score, 1),
-            "defects": all_defects,
-            "model": self.model
-        }
+    return {
+        "case_id": gt["case_id"],
+        "judge_scores": judge_scores,
+        "overall_score": round(overall_score, 1),
+        "defects": all_defects,
+        "scorer": "agent-judge"
+    }
 
 
 if __name__ == "__main__":
@@ -216,19 +201,18 @@ if __name__ == "__main__":
     run_dir = Path(sys.argv[2])
     output_json = sys.argv[4] if len(sys.argv) > 4 and sys.argv[3] == "--json" else None
 
-    judge = LLMJudge()
-    result = judge.score_case(case_dir, run_dir)
+    result = score_case_with_agent_judge(case_dir, run_dir)
 
-    print(f"=== {result['case_id']} judge_score={result['overall_score']} ===")
+    print(f"\n=== {result['case_id']} judge_score={result['overall_score']} ===")
     for dim, score_data in result["judge_scores"].items():
         score = score_data["score"]
         print(f"  [{dim:15s}] {score}/3  {score_data['rationale'][:60]}...")
 
     if result["defects"]:
-        print(f"\nDefects found: {len(result['defects'])}")
-        for d in result["defects"][:5]:
+        print(f"\nDefects: {len(result['defects'])}")
+        for d in result["defects"][:3]:
             print(f"  - [{d['dimension']}] {d['defect'][:80]}...")
 
     if output_json:
         Path(output_json).write_text(json.dumps(result, ensure_ascii=False, indent=2))
-        print(f"\nFull result written to {output_json}")
+        print(f"\nResult: {output_json}")
