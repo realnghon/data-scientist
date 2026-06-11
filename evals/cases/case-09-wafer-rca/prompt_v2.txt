@@ -5,6 +5,10 @@
 
 2. **metrology.csv**：参数测量数据，长格式（4500 行，一个 wafer 在一个 station 的一个参数一行）
    - 列：wafer_id, station, param_name, value, timestamp
+   - 关键参数规格：
+     - litho cd_nm (关键尺寸)：规格范围 85-95 nm
+     - litho focus_um：规格范围 -0.2 至 +0.2 μm
+     - litho dose_mj：规格范围 25-35 mJ/cm²
 
 最终良率（yield）在 metrology.csv 的 station='final_test' 且 param_name='yield_pct' 的那些行。最近发现良率出现异常（有些 wafer 的良率掉到 80% 以下），我需要你：
 
