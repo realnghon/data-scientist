@@ -1,0 +1,49 @@
+{
+  "case_id": "case-03-timeseries-v2",
+  "datasets": ["dataset_v2.csv"],
+  "format": "time series (4320 hourly readings, 180 days)",
+  "target": "sensor_value",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "seasonality_detected",
+      "type": "claim",
+      "feature": "seasonality",
+      "evidence_regex": "(season|季节|daily|日内|周|weekly|周期|cycl|pattern|模式)[^\\n]{0,400}(decompose|分解|STL|detected|检测|identified|识别)"
+    },
+    {
+      "id": "point_outliers",
+      "type": "claim",
+      "feature": "spike_anomaly",
+      "evidence_regex": "(point|spike|尖峰|outlier|离群|异常点)[^\\n]{0,300}(10|sporadic|偶发|isolated|孤立|scatter|分散)"
+    },
+    {
+      "id": "level_shift_day90",
+      "type": "claim",
+      "feature": "systematic_shift",
+      "evidence_regex": "(level.*shift|水平.*偏移|systematic|系统性|step.*change|阶跃|突变)[^\\n]{0,400}(day.*9[0-5]|第.*9[0-5].*天|12月.*2[9-30]|12.*下旬|recalibr|重新.*校准|校正)"
+    },
+    {
+      "id": "trend_change_day120",
+      "type": "claim",
+      "feature": "drift",
+      "evidence_regex": "(trend.*change|趋势.*变化|drift|漂移|aging|老化|deteriorat|劣化|slow.*increase|缓慢.*上升)[^\\n]{0,400}(day.*12[0-9]|第.*12[0-9].*天|1月|January|after|之后)"
+    },
+    {
+      "id": "anomaly_classification",
+      "type": "quality",
+      "feature": "categorization",
+      "evidence_regex": "(分类|categor|classif|类型|type)[^\\n]{0,500}(spike.*shift.*drift|尖峰.*偏移.*漂移|point.*level.*trend|三种|3.*type|偶发.*系统)"
+    }
+  ],
+  "charts": {"min_count": 2},
+  "anti_patterns": []
+}
