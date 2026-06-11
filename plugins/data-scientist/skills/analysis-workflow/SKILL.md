@@ -33,7 +33,6 @@ Do not read every reference upfront. Load on demand using this table. Skip refer
 | Reference | Read when | Skip if |
 |-----------|-----------|---------|
 | `workflow.md` | Starting any non-trivial analysis; need the canonical end-to-end sequence; user asks "what's the process". | This is a one-shot lookup (single number, single chart) with no decision branches. |
-| `multi-agent-orchestration.md` | Analysis spans intake + readiness + shaping + methods + report; user invokes `/ds-*` commands; you plan to spawn sub-agents. | Single-step task; one method; one chart; no hand-off between roles. |
 | `data-readiness.md` | Building `readiness_report`; user asks "is this data good enough"; missingness/coverage/leakage looks suspicious; before any modeling. | User supplied a clean curated table and only wants a chart or descriptive stat. |
 | `data-shaping.md` | Data is long-form needing pivot; wide-form needing melt; grain mismatch between `Y` and `X`; need to aggregate, dedupe, or join; suspected leakage columns. | Data already arrives in the exact analysis grain with no joins or reshaping required. |
 | `method-registry.md` | Selecting a statistical/ML method; user asks "which test should I use"; multiple defensible methods disagree; need rejected-alternatives rationale. | Method is fully prescribed by a golden template you've already matched. |
