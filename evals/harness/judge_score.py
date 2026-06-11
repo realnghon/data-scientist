@@ -105,13 +105,10 @@ def spawn_judge_agent(
 3. 发现逻辑矛盾必须扣分
 4. 关注核心推理链而非冗长形式"""
 
-    # Write prompt to temp file
-    prompt_file = Path(f"/tmp/judge_{dimension}.txt")
-    prompt_file.write_text(prompt)
-
-    # Spawn agent via claude CLI
+    # Spawn agent via claude CLI (pass prompt via stdin)
     result = subprocess.run(
-        ["claude", "-p", str(prompt_file)],
+        ["claude"],
+        input=prompt,
         capture_output=True,
         text=True,
         timeout=180
