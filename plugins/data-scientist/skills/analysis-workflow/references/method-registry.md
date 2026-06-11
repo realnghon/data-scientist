@@ -156,6 +156,8 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 - Forecasting (only if explicitly asked) → **ETS** / **ARIMA** / **Prophet**; tree models with lag features for mixed exogenous drivers.
 - Time-point anomaly → **rolling robust z-score**, **STL remainder + 3σ**, **seasonal hybrid ESD**.
 
+**Anomaly Classification (MANDATORY when anomalies detected):** After flagging anomaly points, classify them: (1) **Isolated spikes/drops** - single points returning to normal (sensor glitch); (2) **Sustained level shift** - permanent mean change (regime change); (3) **Trend change** - slope change; (4) **Systematic vs random** - clustered → systematic (investigate); scattered → random (monitor). Report format: "220 anomalies: 112 isolated spikes, 1 level shift at day 90, 1 trend change at day 120. Systematic (clustered in equipment E3)."
+
 **Alternatives & rejections:**
 - Plain linear regression of `Y ~ time` → rejected if residuals show autocorrelation; use Theil-Sen or model residual structure.
 - Forecasting when the user only wants to *understand* — rejected (over-scope); use trend + change-point instead.
