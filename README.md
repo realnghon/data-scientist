@@ -23,6 +23,7 @@
 - **7-stage staged orchestration.** Intake → readiness → shaping → method planning → execution → critic → report, with explicit parallel fan-out patterns on platforms that support multi-agent dispatch.
 - **Three-tier evidence framework.** Reliable conclusions, directional signals, and unsupported findings are reported separately and never blurred together.
 - **Manufacturing-grade reference library.** SPC, Cp/Cpk, MSA, DOE, yield-driver analysis, and 7 recipes baked into the skill — not bolted on.
+- **Evaluated on real cases.** 9 case L2 evaluation suite (A/B test, SPC, time series, Simpson paradox, routing scenarios) with iterative optimization loop. Current: **Round 1 - 90%+ average** (2/6 failure modes fixed). See [evals/](evals/) for details.
 
 ---
 
