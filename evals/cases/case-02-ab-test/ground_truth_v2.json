@@ -1,0 +1,55 @@
+{
+  "case_id": "case-02-ab-v2",
+  "datasets": ["dataset_v2.csv"],
+  "format": "A/B test (20000 users, 4 metrics with tradeoff)",
+  "target": "multiple metrics (conversion, revenue, session_duration, bounce)",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": ["data_manifest", "readiness_report", "analysis_plan", "evidence_matrix", "final_report"],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {"required_keys": ["claims"]},
+    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+  },
+  "findings": [
+    {
+      "id": "conversion_positive",
+      "type": "claim",
+      "feature": "conversion_lift",
+      "evidence_regex": "(conversion|转化)[^\\n]{0,300}(treatment|实验组)[^\\n]{0,300}(increase|improve|提升|positive|\\+.*pp|10\\.5.*8\\.0|2\\.5.*pp)"
+    },
+    {
+      "id": "engagement_negative",
+      "type": "claim",
+      "feature": "engagement_drop",
+      "evidence_regex": "(session.*duration|会话.*时长|engagement|参与)[^\\n]{0,300}(treatment|实验组)[^\\n]{0,300}(decreas|declin|下降|负|shorter|减少|worse|-15)"
+    },
+    {
+      "id": "tradeoff_acknowledged",
+      "type": "quality",
+      "feature": "tradeoff_discussion",
+      "evidence_regex": "(tradeoff|权衡|trade.*off|利弊|gain.*loss|提升.*下降|positive.*negative|conversion.*engagement|转化.*参与)"
+    },
+    {
+      "id": "conditional_recommendation",
+      "type": "quality",
+      "feature": "decision_logic",
+      "evidence_regex": "(recommend.*if|建议.*如果|conditional|取决于|depends.*on|consider.*whether|权衡.*后|综合.*考虑)"
+    },
+    {
+      "id": "effect_size_with_ci",
+      "type": "quality",
+      "feature": "rigor",
+      "evidence_regex": "(\\+[0-9]+\\.[0-9].*pp|effect.*size|效应.*量)[^\\n]{0,200}(CI|confidence|置信|\\[[0-9])"
+    }
+  ],
+  "charts": {"min_count": 2},
+  "anti_patterns": [
+    {
+      "id": "ignore_negative_metric",
+      "forbidden_regex": "(recommend|建议).*launch|上线.*(?!.*(session|engagement|bounce|会话|参与|跳出))",
+      "scope": "final_report"
+    }
+  ]
+}
