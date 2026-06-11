@@ -29,7 +29,7 @@
       "id": "level_shift_day90",
       "type": "claim",
       "feature": "systematic_shift",
-      "evidence_regex": "(level.*shift|水平.*偏移|systematic|系统性|step.*change|阶跃|突变)[^\\n]{0,400}(day.*9[0-5]|第.*9[0-5].*天|12月.*2[9-30]|12.*下旬|recalibr|重新.*校准|校正)"
+      "evidence_regex": "(level.*shift|水平.*偏移|systematic|系统性|step.*change|阶跃|突变)[^\\n]{0,400}(day.*9[0-5]|第.*9[0-5].*天|12月.*(29|30)|12.*下旬|recalibr|重新.*校准|校正)"
     },
     {
       "id": "trend_change_day120",
