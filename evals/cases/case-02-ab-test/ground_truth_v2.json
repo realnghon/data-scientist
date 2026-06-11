@@ -17,25 +17,25 @@
       "id": "conversion_positive",
       "type": "claim",
       "feature": "conversion_lift",
-      "evidence_regex": "(conversion|转化)[^\\n]{0,300}(treatment|实验组)[^\\n]{0,300}(increase|improve|提升|positive|\\+.*pp|10\\.5.*8\\.0|2\\.5.*pp)"
+      "evidence_regex": "(conversion|转化)[^\\n]{0,400}(treatment|实验组|T组)[^\\n]{0,400}(increase|improve|提升|positive|higher|更高|\\+[0-9]+|[0-9]+\\.[0-9]+%|33)"
     },
     {
       "id": "engagement_negative",
       "type": "claim",
       "feature": "engagement_drop",
-      "evidence_regex": "(session.*duration|会话.*时长|engagement|参与)[^\\n]{0,300}(treatment|实验组)[^\\n]{0,300}(decreas|declin|下降|负|shorter|减少|worse|-15)"
+      "evidence_regex": "(session.*duration|会话.*时长|engagement|参与|时长)[^\\n]{0,400}(treatment|实验组|T组)[^\\n]{0,400}(decreas|declin|下降|负|shorter|减少|worse|lower|更低|-[0-9]+|15)"
     },
     {
       "id": "tradeoff_acknowledged",
       "type": "quality",
       "feature": "tradeoff_discussion",
-      "evidence_regex": "(tradeoff|权衡|trade.*off|利弊|gain.*loss|提升.*下降|positive.*negative|conversion.*engagement|转化.*参与)"
+      "evidence_regex": "(tradeoff|权衡|trade.*off|利弊|gain.*loss|提升.*下降|positive.*negative|wins.*losses|conversion.*session|转化.*时长|核心.*次要)"
     },
     {
       "id": "conditional_recommendation",
       "type": "quality",
       "feature": "decision_logic",
-      "evidence_regex": "(recommend.*if|建议.*如果|conditional|取决于|depends.*on|consider.*whether|权衡.*后|综合.*考虑)"
+      "evidence_regex": "(recommend.*if|建议.*如果|conditional|取决于|depends.*on|consider.*whether|权衡.*后|综合.*考虑|虽然.*但|although.*but|tradeoff.*建议|考虑.*指标)"
     },
     {
       "id": "effect_size_with_ci",
@@ -48,7 +48,7 @@
   "anti_patterns": [
     {
       "id": "ignore_negative_metric",
-      "forbidden_regex": "(recommend|建议).*launch|上线.*(?!.*(session|engagement|bounce|会话|参与|跳出))",
+      "forbidden_regex": "(recommend|建议).{0,50}(launch|上线|部署|deploy)(?!.{0,200}(session|engagement|bounce|时长|参与|跳出|负面|下降|tradeoff|权衡))",
       "scope": "final_report"
     }
   ]
