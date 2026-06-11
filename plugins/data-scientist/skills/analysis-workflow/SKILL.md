@@ -12,7 +12,7 @@ Use this skill as an analysis decision system, not as a fixed pipeline. The agen
 These override everything else in this document. Skipping any of them invalidates the analysis.
 
 1. **Route first, and say so.** Before any other action, output one line: `route: full | profile-only | named-method | one-off | blocked — <one-sentence reason>` (see Shortcut Routing). Re-route mid-analysis only if new evidence changes the request shape, and record the change.
-2. **Before executing analysis code**: `data_manifest` + `readiness_report` + `analysis_plan` must exist as artifacts. Missing → create them first (silently in `auto` mode).
+2. **Before executing analysis code**: `data_manifest` + `readiness_report` + `analysis_plan` must exist as artifacts. Missing → create them first (silently in `auto` mode). **Non-negotiable**: Analysis code cannot run without these three files. If they don't exist in the output directory, generate them immediately using profile_dataset.py and structured templates.
 3. **Before writing the final report**: `evidence_matrix` + `critique` (a critic sub-agent's output, or an explicit self-critique pass auditing each claim) must exist. Missing → create them first.
 4. **Before labeling any claim Tier-1 / reliable**: it needs (a) **statistical significance** (p < 0.05 after multiple-testing correction, or CI excludes null), (b) a cross-check method agreeing in direction, (c) an effect size with units, and (d) a CI. If p ≥ 0.05, downgrade to directional or unsupported regardless of effect size. **Never label non-significant results (p ≥ 0.05) as Tier-1.**
 5. **`readiness = blocked` stops the pipeline.** Emit a `data_request` and report what's answerable instead — never force a conclusion.
