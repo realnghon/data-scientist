@@ -67,11 +67,11 @@ for wid in wafer_ids:
     wafer_params[wid] = {}
     litho_chamber = wafer_chamber_map[wid]
 
-    # Root cause: chamber C2 → cd_nm drifts out-of-spec
+    # Root cause: chamber C2 → cd_nm systematically drifts LOW (stronger signal)
     if litho_chamber == 'C2':
-        cd_nm = np.random.uniform(78, 84) if np.random.rand() < 0.6 else np.random.uniform(96, 102)
+        cd_nm = np.random.uniform(76, 82)  # Consistently below spec 85-95
     else:
-        cd_nm = np.random.uniform(85, 95)
+        cd_nm = np.random.uniform(87, 93)  # Normal, centered on spec
 
     wafer_params[wid]['litho_cd_nm'] = cd_nm
     wafer_params[wid]['litho_focus_um'] = np.random.uniform(-0.15, 0.15)  # within spec -0.2 to +0.2
