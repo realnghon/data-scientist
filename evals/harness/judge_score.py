@@ -119,15 +119,45 @@ def spawn_judge_agent(
 
     # Extract JSON from agent output
     output = result.stdout.strip()
-    # Find JSON block in output
+
+    # Try multiple extraction methods
+    json_text = None
+
+    # Method 1: Look for ```json block
     if "```json" in output:
         json_text = output.split("```json")[1].split("```")[0].strip()
-    elif "{" in output:
-        json_text = output[output.index("{"):output.rindex("}")+1]
-    else:
-        raise ValueError(f"No JSON found in agent output: {output[:200]}")
+    # Method 2: Look for { ... } block
+    elif "{" in output and "}" in output:
+        start = output.index("{")
+        end = output.rindex("}") + 1
+        json_text = output[start:end]
 
-    return json.loads(json_text)
+    if not json_text:
+        raise ValueError(f"No JSON found in agent output: {output[:500]}")
+
+    # Try to parse, with fallback for common issues
+    try:
+        return json.loads(json_text)
+    except json.JSONDecodeError as e:
+        # Try to fix common issues: trailing commas, unescaped quotes
+        json_text = json_text.replace(",]", "]").replace(",}", "}")
+        try:
+            return json.loads(json_text)
+        except:
+            # Last resort: extract fields manually
+            import re
+            score_match = re.search(r'"score":\s*(\d+)', json_text)
+            rationale_match = re.search(r'"rationale":\s*"([^"]+)"', json_text)
+
+            if score_match:
+                return {
+                    "score": int(score_match.group(1)),
+                    "rationale": rationale_match.group(1) if rationale_match else "Parse error",
+                    "evidence": [],
+                    "defects": []
+                }
+            else:
+                raise ValueError(f"Failed to parse JSON: {e}\nText: {json_text[:300]}")
 
 
 def score_case_with_agent_judge(
