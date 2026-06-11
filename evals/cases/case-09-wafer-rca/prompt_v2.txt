@@ -1,0 +1,16 @@
+我有两份半导体晶圆（wafer）的生产数据：
+
+1. **fab_log.csv**：生产流程追踪日志（1500 行，每个 wafer 在每个 station 一行）
+   - 列：wafer_id, station, chamber（机台编号）, recipe（工艺配方）, process_time_min, waiting_time_min, start_timestamp
+
+2. **metrology.csv**：参数测量数据，长格式（4500 行，一个 wafer 在一个 station 的一个参数一行）
+   - 列：wafer_id, station, param_name, value, timestamp
+
+最终良率（yield）在 metrology.csv 的 station='final_test' 且 param_name='yield_pct' 的那些行。最近发现良率出现异常（有些 wafer 的良率掉到 80% 以下），我需要你：
+
+1. 把两个表按 wafer_id join 起来
+2. 把 metrology.csv 的长格式 pivot 成宽表（每个 wafer_id 一行，各 station×param 组合成列）
+3. 找出哪些因素（上游工艺参数、机台 chamber、recipe、process/waiting time）是导致良率异常的根本原因
+4. 如果能做 SPC 图，帮我看看哪些 wafer 是失控的，失控点对应的上游因素有什么异常模式
+
+我需要知道：哪个机台或工艺参数需要优先调整才能提升良率？
