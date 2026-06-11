@@ -348,6 +348,8 @@ def main() -> int:
     ap.add_argument("run_dir", type=Path)
     ap.add_argument("--json", type=Path, default=None, help="write summary JSON here")
     ap.add_argument("--subset", choices=["full", "l1"], default="full")
+    ap.add_argument("--mode", choices=["regex", "judge", "hybrid"], default="regex",
+                    help="scoring mode: regex (legacy), judge (agent-based), hybrid (both)")
     ap.add_argument("--threshold", type=float, default=0.0,
                     help="exit non-zero if score < threshold")
     args = ap.parse_args()
@@ -359,20 +361,56 @@ def main() -> int:
         print(f"error: run dir not found: {args.run_dir}", file=sys.stderr)
         return 2
 
-    result = score_case(args.case_dir, args.run_dir, args.subset)
+    # Choose scoring method
+    if args.mode == "judge":
+        # Agent-based LLM judge only
+        from judge_score import score_case_with_agent_judge
+        result = score_case_with_agent_judge(args.case_dir, args.run_dir)
+        print(f"\n=== {result['case_id']}  judge_score={result['overall_score']} ===")
+        for dim, score_data in result["judge_scores"].items():
+            score = score_data["score"]
+            print(f"  [{dim:15s}] {score}/3  {score_data['rationale'][:60]}...")
+        if result.get("defects"):
+            print(f"\nDefects: {len(result['defects'])}")
+            for d in result["defects"][:5]:
+                print(f"  - [{d['dimension']}] {d['defect'][:80]}...")
+    elif args.mode == "hybrid":
+        # Both regex and judge, weighted average
+        regex_result = score_case(args.case_dir, args.run_dir, args.subset)
+        from judge_score import score_case_with_agent_judge
+        judge_result = score_case_with_agent_judge(args.case_dir, args.run_dir)
 
-    print(f"\n=== {result['case_id']}  score={result['score']}  "
-          f"({result['passed']}/{result['total']} checks) ===")
-    for c in result["checks"]:
-        mark = "PASS" if c["passed"] else "FAIL"
-        print(f"  [{mark}] {c['category']:<16} {c['id']:<40} {c['detail']}")
+        # Combine: 40% regex + 60% judge
+        combined_score = 0.4 * regex_result["score"] + 0.6 * judge_result["overall_score"]
+        result = {
+            "case_id": regex_result["case_id"],
+            "mode": "hybrid",
+            "regex_score": regex_result["score"],
+            "judge_score": judge_result["overall_score"],
+            "combined_score": round(combined_score, 1),
+            "regex_details": regex_result,
+            "judge_details": judge_result
+        }
+        print(f"\n=== {result['case_id']}  hybrid_score={result['combined_score']} ===")
+        print(f"  Regex: {result['regex_score']}")
+        print(f"  Judge: {result['judge_score']}")
+        print(f"  Combined (0.4×regex + 0.6×judge): {result['combined_score']}")
+    else:
+        # Legacy regex scoring
+        result = score_case(args.case_dir, args.run_dir, args.subset)
+        print(f"\n=== {result['case_id']}  score={result['score']}  "
+              f"({result['passed']}/{result['total']} checks) ===")
+        for c in result["checks"]:
+            mark = "PASS" if c["passed"] else "FAIL"
+            print(f"  [{mark}] {c['category']:<16} {c['id']:<40} {c['detail']}")
 
     if args.json:
         args.json.parent.mkdir(parents=True, exist_ok=True)
         args.json.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"\nsummary written to {args.json}")
 
-    return 0 if result["score"] >= args.threshold else 1
+    score_value = result.get("overall_score") or result.get("combined_score") or result.get("score", 0)
+    return 0 if score_value >= args.threshold else 1
 
 
 if __name__ == "__main__":
