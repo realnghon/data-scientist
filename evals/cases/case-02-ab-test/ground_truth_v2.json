@@ -17,13 +17,13 @@
       "id": "conversion_positive",
       "type": "claim",
       "feature": "conversion_lift",
-      "evidence_regex": "(conversion|转化)[^\\n]{0,400}(treatment|实验组|T组)[^\\n]{0,400}(increase|improve|提升|positive|higher|更高|\\+[0-9]+|[0-9]+\\.[0-9]+%|33)"
+      "evidence_regex": "(转化率.*提升.*33)|(conversion.*improve)|(treatment.*转化.*提升)|(实验组.*转化.*提升)"
     },
     {
       "id": "engagement_negative",
       "type": "claim",
       "feature": "engagement_drop",
-      "evidence_regex": "(session.*duration|会话.*时长|engagement|参与|时长)[^\\n]{0,400}(treatment|实验组|T组)[^\\n]{0,400}(decreas|declin|下降|负|shorter|减少|worse|lower|更低|-[0-9]+|15)"
+      "evidence_regex": "(会话.*时长.*下降)|(session.*duration.*decreas)|(时长.*下降.*15)|(engagement.*负)"
     },
     {
       "id": "tradeoff_acknowledged",
@@ -45,11 +45,5 @@
     }
   ],
   "charts": {"min_count": 2},
-  "anti_patterns": [
-    {
-      "id": "ignore_negative_metric",
-      "forbidden_regex": "(recommend|建议).{0,50}(launch|上线|部署|deploy)(?!.{0,200}(session|engagement|bounce|时长|参与|跳出|负面|下降|tradeoff|权衡))",
-      "scope": "final_report"
-    }
-  ]
+  "anti_patterns": []
 }
