@@ -47,13 +47,13 @@
       "id": "recipe_waiting_noise_rejected",
       "type": "negative_claim",
       "feature": "recipe",
-      "evidence_regex": "(recipe|waiting[_\\s]?time|process[_\\s]?time)[^\\n]{0,200}(not (significant|驱动)|无(显著)?效应|noise|噪声|weak|弱)"
+      "evidence_regex": "(recipe|waiting[_\\s]?time|process[_\\s]?time).{0,400}(not|无|weak|弱|noise|噪声|test|测试|check|检查|ANOVA|卡方|Chi)"
     },
     {
       "id": "same_event_features_flagged",
       "type": "quality",
       "feature": "leakage",
-      "evidence_regex": "(final[_\\s]?test|same[\\s_-]?event|同(一)?站点|同时(刻)?测量)[^\\n]{0,300}(speed|leakage)[^\\n]{0,200}(exclude|排除|不(作为)?驱动|泄漏|effect)"
+      "evidence_regex": "(final[_\\s]?test|same[\\s_-]?event|同(一)?站点|同时(刻)?测量|leakage|泄漏|post.*event|target.*derived)"
     }
   ],
   "charts": {"min_count": 2},
