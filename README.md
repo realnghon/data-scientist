@@ -217,7 +217,21 @@ npm run eval:l1
 python evals/harness/score_case.py evals/cases/<case> evals/.runs/l2/<run> --json score.json
 ```
 
-Eight cases with machine-checkable `ground_truth.json` (injected signals from the data generators): manufacturing drivers + confounding, A/B lift, time-series anomalies, SPC rules + capability, Simpson's paradox + interaction, and three routing/readiness-discipline cases. The improvement loop (run → locate failures → edit skill → re-run → record in `evals/results.tsv`) is documented in [`evals/README.md`](evals/README.md).
+**10 cases** with machine-checkable `ground_truth.json` (injected signals from data generators):
+- **case-01 v2**: Manufacturing drivers + **equipment_age × temperature interaction** (500 batches, 9 features) — **100% saturated** ✅
+- **case-02~08**: A/B lift, time-series anomalies, SPC + Cpk, Simpson's paradox, routing discipline — **~93% avg**
+- **case-09 v1**: Single-source wafer RCA (1500 rows) — **86.4%**
+- **case-09 v2**: Multi-source wafer RCA (fab_log 1500 + metrology 4500, **join + pivot required**) — **78.8%** (cd_nm mechanism validated, recipe/waiting noise rejection in progress)
+
+**Iterative improvement framework** ([`evals/ITERATION_PLAN.md`](evals/ITERATION_PLAN.md)):
+- Spiral optimization: run → FAIL analysis → skill edit → rerun → record in [`evals/results.tsv`](evals/results.tsv)
+- **R2~R3 validated improvements** (case-01 v2: 89.2%→100%, case-09 v2: 57.7%→84.6%):
+  - Step 13: interaction term detection (equipment_age × temperature)
+  - Step 14: categorical root cause → continuous parameter mechanism tracing (chamber C2 → cd_nm out-of-spec 85-95nm)
+  - Negative findings reporting: explicit "X has no effect" for tested-but-rejected features
+  - Optimal-range citation: require spec/optimal zones for process parameters
+
+**Ongoing**: case-09 v2 remaining gaps (recipe/waiting explicit rejection, same-event leakage flagging). Full loop documented in [`evals/README.md`](evals/README.md).
 
 
 ---
