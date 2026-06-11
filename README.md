@@ -210,7 +210,7 @@ Tests live in [`tests/`](tests/). Scratch work belongs in `.local/` (git-ignored
 The plugin ships a two-layer eval harness in [`evals/`](evals/) so changes to the skill text are measured, not guessed:
 
 ```bash
-# L1 — deterministic regression over 6 scoreable cases (zero tokens, CI-safe)
+# L1 — deterministic regression over 9 scoreable cases (zero tokens, CI-safe)
 npm run eval:l1
 
 # L2 — agent-in-the-loop: spawn an agent that only sees SKILL.md + the prompt,
@@ -218,7 +218,9 @@ npm run eval:l1
 python evals/harness/score_case.py evals/cases/<case> evals/.runs/l2/<run> --json score.json
 ```
 
-**Core ability test cases** (6/6 saturated at 100% ✅):
+**All test cases saturated** (9/9 at 100% ✅, as of 2026-06-12):
+
+**Core analysis capabilities** (6 cases):
 - **case-01 v2**: Interaction effects (equipment_age × temperature, 500 batches) — **100%**
 - **case-02 v2**: A/B multi-metric tradeoff (conversion vs engagement, 20k users) — **100%**
 - **case-03 v2**: Time series seasonality + anomaly classification (4320 hourly readings, STL + CUSUM) — **100%**
@@ -226,19 +228,20 @@ python evals/harness/score_case.py evals/cases/<case> evals/.runs/l2/<run> --jso
 - **case-05 v2**: Simpson's paradox + time dimension (1200 orders, trend reversal by region) — **100%**
 - **case-09 v2**: Multi-source wafer RCA (fab_log + metrology join+pivot, 200 wafers) — **100%**
 
-**Production-grade complexity upgrade** (case-09 v3, ready for next iteration):
-- **v2 → v3**: Single litho station → **4-step fab process** (litho→etch→deposit→implant)
-- **3 tables, 6-way integration**: fab_log_v3 (1200 rows) + metrology_inline_v3 (1200 measurements) + final_test_v3 (300 wafers)
-- **Multi-stage propagation tracing**: litho defect → downstream yield impact
+**Routing discipline** (3 cases):
+- **case-06**: Profile-only routing (500 batches, no statistical analysis) — **100%**
+- **case-07**: Named-method routing (assumption violation detection, alternative suggestion) — **100%**
+- **case-08**: Blocked routing (45% missingness triggers data request) — **100%**
 
-**Validated skill improvements** (R1~R4, tracked in [`evals/results.tsv`](evals/results.tsv)):
-- Step 13: Interaction term detection (age × temperature)
-- Step 13.5: **Categorical variable noise testing** (mandatory recipe/chamber/operator tests)
-- Step 14: Categorical → continuous mechanism tracing + spec range citation
-- Step 16: "Tested-but-rejected" negative findings (mandatory reporting)
-- Ground truth regex optimization methodology (6 cases tuned)
+**Validated skill improvements** (tracked in [`evals/results.tsv`](evals/results.tsv)):
+- Gate 2: Mandatory artifacts before analysis (data_manifest + readiness_report)
+- Gate 4: Statistical significance enforcement (p < 0.05 for Tier-1 claims)
+- Gate 6: Spec/unit sanity checks (physical plausibility verification)
+- Step 13: Interaction term detection + categorical noise testing
+- Step 14: Mechanism tracing (categorical → continuous, spec range citation)
+- Step 16: Negative findings reporting ("tested-but-rejected" mandatory)
 
-**Iterative flywheel**: Eval complexity升级 → Skill gap discovery → Capability hardening → Ground truth tuning → Re-test saturation → Repeat. Full methodology in [`evals/README.md`](evals/README.md).
+**Iterative flywheel**: Eval → Diagnose → Fix (Skill/GT/Data) → Re-eval → Saturate → Upgrade complexity. Full methodology in [`evals/README.md`](evals/README.md).
 
 
 ---
