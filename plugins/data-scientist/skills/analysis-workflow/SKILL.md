@@ -95,6 +95,12 @@ Import only the module needed for the current method family. Never `import *` an
        "analysis_unit": "行的含义",
        "filters_applied": ["过滤条件"]
      },
+     "data_transformations": [
+       "Joined fab_log + metrology on wafer_id",
+       "Pivoted metrology long format to wide (station×param columns)",
+       "Filtered outliers beyond 3σ",
+       "Created lag features: temperature_lag_1d"
+     ],
      "claims": [
        {
          "claim": "要验证的结论描述",
@@ -111,6 +117,8 @@ Import only the module needed for the current method family. Never `import *` an
      ]
    }
    ```
+   **data_transformations** field (added 2026-06): list every non-trivial data operation before analysis (joins, pivots, aggregations, feature engineering). If you loaded 2+ tables and joined them, if you pivoted long→wide or wide→long, if you created lag/lead/window features, or if you aggregated to a different grain — record it here. This is essential for reproducibility and for evaluating whether the transformation was correct (e.g., did you join when ground truth expected it?).
+
    The analysis_plan serves as: (a) pre-execution checklist for the user to review; (b) audit trail for "why this method"; (c) template for reproducibility.
 12. 🔴 **CHECKPOINT (guided mode): present the `analysis_plan` and get user sign-off before executing non-trivial analysis code.** Show: (a) what claims will be tested, (b) which methods, (c) why those methods, (d) which helpers will be used. Then execute reproducible code — prefer scripts in `scripts/` when they fit; otherwise write task-specific Python/R code that implements the plan exactly.
 13. **Check for interaction effects and confounding.** When analyzing multiple drivers of a target `Y`, check whether: (a) pairs of features interact (e.g., temperature × equipment_age, where the effect of temperature depends on equipment age); (b) a feature's apparent effect disappears or reverses when controlling for another (Simpson's paradox or confounding). Methods: fit a model with interaction terms, compare coefficients before and after adding suspected confounders, or stratify by levels of a potential confounder. Skip this step only if you have a single predictor or the analysis is purely descriptive.

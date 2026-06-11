@@ -29,7 +29,7 @@
       "id": "chamber_c2_root_cause",
       "type": "claim",
       "feature": "chamber",
-      "evidence_regex": "(chamber|机台)[^\\n]{0,300}(C2)[^\\n]{0,300}(root[\\s_-]?cause|根(本)?原因|主(要)?驱动|driver|关键)"
+      "evidence_regex": "((C2|chamber|机台)[^\\n]{0,200}(root.?cause|根.?因|主.?驱动|driver|关键.?因))|((root.?cause|根.?因|主.?驱动|driver|关键.?因)[^\\n]{0,200}(C2|chamber|机台))"
     },
     {
       "id": "cd_nm_mechanism",
