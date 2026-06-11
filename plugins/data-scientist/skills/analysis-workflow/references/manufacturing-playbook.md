@@ -48,6 +48,24 @@ Process has ordered observations over time and the question involves stability, 
 
 - 20-25 in-control subgroups for limit calculation.
 - Subgroups must be rationally formed (within-subgroup variation reflects common cause only).
+
+### MANDATORY: Stratification Check
+
+**Before creating a single combined control chart**, check if the data contains stratification variables (line, equipment, operator, shift, product, recipe). If present, you MUST:
+
+1. **Test for heterogeneity**: Run ANOVA/Kruskal-Wallis to check if mean or variance differs significantly across strata (p < 0.05)
+2. **If heterogeneous (p < 0.05)**: Create **separate control charts per stratum**. Do NOT pool data from different lines/equipment into one chart — this masks special causes.
+3. **Report per-stratum status**: For each stratum, report:
+   - Control status (in-control / out-of-control)
+   - Which Western Electric rules violated (if any)
+   - Time periods of violations
+   - Capability (Cp/Cpk) only for in-control strata
+
+**Example**: If data has columns [timestamp, measurement, line] with lines L1/L2/L3:
+- ✅ Correct: Create 3 separate I-MR charts (one per line), report "L1: in-control, L2: out-of-control (Rule 2 @ samples 501-520), L3: in-control"
+- ❌ Wrong: Pool all data → single chart → report "process out-of-control" (hides which line is the problem)
+
+**Skip stratification only if**: (a) ANOVA shows no significant difference (p ≥ 0.05), OR (b) no categorical columns exist, OR (c) user explicitly requests pooled analysis.
 - Order preserved; gaps flagged not silently spanned.
 
 ### Special-Cause Rule Sets (apply, do not invent)
