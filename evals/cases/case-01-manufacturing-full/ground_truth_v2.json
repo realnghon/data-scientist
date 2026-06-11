@@ -23,7 +23,7 @@
       "id": "interaction_detected",
       "type": "claim",
       "feature": "interaction",
-      "evidence_regex": "(equipment.?age|设备.*年龄|equipment.?old)[^\\n]{0,300}(temperature|温度)[^\\n]{0,300}(interact|交互|amplif|放大|moderat|调节)"
+      "evidence_regex": "((equipment.?age|设备.*年龄|年龄|age)[^\\n]{0,300}(temperature|温度|temp)[^\\n]{0,300}(interact|交互|amplif|放大|moderat|调节))|((temperature|温度|temp)[^\\n]{0,300}(equipment.?age|设备.*年龄|年龄|age)[^\\n]{0,300}(interact|交互|amplif|放大|moderat|调节))"
     },
     {
       "id": "noise_rejected",
