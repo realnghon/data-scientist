@@ -217,21 +217,27 @@ npm run eval:l1
 python evals/harness/score_case.py evals/cases/<case> evals/.runs/l2/<run> --json score.json
 ```
 
-**10 cases** with machine-checkable `ground_truth.json` (injected signals from data generators):
-- **case-01 v2**: Manufacturing drivers + **equipment_age × temperature interaction** (500 batches, 9 features) — **100% saturated** ✅
-- **case-02~08**: A/B lift, time-series anomalies, SPC + Cpk, Simpson's paradox, routing discipline — **~93% avg**
-- **case-09 v1**: Single-source wafer RCA (1500 rows) — **86.4%**
-- **case-09 v2**: Multi-source wafer RCA (fab_log 1500 + metrology 4500, **join + pivot required**) — **78.8%** (cd_nm mechanism validated, recipe/waiting noise rejection in progress)
+**Core ability test cases** (6/6 saturated at 100% ✅):
+- **case-01 v2**: Interaction effects (equipment_age × temperature, 500 batches) — **100%**
+- **case-02 v2**: A/B multi-metric tradeoff (conversion vs engagement, 20k users) — **100%**
+- **case-03 v2**: Time series seasonality + anomaly classification (4320 hourly readings, STL + CUSUM) — **100%**
+- **case-04 v2**: Multi-line SPC stratification (3 production lines, 2160 measurements, Cpk per line) — **100%**
+- **case-05 v2**: Simpson's paradox + time dimension (1200 orders, trend reversal by region) — **100%**
+- **case-09 v2**: Multi-source wafer RCA (fab_log + metrology join+pivot, 200 wafers) — **100%**
 
-**Iterative improvement framework** ([`evals/ITERATION_PLAN.md`](evals/ITERATION_PLAN.md)):
-- Spiral optimization: run → FAIL analysis → skill edit → rerun → record in [`evals/results.tsv`](evals/results.tsv)
-- **R2~R3 validated improvements** (case-01 v2: 89.2%→100%, case-09 v2: 57.7%→84.6%):
-  - Step 13: interaction term detection (equipment_age × temperature)
-  - Step 14: categorical root cause → continuous parameter mechanism tracing (chamber C2 → cd_nm out-of-spec 85-95nm)
-  - Negative findings reporting: explicit "X has no effect" for tested-but-rejected features
-  - Optimal-range citation: require spec/optimal zones for process parameters
+**Production-grade complexity upgrade** (case-09 v3, ready for next iteration):
+- **v2 → v3**: Single litho station → **4-step fab process** (litho→etch→deposit→implant)
+- **3 tables, 6-way integration**: fab_log_v3 (1200 rows) + metrology_inline_v3 (1200 measurements) + final_test_v3 (300 wafers)
+- **Multi-stage propagation tracing**: litho defect → downstream yield impact
 
-**Ongoing**: case-09 v2 remaining gaps (recipe/waiting explicit rejection, same-event leakage flagging). Full loop documented in [`evals/README.md`](evals/README.md).
+**Validated skill improvements** (R1~R4, tracked in [`evals/results.tsv`](evals/results.tsv)):
+- Step 13: Interaction term detection (age × temperature)
+- Step 13.5: **Categorical variable noise testing** (mandatory recipe/chamber/operator tests)
+- Step 14: Categorical → continuous mechanism tracing + spec range citation
+- Step 16: "Tested-but-rejected" negative findings (mandatory reporting)
+- Ground truth regex optimization methodology (6 cases tuned)
+
+**Iterative flywheel**: Eval complexity升级 → Skill gap discovery → Capability hardening → Ground truth tuning → Re-test saturation → Repeat. Full methodology in [`evals/README.md`](evals/README.md).
 
 
 ---
