@@ -104,7 +104,9 @@
 | R1 | case-09 | v1 | 86.4% | cd_nm 未识别为根因（same-event leakage） | same-event leakage 检查 | - |
 | R2 | case-09 | v2 首次 | 57.7% | chamber_c2 正则不匹配、data_transformations 缺失 | - | - |
 | R2 | case-09 | v2 正则修正 | 73.1% | data_transformations 缺失、join 未记录、cd_nm 机制未提及、same_event 未标记 | analysis_plan 增 data_transformations 字段 | 76.9% |
-| R2 | case-09 | v2 重跑 b | 76.9% | cd_nm 机制未提及、recipe/waiting 未排除、same_event 未标记 | workflow step 14: 分类根因→连续参数机制追溯 | 进行中 |
+| R2 | case-09 | v2 重跑 b | 76.9% | cd_nm 机制未提及、recipe/waiting 未排除、same_event 未标记 | workflow step 14: 分类根因→连续参数机制追溯 | 84.6% |
+| R2 | case-09 | v2 重跑 c | 84.6% | cd_nm 机制执行但未提规格范围、same_event 未标记 | step 14 增规格范围要求 | 进行中（v2d 后台失败×2）|
+| R3 | case-01 | v2 设计 | - | - | 增交互效应（equipment_age × temperature） | 进行中 |
 
 ## 目标
 
