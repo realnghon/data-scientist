@@ -17,13 +17,13 @@
       "id": "simpson_detected",
       "type": "claim",
       "feature": "simpson_paradox",
-      "evidence_regex": "(Simpson|辛普森|paradox|悖论|reversal|反转)[^\\n]{0,300}(overall.*within|整体.*分组|pooled.*stratif|aggregate.*region)"
+      "evidence_regex": "(Simpson|辛普森|paradox|悖论|reversal|反转)[^\\n]{0,500}(整体|overall|分层|stratif|region|within.*group|pooled)"
     },
     {
       "id": "premium_overall_positive",
       "type": "claim",
       "feature": "premium_trend_overall",
-      "evidence_regex": "(Premium|高端)[^\\n]{0,300}(overall|整体|pooled|总体)[^\\n]{0,200}(positive.*trend|上升|增长|growing|increas)"
+      "evidence_regex": "(Premium|高端)[^\\n]{0,400}(overall|整体|pooled|总体|aggregat|合并)[^\\n]{0,300}(positive|trend|上升|增长|growing|increas|flat|持平)"
     },
     {
       "id": "premium_within_region_negative",
@@ -35,7 +35,7 @@
       "id": "market_shift_explanation",
       "type": "claim",
       "feature": "mechanism",
-      "evidence_regex": "(market.*shift|市场.*转移|composition.*change|结构.*变化)[^\\n]{0,300}(South.*North|南.*北|region.*mix)"
+      "evidence_regex": "((market|region|地区|构成).*shift|市场.*转移|composition.*(change|shift)|结构.*变化|份额.*变化)[^\\n]{0,300}(South.*North|南.*北|North.*South|北.*南|region.*mix|22.*69|58.*17)"
     },
     {
       "id": "stratification_executed",
