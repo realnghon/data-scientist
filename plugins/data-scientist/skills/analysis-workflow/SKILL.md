@@ -299,6 +299,7 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 | **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (see step 2) |
 | **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns (see Domain Rules) |
 | **Call a target-derived feature a "driver"** | mechanically correlated with `Y`; not an independent explanation | tag `target_derived`, exclude from driver ranking |
+| **Silently exclude weak features** | omitting "X has no effect" hides what was tested; reader assumes you didn't check | explicitly state negative findings: "recipe, waiting_time tested, no significant effect (p>0.05, ρ<0.1)" |
 | **Claim "comprehensive analysis" when readiness = partial** | over-promises; hides what was dropped | state the `narrowed_scope`: what is answerable, what is not, and why |
 
 When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
