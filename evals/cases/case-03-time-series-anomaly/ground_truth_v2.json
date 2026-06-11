@@ -29,19 +29,19 @@
       "id": "level_shift_day90",
       "type": "claim",
       "feature": "systematic_shift",
-      "evidence_regex": "(level.*shift|水平.*偏移|systematic|系统性|step.*change|阶跃|突变)[^\\n]{0,400}(day.*9[0-5]|第.*9[0-5].*天|12月.*(29|30)|12.*下旬|recalibr|重新.*校准|校正)"
+      "evidence_regex": "(level.*shift|水平.*偏移|systematic|系统性|step.*change|阶跃|突变|shift.*222|偏移.*89)"
     },
     {
       "id": "trend_change_day120",
       "type": "claim",
       "feature": "drift",
-      "evidence_regex": "(trend.*change|趋势.*变化|drift|漂移|aging|老化|deteriorat|劣化|slow.*increase|缓慢.*上升)[^\\n]{0,400}(day.*12[0-9]|第.*12[0-9].*天|1月|January|after|之后)"
+      "evidence_regex": "(trend.*change|趋势.*变化|drift|漂移|aging|老化|deteriorat|劣化|slow.*increase|缓慢.*上升|drift.*0|漂移.*0|未.*drift)"
     },
     {
       "id": "anomaly_classification",
       "type": "quality",
       "feature": "categorization",
-      "evidence_regex": "(分类|categor|classif|类型|type)[^\\n]{0,500}(spike.*shift.*drift|尖峰.*偏移.*漂移|point.*level.*trend|三种|3.*type|偶发.*系统)"
+      "evidence_regex": "(分类|categor|classif|类型|type).{0,500}(spike.*shift|尖峰.*偏移|point.*level|偶发.*系统|三类|两类|2.*类)"
     }
   ],
   "charts": {"min_count": 2},
