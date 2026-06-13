@@ -132,6 +132,36 @@ Import only the module needed for the current method family. Never `import *` an
 (g) **Time confounding**: If data spans >1 month, check whether treatment/control assignment is balanced over time. If treatment was rolled out gradually or seasonality exists, either (i) stratify by time period (e.g., split into quarters and verify effect consistency), or (ii) include time as a covariate in regression. For 24-month data, explicitly test for time×variant interaction or report effect by time cohort to rule out seasonal confounding.
 (h) **Revenue analysis**: Analyze revenue **only on converted users** (filter to `converted==1` subset). Analyzing the full sample (including $0 from non-converters) conflates conversion rate and revenue-per-converter, making the metric uninterpretable. Report both: overall revenue-per-user (conversion × revenue|converted) and revenue|converted separately.
 (i) **Assumption checks**: Before t-test or ANOVA, verify (i) normality (Shapiro-Wilk for n<5000, or QQ-plot visual check; if p<0.05 reject normality), and (ii) homogeneity of variance (Levene test; if p<0.05 reject equal variance). If either fails, use non-parametric alternatives (Mann-Whitney U) or bootstrap CIs. Report which assumptions were checked and whether they held.
+
+## 🔴 MANDATORY Statistical Rigor Requirements (Step 14.5)
+
+**Before reporting ANY parametric test result (ANOVA, t-test, Pearson correlation), you MUST**:
+
+1. **Check assumptions FIRST** (before looking at the test result):
+   - **Normality**: Shapiro-Wilk test (n<50) or Q-Q plot visual (n≥50)
+     - If p<0.05: reject normality → use non-parametric (Mann-Whitney, Kruskal-Wallis, Spearman)
+   - **Variance homogeneity** (for ANOVA/t-test): Levene test
+     - If p<0.05: reject equal variance → use Welch ANOVA or Welch t-test
+   - **Independence** (for time-series or repeated measures): check autocorrelation
+     - If Durbin-Watson < 1.5 or Ljung-Box p<0.05: note limitation or use time-series methods
+
+2. **Report the checks** in your analysis (required format):
+   ```
+   Assumptions checked:
+   - Normality: Shapiro-Wilk p=0.XX (normal/non-normal) [or "Q-Q plot shows approximate normality"]
+   - Variance homogeneity: Levene p=0.XX (equal/unequal variance)
+   - [Independence: checked via Durbin-Watson = X.XX (no autocorrelation)]
+   ```
+
+3. **If assumptions violated**:
+   - Switch to non-parametric alternative (document switch in analysis_plan)
+   - OR acknowledge violation explicitly in limitations section
+   - Never silently report parametric results when assumptions fail
+
+**Why this matters**: Parametric tests give invalid p-values when assumptions fail. An ANOVA with p<0.001 is meaningless if normality or variance assumptions are violated.
+
+**Code templates** available in `references/method-registry.md` → Group Comparison and Correlation sections.
+
 15. Cross-check every important finding with at least one alternative method; if none fits, label the claim directional, not reliable. **Important finding** = any claim where p < 0.05 and the effect size exceeds the minimum practically meaningful threshold (ask the user or use domain defaults: 2% for conversion rates, 0.2 SD for continuous outcomes, 10% relative change for business metrics).
 16. Produce charts and a concise report. **Charts are not optional** — every analysis type has a minimum required chart set defined in `references/chart-catalog.md` → "Minimum Required Charts by Analysis Type". Cross-check that section and produce all required charts for the matched analysis type (A/B test, driver ranking, regression, time series, SPC, root cause, or anomaly detection). For each required chart: (a) call the appropriate `ds_skill.plotting` function or generate with matplotlib/seaborn, (b) save the figure to a file with a descriptive name (e.g., `chart_1_timeseries_with_anomalies.png`), (c) reference the saved file path in the report. If a required chart is skipped, state why in the report. Use `references/report-standard.md` for report structure. **Report must include a "Tested but rejected" or "No evidence for" section** listing features/hypotheses that were tested but showed no significant effect (anti-pattern line 303: omitting negative findings hides what was tested). Example: "Tested but rejected: recipe (ρ=0.03, p=0.62), waiting_time (ρ=-0.01, p=0.88) — neither shows significant association with yield."
 17. **Clean up temporary artifacts.** After delivering the final report: (a) if a temporary virtual environment was created for this analysis (not a user's existing pyenv/conda environment), remove it with `rm -rf .venv/` or `deactivate && rm -rf $VIRTUAL_ENV`; (b) delete intermediate test files and temporary scripts (e.g., `test.py`, `temp_*.csv`) from the working directory; (c) keep only the final deliverables (report, charts, processed data, reproducible analysis script). List what was cleaned in a brief cleanup summary. Skip cleanup if the user explicitly asks to keep intermediate files or if working in a shared/persistent notebook environment.
