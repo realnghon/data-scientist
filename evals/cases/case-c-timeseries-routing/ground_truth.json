@@ -1,0 +1,82 @@
+{
+  "case_id": "case-c-timeseries-routing",
+  "datasets": ["sensor_readings.csv"],
+  "format": "Time series (4320 hourly readings, 180 days, with quality issues)",
+  "target": "sensor_value",
+  "routing": {
+    "expected_route": "partial_blocked",
+    "must_produce_artifacts": [
+      "data_manifest",
+      "readiness_report"
+    ],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "readiness_report": {
+      "min_dimensions": 8,
+      "allowed_scores": ["ok", "partial", "blocked"]
+    }
+  },
+  "findings": [
+    {
+      "id": "seasonality_detected",
+      "type": "claim",
+      "feature": "seasonality",
+      "evidence_regex": "((daily|日|hour|小时|diurnal)[^\\n]{0,400}(season|周期|pattern|规律))|((season|周期|pattern)[^\\n]{0,400}(daily|hour|24|日内))"
+    },
+    {
+      "id": "weekly_pattern",
+      "type": "claim",
+      "feature": "weekly",
+      "evidence_regex": "((week|周|weekend|周末)[^\\n]{0,400}(season|周期|pattern|lower|低|下降))"
+    },
+    {
+      "id": "spike_detected",
+      "type": "claim",
+      "feature": "spikes",
+      "evidence_regex": "(spike|尖峰|outlier|异常点|突变)[^\\n]{0,400}(10|[0-9].*个|multiple|several|多个)"
+    },
+    {
+      "id": "level_shift_detected",
+      "type": "claim",
+      "feature": "level_shift",
+      "evidence_regex": "((level.*shift|水平.*偏移|jump|突跃|阶跃|mean.*change|均值.*变化)[^\\n]{0,400}(day.*9[0-5]|11月.*2[89]|11月.*30|12月.*[01]))|((day.*9[0-5]|90|91|92)[^\\n]{0,400}(shift|偏移|jump|突变))"
+    },
+    {
+      "id": "drift_detected",
+      "type": "claim",
+      "feature": "drift",
+      "evidence_regex": "((trend|drift|漂移|趋势)[^\\n]{0,600}(day.*12[0-9]|12月|after|之后|later|后期|aging|老化))|((gradual|渐进|slow|缓慢)[^\\n]{0,400}(increase|上升|drift|漂移))"
+    },
+    {
+      "id": "data_quality_stratified",
+      "type": "quality",
+      "feature": "quality_temporal",
+      "evidence_regex": "((前|early|first|initial).*[0-9]{1,2}.*天[^\\n]{0,400}(ok|acceptable|可接受|5%))|((后|late|later|second).*[0-9]{1,2}.*天[^\\n]{0,400}(poor|差|high.*missing|4[0-9]%))"
+    },
+    {
+      "id": "blocked_period_identified",
+      "type": "claim",
+      "feature": "readiness",
+      "evidence_regex": "((后|late|day.*9[0-9]|day.*1[0-9]{2}|90.*之后|90.*later)[^\\n]{0,600}(insufficient|不足|cannot.*support|无法.*支持|blocked|阻断|missing.*high|缺失.*高))|((insufficient|数据不足|cannot.*conclude|无法.*得出)[^\\n]{0,400}(后|late|second.*half|后半段))"
+    },
+    {
+      "id": "data_request_emitted",
+      "type": "quality",
+      "feature": "data_request",
+      "evidence_regex": "(data.*request|需要.*补充|backfill|修复.*数据|建议.*采集|improve.*quality|提升.*质量)"
+    },
+    {
+      "id": "no_forced_conclusion_late_period",
+      "type": "negative_claim",
+      "feature": "anti_overfit",
+      "evidence_regex": "NOT:((day.*12[0-9]|day.*1[0-9]{2}|后.*90.*天|12月|1月)[^\\n]{0,400}(明确|clearly|definitely|确定|趋势|trend.*is|drift.*rate)[^\\n]{0,300}(\\+0\\.1|每天|per.*day|稳定|stable))"
+    }
+  ],
+  "charts": {
+    "min_count": 2,
+    "required_keywords": ["time|时间|trend", "season|周期|decomp"]
+  },
+  "anti_patterns": [],
+  "notes": "Case C 融合 case-03/06/07/08: 时序分解 + 异常分类 + 数据就绪性路由。信号: (A) 日/周季节性，(B) 10 尖峰 + day90-95 偏移 +20 + day120+ 漂移 +0.1/day，(C) 前 90 天缺失 4.4%（ok）后 90 天 43.7%（blocked）。期望路径：识别季节性 → 前 90 天异常检测 → 后 90 天 blocked + data_request，不对后期漂移给出确定性结论。当前 prompt 是完整分析模式；profile-only 和 named-method 模式留给后续扩展。seed=20260613。"
+}

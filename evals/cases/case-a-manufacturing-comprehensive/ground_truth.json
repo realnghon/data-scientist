@@ -1,0 +1,88 @@
+{
+  "case_id": "case-a-manufacturing-comprehensive",
+  "datasets": ["fab_log.csv", "metrology.csv", "spc_daily.csv", "final_test.csv"],
+  "format": "multi-table (4 tables, 300 wafers × 4 steps, 30 days × 3 lines)",
+  "target": "yield_pct",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": [
+      "data_manifest",
+      "readiness_report",
+      "analysis_plan",
+      "evidence_matrix",
+      "final_report"
+    ],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {
+      "required_keys": ["claims", "data_transformations"]
+    },
+    "readiness_report": {
+      "min_dimensions": 8,
+      "allowed_scores": ["ok", "partial", "blocked"]
+    }
+  },
+  "findings": [
+    {
+      "id": "spc_stratified_by_line",
+      "type": "quality",
+      "feature": "stratification",
+      "evidence_regex": "(stratif|分层|by.*line|按.*产线|per.*line|each.*line|L1.*L2.*L3)"
+    },
+    {
+      "id": "l3_out_of_control",
+      "type": "claim",
+      "feature": "spc_control",
+      "evidence_regex": "(L3|line.*3|产线.*3)[^\\n]{0,400}(out.?of.?control|失控|不稳定|unstable|special.*cause|特殊.*原因|mean.*shift|均值.*偏移)"
+    },
+    {
+      "id": "l3_timeframe",
+      "type": "claim",
+      "feature": "spc_timeframe",
+      "evidence_regex": "(L3|line.*3|产线.*3)[^\\n]{0,400}(day.*1[5-6]|5月.*1[5-7]|May.*1[5-7]|时段|period|连续)"
+    },
+    {
+      "id": "capability_by_line",
+      "type": "claim",
+      "feature": "capability",
+      "evidence_regex": "(Cp|Cpk|过程能力)[^\\n]{0,600}(L1|L2|L3)[^\\n]{0,300}(1\\.[0-9]|0\\.[0-9])"
+    },
+    {
+      "id": "multi_table_join",
+      "type": "quality",
+      "feature": "data_integration",
+      "evidence_regex": "(join|merge|整合|关联)[^\\n]{0,300}(fab.*metrology|metrology.*fab|fab.*final|wafer_id)"
+    },
+    {
+      "id": "chamber_c2_root_cause",
+      "type": "claim",
+      "feature": "root_cause",
+      "evidence_regex": "((C2|chamber.*2)[^\\n]{0,500}(root.?cause|根.?因|driver|驱动|yield.?(low|drop|差|低|6[0-9]|70)))|((root.?cause|根.?因|driver)[^\\n]{0,400}(C2|chamber.*2))"
+    },
+    {
+      "id": "cd_nm_mechanism",
+      "type": "claim",
+      "feature": "mechanism",
+      "evidence_regex": "(cd[_\\s]?nm|critical[\\s_]?dimension)[^\\n]{0,600}(8[0-2]|below.*85|低于.*85|out.?spec|超.?规格|correlation|相关|mechanism|机制|driver|驱动)"
+    },
+    {
+      "id": "temperature_age_interaction",
+      "type": "claim",
+      "feature": "interaction",
+      "evidence_regex": "((temperature|温度)[^\\n]{0,400}(equipment.*age|设备.*年龄|age)[^\\n]{0,400}(interact|交互|amplif|放大|moderat|调节))|((equipment.*age|设备.*年龄|age)[^\\n]{0,400}(temperature|温度)[^\\n]{0,400}(interact|交互|amplif|放大))"
+    },
+    {
+      "id": "noise_rejected",
+      "type": "negative_claim",
+      "feature": "noise",
+      "evidence_regex": "((pressure|humidity|waiting.*time|recipe|压力|湿度|等待|配方)[^\\n]{0,300}(no.*(significant|显著)|无.*效应|无.*影响|not.*driver|非.*驱动|排除))|((排除|no.*effect|无.*效应)[^\\n]{0,200}(pressure|humidity|waiting|recipe|压力|湿度))"
+    }
+  ],
+  "charts": {
+    "min_count": 3,
+    "required_keywords": ["spc|control|控制", "yield|良率", "correlation|相关|heatmap"]
+  },
+  "anti_patterns": [],
+  "notes": "Case A 融合 case-01/04/09 能力：交互效应 + 分层 SPC + 多表整合根因。4 层信号：(A) L3 SPC 失控 day15-16，(B) C2 chamber → cd_nm 82 → 低良率，(C) L1/L2 温度×年龄交互 p~0.05，(D) 噪声排除。期望分析路径：分产线 SPC → 定位 L3 失控 → 追溯 litho C2 → 机制验证 cd_nm → L1/L2 交互检测 → 噪声排除。数据生成器 seed=20260613。"
+}

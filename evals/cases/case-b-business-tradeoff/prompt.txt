@@ -1,0 +1,16 @@
+我们电商平台刚完成了新结账流程的 A/B 测试，想评估效果。
+
+数据：**orders.csv**（19200 订单，24 个月，3 个地区）
+- variant: control / treatment
+- converted: 是否转化（1/0）
+- revenue: 订单金额
+- session_duration_sec: 会话时长
+- bounced: 是否跳出（1/0）
+- region: North / South / West
+- order_date: 2024-06 到 2026-06
+
+请帮我：
+1. 评估 Treatment 的整体效果——多个指标的 tradeoff（转化、会话时长、跳出、营收）
+2. 分地区分析，看看不同地区的效果是否一致
+3. 如果发现整体结论与分地区结论矛盾（比如整体看起来好，但某些地区内反而差），解释这个现象的原因
+4. 给出决策建议：应该全量推广 Treatment 吗？需要考虑什么条件？

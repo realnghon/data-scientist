@@ -1,0 +1,14 @@
+我们半导体 fab 最近良率波动较大，怀疑是某个工艺环节或设备出了问题。
+
+数据有 4 份：
+1. **fab_log.csv** — 300 片晶圆的工艺日志，记录每片晶圆在 4 个站点（litho/etch/deposit/implant）的 chamber、recipe、温度、压力、湿度、设备年龄等参数
+2. **metrology.csv** — 每个站点的在线测量参数（cd_nm、etch_depth、film_thickness、dose）
+3. **spc_daily.csv** — 3 条产线（L1/L2/L3）30 天的每日 SPC 抽样数据（measurement_mm，规格 9.5-10.5mm）
+4. **final_test.csv** — 每片晶圆的最终良率（yield_pct）
+
+请帮我：
+1. 整合这些数据，找出影响良率的根本原因
+2. 分析 3 条产线的过程能力和稳定性（SPC 控制图 + Cp/Cpk）
+3. 如果某条产线失控，追溯到具体哪个站点、哪个 chamber、什么参数导致的
+4. 排除无关因素（比如 recipe、waiting_time、压力湿度等）
+5. 给出优先改善建议
