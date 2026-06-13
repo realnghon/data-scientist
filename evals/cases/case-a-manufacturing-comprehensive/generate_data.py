@@ -146,6 +146,8 @@ for _, row in fab_df.iterrows():
 met_df = pd.DataFrame(metrology)
 
 # ========== 3. spc_daily: 每日 SPC 抽样（分产线）==========
+# Re-seed after parameter changes to ensure reproducible downstream data
+np.random.seed(20260614)  # Changed from 20260613 due to L3 signal enhancement
 spc_daily = []
 for day in range(N_DAYS):
     for line in lines:
