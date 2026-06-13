@@ -14,7 +14,15 @@
     ],
     "must_not_produce": []
   },
-  "artifacts": ,
+  "artifacts": {
+    "analysis_plan": {
+      "required_keys": ["claims", "data_transformations"]
+    },
+    "readiness_report": {
+      "min_dimensions": 8,
+      "allowed_scores": ["ok", "partial", "blocked"]
+    }
+  },
   "findings": [
     {
       "id": "conversion_lift",
