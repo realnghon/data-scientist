@@ -47,30 +47,10 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 - 3+ numeric/ordinal, non-normal → **Kruskal-Wallis** (+ Dunn post-hoc).
 - Categorical/binary `Y` → **chi-square** (or **Fisher exact** if cells sparse (<5 expected per cell) / 2×2 small (n<20 per cell)).
 
-**🔴 MANDATORY assumption checks before parametric tests (ANOVA, t-test, Pearson):**
-1. **Normality check** (for numeric `Y`):
-   - Small sample (n<50 per group): **Shapiro-Wilk test** (`scipy.stats.shapiro`)
-   - Large sample (n≥50): **Q-Q plot visual inspection** or Kolmogorov-Smirnov test
-   - If p<0.05 (reject normality) → use non-parametric alternative (Mann-Whitney, Kruskal-Wallis)
-   - Report: "Normality checked: Shapiro-Wilk p=X.XX (normal/non-normal)"
-
-2. **Homogeneity of variance** (for ANOVA, t-test):
-   - **Levene's test** (`scipy.stats.levene`) or Brown-Forsythe test
-   - If p<0.05 (reject equal variance) → use Welch ANOVA / Welch t-test
-   - Report: "Variance homogeneity: Levene p=X.XX (equal/unequal)"
-
-3. **Independence** (for regression, time-series data):
-   - Check for autocorrelation: **Durbin-Watson test** or **Ljung-Box test** on residuals
-   - If autocorrelation detected (DW < 1.5 or LB p<0.05) → add time controls, use ARIMA, or note limitation
-   - Report: "Independence checked: no autocorrelation detected" or "autocorrelation present (DW=X.XX), interpret with caution"
-
-**If assumptions violated and no alternative used:** Report the violation explicitly in Tier-3 Limitations and downgrade confidence to LOW.
-
 **Alternatives & rejections:**
 - Student t-test → rejected by default (variance equality unverified); keep as sensitivity check only.
 - One-way ANOVA → rejected when Levene/Brown-Forsythe flags unequal variance.
 - Chi-square → rejected when any expected cell count < 5; fall back to Fisher.
-- **Parametric tests without assumption checks → rejected; always verify normality + variance homogeneity first.**
 
 **Cross-checks:** non-parametric counterpart for parametric primary (and vice versa); effect size (Cohen's d, Cliff's delta, Cramér's V); pairwise post-hoc when overall test rejects.
 
@@ -149,20 +129,9 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 - Numeric–categorical → **eta-squared** or one-way ANOVA effect size.
 - Suspected non-monotonic (U-shape, interactions) → **mutual information** (continuous via k-NN MI).
 
-**🔴 MANDATORY assumption checks for Pearson correlation:**
-1. **Linearity**: Visual scatter plot check. If non-linear → use Spearman or mutual information.
-2. **Bivariate normality** (for significance test, not for r itself):
-   - Check each variable's normality separately (Shapiro-Wilk or Q-Q plot)
-   - If violated → use Spearman (distribution-free) or report Pearson r with caveat
-3. **No outliers dominating**: Check scatter plot for leverage points. If present → report with/without outliers.
-4. **Independence**: For time-series or repeated measures → check autocorrelation (Durbin-Watson) and note limitation.
-
-**Report format**: "Pearson r=X.XX (p=X.XX); assumptions: linearity checked (scatter plot), normality checked (Shapiro p=X.XX, p=X.XX), no dominant outliers."
-
 **Alternatives & rejections:**
 - Pearson on skewed data → rejected; use Spearman.
 - Mutual information on tiny samples → rejected (MI is biased upward at low n); use Spearman.
-- **Pearson without linearity check → rejected; always inspect scatter plot first.**
 
 **Cross-checks:** scatter / hexbin / box-by-bin; bootstrap CI for the correlation coefficient.
 
