@@ -263,7 +263,20 @@ When the data is stock / crypto / fund / market-factor data (price columns, OHLC
 
 ## Golden Templates
 
-Check `references/golden-templates.md` before designing a custom analysis. If a template matches the user's goal and data roles, use it as the primary workflow and still run readiness checks. If no template matches, proceed with the general workflow.
+🔴 **MANDATORY: Before designing any custom analysis, check `references/golden-templates.md`**:
+
+1. **Read the template catalog** (Manufacturing, A/B test, Time-Series, Root Cause, etc.)
+2. **Match user's question against trigger conditions** for each template
+3. **If ANY template matches**:
+   - Use it as the PRIMARY workflow
+   - Document in analysis_plan: `"template_used": "Template A - Manufacturing Yield-Driver Analysis"`
+   - Follow its methods sequence and output skeleton
+   - Still run readiness checks (templates don't bypass data quality gates)
+4. **If NO template matches**:
+   - Document in analysis_plan: `"template_checked": true, "no_match_reason": "question is bespoke / data roles don't fit"`
+   - Proceed with the general workflow below
+
+**Why this matters**: Templates encode field-proven patterns that prevent common pitfalls (e.g., forgetting to check interaction effects in manufacturing, or missing multi-metric tradeoffs in A/B tests).
 
 Templates are intentionally extensible. Add proven recurring workflows there after real analyses produce stable patterns.
 
