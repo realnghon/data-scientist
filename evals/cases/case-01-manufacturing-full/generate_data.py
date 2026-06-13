@@ -8,7 +8,7 @@ Scenario:
   → young equipment: yield insensitive to temp; old equipment: yield drops sharply at extremes
 - Noise: pressure, humidity, line_speed, operator, shift (no effect)
 
-Output: dataset_v2.csv (500 rows × 9 columns)
+Output: dataset.csv (500 rows × 9 columns)
 """
 import pandas as pd
 import numpy as np
@@ -55,8 +55,8 @@ def compute_yield(row):
 
 df['yield_pct'] = df.apply(compute_yield, axis=1)
 
-df.to_csv('dataset_v2.csv', index=False)
-print(f"Generated dataset_v2.csv: {len(df)} rows")
+df.to_csv('dataset.csv', index=False)
+print(f"Generated dataset.csv: {len(df)} rows")
 print(f"Interaction injected: old equipment (>8y) × extreme temp → yield drop")
 print(f"Expected findings:")
 print(f"  - temperature main effect: yield drops outside 180-200°C")

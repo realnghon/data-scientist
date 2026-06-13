@@ -1,10 +1,12 @@
 {
   "case_id": "case-07-routing-named-method",
-  "dataset": "../../../examples/ab_test/dataset.csv",
   "target": "revenue",
   "routing": {
     "expected_route": "named-method",
-    "must_produce_artifacts": ["readiness_report", "final_report"],
+    "must_produce_artifacts": [
+      "readiness_report",
+      "final_report"
+    ],
     "must_not_produce": []
   },
   "artifacts": {},
@@ -34,12 +36,18 @@
       "evidence_regex": "(t-?test[^\\n]{0,240}(不适用|不可靠|caution|警告|caveat|limitation|局限)|(为什么|why)[^\\n]{0,80}(不|not)[^\\n]{0,40}t-?test|both .{0,40}reported|同时报告)"
     }
   ],
-  "charts": {"min_count": 1, "required_keywords": []},
+  "charts": {
+    "min_count": 1,
+    "required_keywords": []
+  },
   "anti_patterns": [
     {
       "id": "no_silent_invalid_ttest",
       "forbidden_regex": "(t-test 显示显著差异，分析完成。$)",
       "scope": "final_report"
     }
+  ],
+  "datasets": [
+    "../../../examples/ab_test/dataset.csv"
   ]
 }

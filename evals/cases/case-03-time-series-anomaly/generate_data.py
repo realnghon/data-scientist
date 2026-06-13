@@ -26,6 +26,9 @@ timestamps = [start + timedelta(hours=h) for h in range(hours)]
 baseline = 50
 
 data = []
+# Point outliers: pick the 10 spike positions ONCE (re-sampling inside the loop
+# yields a random number of actual spikes — audit found only 5/10 landed)
+spike_idx = set(np.random.choice(hours, 10, replace=False))
 for i, ts in enumerate(timestamps):
     hour_of_day = ts.hour
     day_of_week = ts.weekday()
@@ -41,7 +44,7 @@ for i, ts in enumerate(timestamps):
     value = baseline + daily + weekly + np.random.normal(0, 2)
 
     # Point outliers (10 random spikes)
-    if i in np.random.choice(hours, 10, replace=False):
+    if i in spike_idx:
         value += np.random.choice([25, -20])
 
     # Level shift on day 90-95 (recalibration)
@@ -55,9 +58,9 @@ for i, ts in enumerate(timestamps):
     data.append({'timestamp': ts, 'sensor_value': round(value, 2)})
 
 df = pd.DataFrame(data)
-df.to_csv('dataset_v2.csv', index=False)
+df.to_csv('dataset.csv', index=False)
 
-print(f"Generated dataset_v2.csv: {len(df)} hourly readings (180 days)")
+print(f"Generated dataset.csv: {len(df)} hourly readings (180 days)")
 print(f"Injected patterns:")
 print(f"  - Daily seasonality (peak at noon, ±10 range)")
 print(f"  - Weekly seasonality (weekend -5)")

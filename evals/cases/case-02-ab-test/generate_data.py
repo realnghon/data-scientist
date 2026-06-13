@@ -51,9 +51,9 @@ for i in range(10000):
     })
 
 df = pd.DataFrame(data)
-df.to_csv('dataset_v2.csv', index=False)
+df.to_csv('dataset.csv', index=False)
 
-print(f"Generated dataset_v2.csv: {len(df)} users (10k control, 10k treatment)")
+print(f"Generated dataset.csv: {len(df)} users (10k control, 10k treatment)")
 print(f"Injected tradeoff:")
 print(f"  - Treatment conversion: 10.5% vs 8.0% control (+2.5pp, +31% relative)")
 print(f"  - Treatment session_duration: ~255s vs ~300s control (-15%)")

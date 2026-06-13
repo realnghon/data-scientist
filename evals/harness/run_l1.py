@@ -34,6 +34,9 @@ SKIP_CASES = {"case-06-routing-profile-only", "case-07-routing-named-method"}
 
 
 def find_dataset(case_dir: Path, gt: dict) -> Path:
+    """Resolve the primary dataset: `datasets` (list, new schema) or `dataset` (legacy)."""
+    if "datasets" in gt:
+        return (case_dir / gt["datasets"][0]).resolve()
     return (case_dir / gt["dataset"]).resolve()
 
 

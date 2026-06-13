@@ -1,46 +1,62 @@
-"""Generate synthetic SPC dataset with known special causes and capability.
-
-Ground truth (per evals/cases/case-04-spc/ground_truth.json):
-- Points 1-500: stable, mean=10.0, sigma=0.2  -> in-control baseline
-- Points 501-520: 20 consecutive points shifted +0.3 above center (Rule 2 / shift)
-- Points 601-650: upward trend, +0.012/step (Rule 6 / trend)
-- Spec limits: LSL=9.5, USL=10.5 -> true Cp = (10.5-9.5)/(6*0.2) = 0.83 (inadequate, <1.33)
 """
-import numpy as np
+Generate multi-line SPC dataset v2.
+
+Scenario:
+- 3 production lines (L1, L2, L3) running in parallel
+- 30 days × 24 hours × 3 lines = 2160 measurements
+- Spec: 9.5-10.5 mm
+- Line L1: stable, Cp=1.8, Cpk=1.7 (excellent)
+- Line L2: stable, Cp=1.2, Cpk=1.1 (capable but marginal)
+- Line L3: out-of-control on day 15-16 (mean shift +0.8mm), Cp=1.0 (barely capable)
+
+Expected: agent must stratify by line, run SPC per line, identify L3 as problem.
+"""
 import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
 
-np.random.seed(789)
+np.random.seed(20260611)
 
-n = 720  # 30 days x 24 hourly measurements
-sigma = 0.2
-center = 10.0
+USL = 10.5
+LSL = 9.5
+target = 10.0
 
-values = np.random.normal(center, sigma, n)
+data = []
+start = datetime(2026, 5, 1)
 
-# Rule 2: sustained shift — 20 consecutive points above the center line
-values[500:520] += 0.3
+# Line L1: excellent process
+for day in range(30):
+    for hour in range(24):
+        ts = start + timedelta(days=day, hours=hour)
+        measurement = np.random.normal(target, 0.09)  # tight control
+        data.append({'timestamp': ts, 'line': 'L1', 'measurement_mm': measurement})
 
-# Rule 6: trend — steadily increasing run
-values[600:650] += np.linspace(0.05, 0.65, 50)
+# Line L2: capable but marginal
+for day in range(30):
+    for hour in range(24):
+        ts = start + timedelta(days=day, hours=hour)
+        measurement = np.random.normal(target, 0.14)  # wider variation
+        data.append({'timestamp': ts, 'line': 'L2', 'measurement_mm': measurement})
 
-timestamps = pd.date_range("2025-04-01", periods=n, freq="h")
+# Line L3: out-of-control on day 15-16 (mean shift)
+for day in range(30):
+    for hour in range(24):
+        ts = start + timedelta(days=day, hours=hour)
+        if 15 <= day <= 16:
+            # Mean shift +0.8mm (special cause)
+            measurement = np.random.normal(target + 0.8, 0.17)
+        else:
+            measurement = np.random.normal(target, 0.17)
+        data.append({'timestamp': ts, 'line': 'L3', 'measurement_mm': measurement})
 
-df = pd.DataFrame(
-    {
-        "timestamp": timestamps,
-        "measurement_mm": np.round(values, 4),
-        "line": "LINE_07",
-        "product": "PN-4411",
-    }
-)
+df = pd.DataFrame(data)
+df = df.sort_values('timestamp').reset_index(drop=True)
+df.to_csv('dataset.csv', index=False)
 
-from pathlib import Path
-
-df.to_csv(Path(__file__).resolve().parent / "dataset.csv", index=False)
-
-baseline = values[:500]
-cp = (10.5 - 9.5) / (6 * baseline.std(ddof=1))
-print(f"Generated {len(df)} measurements")
-print(f"Baseline mean={baseline.mean():.4f}, sigma={baseline.std(ddof=1):.4f}")
-print(f"True Cp (baseline) = {cp:.3f} (target ground truth ~0.83)")
-print("Injected: shift @501-520 (Rule 2), trend @601-650 (Rule 6)")
+print(f"Generated dataset.csv: {len(df)} rows (30 days × 24h × 3 lines)")
+print(f"Spec: {LSL}-{USL} mm")
+print(f"Expected findings:")
+print(f"  - L1: stable, Cp~1.8, Cpk~1.7 (excellent)")
+print(f"  - L2: stable, Cp~1.2, Cpk~1.1 (capable)")
+print(f"  - L3: out-of-control day 15-16 (mean shift +0.8mm), Cp~1.0 (barely capable)")
+print(f"  - Root cause: Line L3 特殊原因（day 15-16 失控）")

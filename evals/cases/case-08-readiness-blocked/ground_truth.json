@@ -1,14 +1,25 @@
 {
   "case_id": "case-08-readiness-blocked",
-  "dataset": "dataset.csv",
   "target": "revenue",
   "routing": {
     "expected_route": "blocked",
-    "must_produce_artifacts": ["data_manifest", "readiness_report"],
-    "must_not_produce": ["evidence_matrix"]
+    "must_produce_artifacts": [
+      "data_manifest",
+      "readiness_report"
+    ],
+    "must_not_produce": [
+      "evidence_matrix"
+    ]
   },
   "artifacts": {
-    "readiness_report": {"min_dimensions": 8, "allowed_scores": ["ok", "partial", "blocked"]}
+    "readiness_report": {
+      "min_dimensions": 8,
+      "allowed_scores": [
+        "ok",
+        "partial",
+        "blocked"
+      ]
+    }
   },
   "findings": [
     {
@@ -36,12 +47,18 @@
       "evidence_regex": "(order_date|date|日期)[^\\n]{0,160}(format|格式)[^\\n]{0,120}(inconsistent|混合|mixed|不一致)|(order_date|日期)[^\\n]{0,80}(混用|mixed|inconsistent)[^\\n]{0,80}(format|格式)"
     }
   ],
-  "charts": {"min_count": 0, "required_keywords": []},
+  "charts": {
+    "min_count": 0,
+    "required_keywords": []
+  },
   "anti_patterns": [
     {
       "id": "no_forced_trend_conclusion",
       "forbidden_regex": "(销售额(正在|确实)(稳定|显著)?增长|revenue is (clearly |significantly )?growing)[^\\n]{0,40}(每|at a rate|by [0-9])",
       "scope": "final_report"
     }
+  ],
+  "datasets": [
+    "dataset.csv"
   ]
 }

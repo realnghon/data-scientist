@@ -23,16 +23,19 @@ evals/
 
 ## 案例清单
 
-| Case | 测试目标 | Ground truth 来源 |
+每个 case 目录统一为：`prompt.txt + ground_truth.json + generate_data.py + 数据 csv`（已于 2026-06-13 审计并去除 v1/v2/v3 版本混乱；数据信号已逐一用脚本验证与 ground truth 一致）。
+
+| Case | 测试目标 | Ground truth 来源（已验证的信号） |
 |---|---|---|
-| 01 manufacturing-full | 完整流程：驱动排序 + 噪声排除 + equipment_age 混淆检测 | `examples/manufacturing_yield/generate_data.py` 注入系数 |
-| 02 ab-test | 完整流程：转化率 lift≈2pp + CI + SRM 检查 | `examples/ab_test/generate_data.py`（12%→14%） |
-| 03 time-series-anomaly | 日/周季节性 + 趋势 + 3 类异常（尖峰/漂移/中断）+ 系统性判定 | `examples/time_series/generate_data.py` |
-| 04 spc | 失控判定（Rule 2 @501-520、Rule 6 @601-650）+ Cp≈0.81 只在受控段计算 | `cases/case-04-spc/generate_data.py` |
-| 05 simpson-interaction | Simpson 悖论（pooled A 最高 vs 分层 B 最高）+ 价格×促销交互 + 噪声排除 | `cases/case-05-simpson-interaction/generate_data.py` |
-| 06 routing-profile-only | 路由：profile 请求不应产出 analysis_plan/evidence_matrix，不做统计推断 | 路由约定 |
-| 07 routing-named-method | 路由：指定 t-test 但数据严重偏态 → 检查假设并给出替代方法，不静默跑无效检验 | 路由约定 + 数据特性 |
-| 08 readiness-blocked | Y 缺失 44% → readiness=blocked → emit data_request，不强行给趋势结论 | `cases/case-08-readiness-blocked/generate_data.py` |
+| 01 manufacturing-full | 完整流程：温度主效应 + equipment_age×temperature 交互 + 噪声排除 | 交互项 t=-9.5；噪声变量 \|r\|<0.04 |
+| 02 ab-test | 多指标权衡：转化 +2.7pp↑ vs 会话时长 -15.8%↓、跳出 +8pp↑ → 条件性建议 | 各效应均 p<1e-10 |
+| 03 time-series-anomaly | 日/周季节性 + 10 尖峰 + day90-95 水平偏移 + day120 后漂移 | 生成器审计修复后 10/10 尖峰落点 |
+| 04 spc | 3 产线分层 SPC：L3 在 5/16-17 失控（+0.8mm）；Cp≈1.86/1.16/0.98 | 受控段实测 Cp 与 GT 一致 |
+| 05 simpson-interaction | Simpson 悖论：Premium 整体 +23.9/月 vs South -84.2、West -27.1/月 | 市场份额 South→North 迁移 |
+| 06 routing-profile-only | 路由：profile 请求不产出 analysis_plan/evidence_matrix，不做统计推断 | 路由约定（humidity 缺失 1.4% 实存） |
+| 07 routing-named-method | 路由：指定 t-test 但 revenue 严重偏态（skew=5.95、86.9% 零值）→ 检查假设并给替代 | 路由约定 + 数据实测 |
+| 08 readiness-blocked | revenue 缺失 44.4% → readiness=blocked → emit data_request | 实测缺失率 44.4% |
+| 09 wafer-rca | 三表整合根因：litho C2 → cd_nm 82 vs 90（spec 85-95）→ 良率 67 vs 90 | C2 与 C1/C3 差 22.5pp；已知良性混杂见 GT notes |
 
 ## 快速使用
 

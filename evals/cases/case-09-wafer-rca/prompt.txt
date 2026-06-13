@@ -1,9 +1,11 @@
-我有一批半导体晶圆（wafer）的生产测试数据（dataset.csv），每片 wafer 在多个站点（station）采集了不同的参数测量值（测量项在 param_name 列，数值在 value 列）。数据是长格式：一个 wafer 在一个 station 的一个参数就是一行。
+我们半导体 fab 有 300 片晶圆的良率数据（yield_pct），怀疑制程某个环节出了问题。
 
-最终良率（yield）在 station='final_test' 且 param_name='yield_pct' 的那行。最近发现良率出现异常（有些 wafer 的良率掉到 80% 以下），我需要你：
+数据分为三部分：
+1. fab_log.csv — 制程记录，每片晶圆经过 4 个站点（litho/etch/deposit/implant），记录了 chamber、recipe、process_time、waiting_time
+2. metrology_inline.csv — 每站的在线测量（cd_nm、etch_depth 等）
+3. final_test.csv — 最终良测（yield_pct、speed、leakage）
 
-1. 把长格式数据 pivot 成宽表（每个 wafer_id 一行，各 station×param 组合成列）
-2. 找出哪些上游参数（哪个 station 的哪个测量）是导致良率异常的根本原因
-3. 如果能做 SPC 图，帮我看看哪些 wafer 是失控的，失控点对应的上游参数有什么异常模式
-
-我需要知道：哪个工艺参数需要优先调整才能提升良率？
+请帮我：
+1. 整合这三份数据
+2. 找出导致良率低的根本原因（哪个站点、哪个 chamber、什么参数）
+3. 排除无关因素（recipe、waiting_time 等）

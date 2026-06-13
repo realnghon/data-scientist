@@ -1,79 +1,76 @@
-"""Generate synthetic sales dataset with a Simpson's paradox and an interaction effect.
-
-Ground truth (per evals/cases/case-05-simpson-interaction/ground_truth.json):
-- Pooled view: region A has the highest average sales (it sells mostly premium product Y).
-- Stratified by product type: region B has the highest sales *within each product type*
-  (Simpson's paradox — the pooled ranking reverses once product mix is controlled).
-- price x promotion interaction: price elasticity is much stronger during promotions.
-- `noise_index` is a pure noise column that must NOT be ranked as a driver.
 """
-import numpy as np
+Generate case-05 v2: Simpson's paradox + time dimension (trend reversal).
+
+Scenario:
+- E-commerce sales data, 2 years × 12 months = 24 time periods
+- 3 regions (North, South, West), 2 product lines (Premium, Budget)
+- Simpson's paradox: Premium shows positive trend overall, but NEGATIVE within each region
+- Mechanism: Premium market share shifts from low-growth South → high-growth North over time
+- 1200 orders (50/month × 24 months)
+
+Expected: agent must stratify by region, detect within-region negative trends, explain reversal.
+"""
 import pandas as pd
+import numpy as np
+from datetime import datetime, timedelta
 
-np.random.seed(2024)
+np.random.seed(20260612)
 
-n = 3000
+data = []
+order_id = 1
+start = datetime(2024, 6, 1)
 
-regions = np.random.choice(["A", "B", "C"], n, p=[0.34, 0.33, 0.33])
+for month_offset in range(24):
+    month_date = start + timedelta(days=30 * month_offset)
 
-# Product mix is confounded with region: A sells mostly premium Y, B/C mostly budget X
-product = np.empty(n, dtype=object)
-for i, r in enumerate(regions):
-    if r == "A":
-        product[i] = np.random.choice(["X", "Y"], p=[0.15, 0.85])
-    else:
-        product[i] = np.random.choice(["X", "Y"], p=[0.85, 0.15])
+    # South: early adopter, saturating (Premium growth slowing)
+    # Premium: high initial, declining growth
+    south_premium_base = 5000 - month_offset * 80  # declining
+    south_budget_base = 3000 + month_offset * 20   # stable
 
-is_y = (product == "Y").astype(float)
+    # North: late adopter, accelerating (Premium growth accelerating)
+    # Premium: low initial, increasing growth
+    north_premium_base = 2000 + month_offset * 150  # strong growth
+    north_budget_base = 2500 + month_offset * 30
 
-# Price: product Y is premium
-price = np.where(is_y == 1, np.random.normal(95, 8, n), np.random.normal(32, 5, n))
-promo = np.random.binomial(1, 0.3, n)
+    # West: stable (Premium declining slightly)
+    west_premium_base = 3500 - month_offset * 30
+    west_budget_base = 2800 + month_offset * 15
 
-# Region efficiency: B > C > A *within* the same product (Simpson reversal vs pooled)
-region_effect = np.select(
-    [regions == "A", regions == "B", regions == "C"], [0.0, 14.0, 6.0]
-)
+    # Generate ~50 orders this month
+    for _ in range(50):
+        # Region selection shifts over time (South → North)
+        region_prob = {'South': max(0.1, 0.6 - month_offset * 0.02),
+                       'North': min(0.7, 0.2 + month_offset * 0.02),
+                       'West': 0.2}
+        region = np.random.choice(list(region_prob.keys()), p=list(region_prob.values()))
 
-# Product baseline dominates the pooled comparison (Y >> X)
-product_effect = 70.0 * is_y
+        # Product type (50/50 roughly)
+        product = np.random.choice(['Premium', 'Budget'])
 
-# Interaction: discounting below list price lifts sales far more during promotions
-price_centered = price - np.where(is_y == 1, 95, 32)
-price_effect = -0.4 * price_centered          # mild base elasticity
-interaction_effect = -1.6 * price_centered * promo  # promo amplifies elasticity
+        if region == 'South':
+            base = south_premium_base if product == 'Premium' else south_budget_base
+        elif region == 'North':
+            base = north_premium_base if product == 'Premium' else north_budget_base
+        else:
+            base = west_premium_base if product == 'Premium' else west_budget_base
 
-noise_index = np.random.normal(50, 10, n)      # pure noise driver candidate
+        sales = base + np.random.normal(0, 200)
 
-sales = (
-    40.0
-    + product_effect
-    + region_effect
-    + price_effect
-    + 8.0 * promo
-    + interaction_effect
-    + np.random.normal(0, 6, n)
-)
+        data.append({
+            'order_id': order_id,
+            'order_date': month_date,
+            'region': region,
+            'product_line': product,
+            'sales_amount': max(100, sales)  # floor at 100
+        })
+        order_id += 1
 
-df = pd.DataFrame(
-    {
-        "order_id": range(1, n + 1),
-        "region": regions,
-        "product_type": product,
-        "price": np.round(price, 2),
-        "promotion": promo,
-        "noise_index": np.round(noise_index, 2),
-        "sales_amount": np.round(sales, 2),
-    }
-)
+df = pd.DataFrame(data)
+df.to_csv('dataset.csv', index=False)
 
-from pathlib import Path
-
-df.to_csv(Path(__file__).resolve().parent / "dataset.csv", index=False)
-
-pooled = df.groupby("region")["sales_amount"].mean().sort_values(ascending=False)
-print(f"Generated {len(df)} orders")
-print("Pooled mean sales by region (A should lead):")
-print(pooled.round(2).to_string())
-print("\nWithin-product mean sales (B should lead in both X and Y):")
-print(df.groupby(["product_type", "region"])["sales_amount"].mean().round(2).to_string())
+print(f"Generated dataset.csv: {len(df)} orders (24 months)")
+print(f"Simpson's paradox injected:")
+print(f"  - Overall: Premium shows positive trend (market shifts South→North)")
+print(f"  - Within-region: Premium declining in South/West, growing in North but slower than Budget")
+print(f"  - Expected: agent must stratify by region to detect reversal")

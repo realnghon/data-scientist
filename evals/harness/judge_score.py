@@ -56,6 +56,12 @@ JUDGE_DIMENSIONS = {
 }
 
 
+# Cap report length per judge prompt. 3000 chars (the old cap) truncated most
+# reports before their conclusions — audit 2026-06-13 showed judges scoring
+# only the data-overview section. 30k chars covers every report produced so far.
+MAX_REPORT_CHARS = 30000
+
+
 def spawn_judge_agent(
     dimension: str,
     agent_output: str,
@@ -81,8 +87,8 @@ def spawn_judge_agent(
 ## 参考标准
 {gt_context}
 
-## Agent 分析输出（前 3000 字）
-{agent_output[:3000]}
+## Agent 分析输出
+{agent_output[:MAX_REPORT_CHARS]}
 
 ## 任务
 评分 0-3：
@@ -170,16 +176,8 @@ def score_case_with_agent_judge(
     if dimensions is None:
         dimensions = list(JUDGE_DIMENSIONS.keys())
 
-    # Load ground truth
+    # Load ground truth (canonical single file per case, post-audit 2026-06-13)
     gt_path = case_dir / "ground_truth.json"
-    if not gt_path.exists():
-        # Try v2 variants
-        for variant in ["ground_truth_v2.json", "ground_truth_v3.json"]:
-            alt = case_dir / variant
-            if alt.exists():
-                gt_path = alt
-                break
-
     gt = json.loads(gt_path.read_text())
 
     # Load agent report

@@ -1,1 +1,57 @@
-ground_truth_v3.json
+{
+  "case_id": "case-09-wafer-rca",
+  "datasets": [
+    "fab_log.csv",
+    "metrology_inline.csv",
+    "final_test.csv"
+  ],
+  "format": "multi-source (join + pivot required)",
+  "target": "yield_pct",
+  "routing": {
+    "expected_route": "full",
+    "must_produce_artifacts": [
+      "data_manifest",
+      "readiness_report",
+      "analysis_plan",
+      "evidence_matrix",
+      "final_report"
+    ],
+    "must_not_produce": []
+  },
+  "artifacts": {
+    "analysis_plan": {
+      "required_keys": [
+        "claims"
+      ]
+    },
+    "readiness_report": {
+      "min_dimensions": 8,
+      "allowed_scores": [
+        "ok",
+        "partial",
+        "blocked"
+      ]
+    }
+  },
+  "findings": [
+    {
+      "id": "chamber_c2_root_cause",
+      "type": "claim",
+      "feature": "chamber",
+      "evidence_regex": "((C2|chamber)[^\\n]{0,400}(root.?cause|根.?因|driver|驱动|yield.?(low|drop|差|低|70)))|((root.?cause|根.?因|driver)[^\\n]{0,300}C2)",
+      "note": "Core finding: Chamber C2 identified as root cause"
+    },
+    {
+      "id": "cd_nm_mechanism",
+      "type": "claim",
+      "feature": "cd_nm",
+      "evidence_regex": "(cd[_\\s]?nm|critical[\\s_]?dimension)[^\\n]{0,500}(correlation|相关|mechanism|机制|driver|驱动|7[6-9]|differ|below|低于|out.?spec|超.?规格)",
+      "note": "Mechanism: cd_nm explains why C2 fails"
+    }
+  ],
+  "charts": {
+    "min_count": 1
+  },
+  "anti_patterns": [],
+  "notes": "GT v3 (audited 2026-06-13): focus on core findings only (chamber + mechanism). Known benign confound from random assignment: C2 wafers route 63% to etch E1, creating a spurious E1 yield gap (~-3.6pp). A correct analysis should attribute the effect to litho C2 (cd_nm), not etch chamber. Not scored as a hard requirement."
+}

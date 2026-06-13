@@ -1,103 +1,120 @@
 """
-Generate wafer root-cause analysis dataset (long format → wide pivot required).
+Generate case-09 v3: multi-step semiconductor fab data (真实生产场景).
+
+User feedback: "制程分为多个 step，每个 step 有 chamber/recipe/process_time/waiting_time"
 
 Scenario:
-- 300 wafers across 5 stations (litho, etch, deposition, implant, final_test)
-- Each station measures 3-6 parameters → long format (one row per wafer×station×param)
-- Final yield (target Y) at station='final_test', param_name='yield_pct'
-- Injected root cause: litho station's 'cd_nm' (critical dimension) drives yield
-  - cd_nm in [85, 95] → yield ~92-98%
-  - cd_nm outside [85, 95] → yield drops to 70-85%
-- Noise parameters: etch_rate, dep_thickness, implant_dose (weak/no effect)
-- 10% of wafers have cd_nm out-of-spec → yield drops → these are the "failure" wafers
+- 4 fab steps: litho → etch → deposit → implant
+- Each step: chamber_id, recipe, process_time, waiting_time
+- Metrology after each step (in-line) + final_test (end-of-line)
+- 300 wafers, 30 days
+- Root cause: litho chamber C2 cd_nm out-of-spec → yield drop
 
-Output: dataset.csv with columns [wafer_id, station, param_name, value, timestamp]
-Ground truth: cd_nm (litho) is the dominant driver; agent must pivot then correlate.
+Complexity vs v2:
+- v2: 1 station (litho only) + 1 metrology merge
+- v3: 4 stations + 4 in-line metrology + 1 final_test = 6-way data integration
+- Requires: join on wafer_id + step, pivot multi-step params, trace multi-stage propagation
 """
 import pandas as pd
 import numpy as np
+from datetime import datetime, timedelta
 
 np.random.seed(20260611)
-n_wafers = 300
 
-# Station definitions: {station: [param1, param2, ...]}
-STATIONS = {
-    'litho': ['cd_nm', 'focus_um', 'dose_mj'],
-    'etch': ['etch_rate_nm_min', 'etch_time_sec', 'pressure_torr'],
-    'deposition': ['thickness_nm', 'uniformity_pct', 'temp_c'],
-    'implant': ['dose_e14', 'energy_kev', 'tilt_deg'],
-    'final_test': ['yield_pct', 'leakage_na', 'speed_mhz'],
+# 300 wafers, 30 days
+wafer_ids = [f'W{i:04d}' for i in range(1, 301)]
+start = datetime(2026, 5, 1)
+
+# 4 fab steps
+steps = ['litho', 'etch', 'deposit', 'implant']
+chambers = {
+    'litho': ['C1', 'C2', 'C3'],
+    'etch': ['E1', 'E2'],
+    'deposit': ['D1', 'D2'],
+    'implant': ['I1', 'I2']
+}
+recipes = {
+    'litho': ['R101', 'R102'],
+    'etch': ['R201', 'R202'],
+    'deposit': ['R301'],
+    'implant': ['R401']
 }
 
-rows = []
-wafer_ids = [f'W{i:03d}' for i in range(1, n_wafers + 1)]
+# Fab log (4 rows per wafer, 1200 total)
+fab_log = []
+for i, wid in enumerate(wafer_ids):
+    day = i // 10
+    for step in steps:
+        chamber = np.random.choice(chambers[step])
+        recipe = np.random.choice(recipes[step])
+        process_time = np.random.uniform(5, 15)
+        waiting_time = np.random.uniform(0.5, 3)
+        ts = start + timedelta(days=day, hours=np.random.uniform(0, 24))
+        fab_log.append({
+            'wafer_id': wid, 'step': step, 'chamber': chamber, 'recipe': recipe,
+            'process_time_min': round(process_time, 1),
+            'waiting_time_min': round(waiting_time, 1),
+            'timestamp': ts
+        })
 
-# Generate base parameters
-wafer_data = {}
+fab_df = pd.DataFrame(fab_log)
+
+# In-line metrology (after each step, long format)
+metrology_inline = []
+for _, row in fab_df.iterrows():
+    wid, step, chamber = row['wafer_id'], row['step'], row['chamber']
+
+    if step == 'litho':
+        cd_nm = 90 + np.random.normal(0, 2)
+        if chamber == 'C2':
+            cd_nm = 82 + np.random.normal(0, 2)  # Out-of-spec (85-95)
+        metrology_inline.append({'wafer_id': wid, 'step': step, 'param': 'cd_nm', 'value': round(cd_nm, 1)})
+
+    elif step == 'etch':
+        depth = 1.5 + np.random.normal(0, 0.1)
+        metrology_inline.append({'wafer_id': wid, 'step': step, 'param': 'etch_depth_um', 'value': round(depth, 2)})
+
+    elif step == 'deposit':
+        thickness = 0.8 + np.random.normal(0, 0.05)
+        metrology_inline.append({'wafer_id': wid, 'step': step, 'param': 'film_thickness_um', 'value': round(thickness, 3)})
+
+    elif step == 'implant':
+        dose = 1e15 + np.random.normal(0, 1e13)
+        metrology_inline.append({'wafer_id': wid, 'step': step, 'param': 'dose_cm2', 'value': f'{dose:.2e}'})
+
+metrology_df = pd.DataFrame(metrology_inline)
+
+# Final test (end-of-line, 1 row per wafer)
+final_test = []
 for wid in wafer_ids:
-    wafer_data[wid] = {}
+    litho_chamber = fab_df[(fab_df['wafer_id'] == wid) & (fab_df['step'] == 'litho')]['chamber'].values[0]
 
-    # Litho cd_nm: 10% out-of-spec (root cause)
-    if np.random.rand() < 0.10:
-        cd_nm = np.random.uniform(78, 84) if np.random.rand() < 0.5 else np.random.uniform(96, 102)
+    if litho_chamber == 'C2':
+        yield_pct = np.random.uniform(60, 75)  # Low yield due to cd_nm
+        speed_mhz = np.random.uniform(1800, 2200)
+        leakage_na = np.random.uniform(150, 250)
     else:
-        cd_nm = np.random.uniform(85, 95)
-    wafer_data[wid]['cd_nm'] = cd_nm
+        yield_pct = np.random.uniform(85, 95)  # Normal
+        speed_mhz = np.random.uniform(2400, 2800)
+        leakage_na = np.random.uniform(50, 100)
 
-    # Other litho params (noise)
-    wafer_data[wid]['focus_um'] = np.random.uniform(0.8, 1.2)
-    wafer_data[wid]['dose_mj'] = np.random.uniform(28, 32)
+    final_test.append({
+        'wafer_id': wid,
+        'yield_pct': round(yield_pct, 1),
+        'speed_mhz': round(speed_mhz, 0),
+        'leakage_na': round(leakage_na, 1)
+    })
 
-    # Etch (noise)
-    wafer_data[wid]['etch_rate_nm_min'] = np.random.uniform(45, 55)
-    wafer_data[wid]['etch_time_sec'] = np.random.uniform(58, 62)
-    wafer_data[wid]['pressure_torr'] = np.random.uniform(4.8, 5.2)
+final_df = pd.DataFrame(final_test)
 
-    # Deposition (noise)
-    wafer_data[wid]['thickness_nm'] = np.random.uniform(98, 102)
-    wafer_data[wid]['uniformity_pct'] = np.random.uniform(94, 99)
-    wafer_data[wid]['temp_c'] = np.random.uniform(398, 402)
+# Save
+fab_df.to_csv('fab_log.csv', index=False)
+metrology_df.to_csv('metrology_inline.csv', index=False)
+final_df.to_csv('final_test.csv', index=False)
 
-    # Implant (noise)
-    wafer_data[wid]['dose_e14'] = np.random.uniform(4.8, 5.2)
-    wafer_data[wid]['energy_kev'] = np.random.uniform(48, 52)
-    wafer_data[wid]['tilt_deg'] = np.random.uniform(6.8, 7.2)
-
-    # Yield: driven by cd_nm (root cause signal)
-    # In-spec cd_nm (85-95) → yield ~92-98%
-    # Out-of-spec → yield drops to 70-85%
-    if 85 <= cd_nm <= 95:
-        yield_pct = np.random.uniform(92, 98)
-    else:
-        deviation = max(abs(cd_nm - 85), abs(cd_nm - 95))
-        yield_pct = max(70, 92 - deviation * 1.8) + np.random.uniform(-2, 2)
-    wafer_data[wid]['yield_pct'] = yield_pct
-
-    # Other final test params (noise)
-    wafer_data[wid]['leakage_na'] = np.random.uniform(0.5, 1.5)
-    wafer_data[wid]['speed_mhz'] = 800 + (yield_pct - 90) * 2 + np.random.uniform(-5, 5)
-
-# Convert to long format
-timestamp_base = pd.Timestamp('2026-06-01 08:00:00')
-for wid in wafer_ids:
-    t_offset = 0
-    for station, params in STATIONS.items():
-        t_offset += np.random.randint(30, 90)  # minutes between stations
-        for param in params:
-            rows.append({
-                'wafer_id': wid,
-                'station': station,
-                'param_name': param,
-                'value': round(wafer_data[wid][param], 4),
-                'timestamp': timestamp_base + pd.Timedelta(minutes=t_offset)
-            })
-
-df = pd.DataFrame(rows)
-df = df.sample(frac=1, random_state=42).reset_index(drop=True)  # shuffle rows
-df.to_csv('dataset.csv', index=False)
-
-print(f"Generated {len(df)} rows (300 wafers × {sum(len(p) for p in STATIONS.values())} params)")
-print(f"Injected root cause: cd_nm (litho) drives yield_pct")
-print(f"- In-spec wafers (cd_nm 85-95): ~90% of data, yield ~92-98%")
-print(f"- Out-of-spec wafers (cd_nm <85 or >95): ~10%, yield drops to 70-85%")
-print(f"Dataset shape after pivot: 300 rows × ~19 param columns + wafer_id + timestamp")
+print(f"Generated fab_log.csv: {len(fab_df)} rows (300 wafers × 4 steps)")
+print(f"Generated metrology_inline.csv: {len(metrology_df)} measurements")
+print(f"Generated final_test.csv: {len(final_df)} wafers")
+print(f"\nComplexity: 3 tables, 6-way integration required")
+print(f"Root cause: litho chamber C2 → cd_nm out-of-spec (82±2, spec 85-95) → yield 60-75%")
+print(f"Expected: agent must join fab_log + metrology_inline + final_test, trace multi-step")
