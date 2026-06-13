@@ -67,11 +67,11 @@
       "evidence_regex": "(cd[_\\s]?nm|critical[\\s_]?dimension)[^\\n]{0,600}(8[0-2]|below.*85|低于.*85|out.?spec|超.?规格|correlation|相关|mechanism|机制|driver|驱动)"
     },
     {
-      "id": "temperature_age_interaction",
-      "type": "optional_claim",
+      "id": "interaction_effect",
+      "type": "claim",
       "feature": "interaction",
-      "evidence_regex": "((temperature|温度)[^\\n]{0,400}(equipment.*age|设备.*年龄|age)[^\\n]{0,400}(interact|交互|amplif|放大|moderat|调节))|((equipment.*age|设备.*年龄|age)[^\\n]{0,400}(temperature|温度)[^\\n]{0,400}(interact|交互|amplif|放大))",
-      "note": "Signal strength p~0.05 (boundary), may not be detected reliably — bonus if found, no penalty if missed"
+      "evidence_regex": "((temperature|温度|cd[_\\s]?nm|critical[\\s_]?dimension)[^\\n]{0,400}(equipment.*age|设备.*年龄|age)[^\\n]{0,400}(interact|交互|amplif|放大|moderat|调节))|((equipment.*age|设备.*年龄|age)[^\\n]{0,400}(temperature|温度|cd[_\\s]?nm)[^\\n]{0,400}(interact|交互|amplif|放大))",
+      "note": "Accept either temperature×age (intended but weak p~0.05) or cd_nm×age (emergent strong signal p<0.001) — both are valid interactions with equipment_age"
     },
     {
       "id": "noise_rejected",

@@ -149,9 +149,9 @@ met_df = pd.DataFrame(metrology)
 spc_daily = []
 for day in range(N_DAYS):
     for line in lines:
-        # L3 在 day 15-16 失控
+        # L3 在 day 15-16 失控（增强信号到 1.0 mm = ~4σ）
         if line == 'L3' and 15 <= day <= 16:
-            mean_shift = 0.8
+            mean_shift = 1.0
         else:
             mean_shift = 0.0
 
