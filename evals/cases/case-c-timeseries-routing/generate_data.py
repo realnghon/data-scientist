@@ -71,9 +71,9 @@ for i, ts in enumerate(timestamps):
     value = baseline + daily + weekly + np.random.normal(0, 2)
 
     # Signal B: 异常
-    # 尖峰
+    # 尖峰（增强幅度：从 ±20-25 提升到 ±60，确保可被 IQR/MAD 稳定检出）
     if i in spike_idx:
-        value += np.random.choice([25, -20])
+        value += np.random.choice([60, -60])
 
     # day 90-95 水平偏移（重校准）
     if 90 * 24 <= i < 96 * 24:

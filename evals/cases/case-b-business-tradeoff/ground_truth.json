@@ -26,54 +26,72 @@
   "findings": [
     {
       "id": "conversion_lift",
+      "tier": "required",
+      "weight": 3.0,
       "type": "claim",
       "feature": "conversion",
       "evidence_regex": "(conversion|转化)[^\\n]{0,400}(treatment|T)[^\\n]{0,300}(\\+0\\.[0-9]|higher|更高|提升|lift|14\\.3|14\\.4)"
     },
     {
       "id": "session_negative",
+      "tier": "required",
+      "weight": 3.0,
       "type": "claim",
       "feature": "session",
       "evidence_regex": "(session|会话)[^\\n]{0,400}(treatment|T)[^\\n]{0,300}([-−]1[0-9]|lower|更低|下降|shorter|254)"
     },
     {
       "id": "bounce_negative",
+      "tier": "required",
+      "weight": 3.0,
       "type": "claim",
       "feature": "bounce",
       "evidence_regex": "(bounce|跳出)[^\\n]{0,400}(treatment|T)[^\\n]{0,300}(\\+[0-9]|higher|更高|上升|增加|51\\.|52\\.)"
     },
     {
       "id": "tradeoff_identified",
+      "tier": "required",
+      "weight": 4.0,
       "type": "quality",
       "feature": "tradeoff",
       "evidence_regex": "(tradeoff|trade.?off|权衡|利弊|pros.*cons|优劣|得失|矛盾)"
     },
     {
       "id": "stratify_by_region",
+      "tier": "required",
+      "weight": 3.0,
       "type": "quality",
       "feature": "stratification",
       "evidence_regex": "(stratif|分层|by.*region|按.*地区|per.*region|each.*region|North.*South.*West)"
     },
     {
       "id": "simpson_detected",
+      "tier": "required",
+      "weight": 5.0,
       "type": "claim",
       "feature": "simpson",
       "evidence_regex": "((Simpson|辛普森|paradox|悖论|reversal|反转)[^\\n]{0,600}(overall|整体|within|地区内|stratif|pooled))|((overall|整体|aggregate|合并)[^\\n]{0,400}(positive|better|更好|高)[^\\n]{0,600}(within|地区内|region)[^\\n]{0,400}(negative|worse|更差|低))"
     },
     {
       "id": "regional_all_negative",
+      "tier": "required",
+      "weight": 4.0,
       "type": "claim",
       "feature": "regional_effects",
       "evidence_regex": "((North|South|West)[^\\n]{0,300}treatment[^\\n]{0,400}(lower|worse|negative|更差|更低|下降|[-−][0-9]))|((每个|all|各).*地区[^\\n]{0,300}(lower|负|下降))"
     },
     {
       "id": "market_shift_explanation",
+      "tier": "required",
+      "weight": 4.0,
       "type": "claim",
       "feature": "mechanism",
       "evidence_regex": "((market|region|地区|user|用户).*shift|市场.*迁移|composition.*(change|shift)|结构.*变化|份额.*变化|占比.*变化)[^\\n]{0,600}(North|high.*baseline|高.*基线|成熟.*市场)"
     },
     {
       "id": "conditional_recommendation",
+      "tier": "recommended",
+      "weight": 2.0,
       "type": "claim",
       "feature": "decision",
       "evidence_regex": "((depend|取决|conditional|有条件|if|如果|unless|除非)[^\\n]{0,400}(priority|优先|goal|目标|strategy|策略))|((short.*term|长期|long.*term|短期)[^\\n]{0,400}(vs|versus|还是|或))"
