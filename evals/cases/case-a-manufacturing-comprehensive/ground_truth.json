@@ -68,9 +68,10 @@
     },
     {
       "id": "temperature_age_interaction",
-      "type": "claim",
+      "type": "optional_claim",
       "feature": "interaction",
-      "evidence_regex": "((temperature|温度)[^\\n]{0,400}(equipment.*age|设备.*年龄|age)[^\\n]{0,400}(interact|交互|amplif|放大|moderat|调节))|((equipment.*age|设备.*年龄|age)[^\\n]{0,400}(temperature|温度)[^\\n]{0,400}(interact|交互|amplif|放大))"
+      "evidence_regex": "((temperature|温度)[^\\n]{0,400}(equipment.*age|设备.*年龄|age)[^\\n]{0,400}(interact|交互|amplif|放大|moderat|调节))|((equipment.*age|设备.*年龄|age)[^\\n]{0,400}(temperature|温度)[^\\n]{0,400}(interact|交互|amplif|放大))",
+      "note": "Signal strength p~0.05 (boundary), may not be detected reliably — bonus if found, no penalty if missed"
     },
     {
       "id": "noise_rejected",

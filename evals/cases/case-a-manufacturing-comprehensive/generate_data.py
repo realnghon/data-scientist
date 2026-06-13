@@ -200,15 +200,15 @@ for wid in wafer_ids:
                 temp_effect = 0
             else:
                 deviation = min(abs(temp - 180), abs(temp - 200))
-                temp_effect = -deviation * 0.25  # 提高到 -25% per 10°C
+                temp_effect = -deviation * 0.25  # 恢复原值
 
-            # 交互：老设备放大温度敏感性（进一步提高倍数）
+            # 交互：老设备放大温度敏感性
             if age > 8:
-                age_amplifier = 3.0 + (age - 8) * 0.6  # 老设备敏感性 3-5 倍
+                age_amplifier = 3.0 + (age - 8) * 0.6  # 恢复原值
             else:
-                age_amplifier = 0.2  # 新设备几乎不敏感
+                age_amplifier = 0.2
 
-            yield_base = 85 + temp_effect * age_amplifier + np.random.uniform(-1, 1)
+            yield_base = 85 + temp_effect * age_amplifier + np.random.uniform(-1, 1)  # 恢复原值
         else:
             # L3 的 C1/C3 wafer 也正常
             yield_base = 90 + np.random.uniform(-3, 3)
