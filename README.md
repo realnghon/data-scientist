@@ -21,11 +21,11 @@ Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks i
 - Time series (seasonality, anomaly detection, change-points)
 - Root cause analysis (multi-source joins, Simpson's paradox)
 
-**Key features**:
+- **Key features**:
 - 8-dimension data quality check before analysis (blocks if data is insufficient)
 - 3-tier evidence framework (separates reliable findings from directional signals)
 - Manufacturing-grade methods (SPC, MSA, DOE, interaction effects)
-- Tested on 9 real-world cases (100% accuracy on routing, methods, and findings)
+- Validated on 3 comprehensive test cases (avg judge score: 87/100 on correctness+completeness+rigor)
 
 ---
 
@@ -112,7 +112,7 @@ python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.p
 pip install -e ".[io]"
 ```
 
-**Evaluation**: 9 test cases at 100% (A/B, SPC, time series, Simpson's paradox, routing discipline). See [`evals/`](evals/) for methodology.
+**Evaluation**: 3 comprehensive test cases covering manufacturing (multi-table root cause), business analytics (A/B test with Simpson's paradox), and time series (anomaly + seasonality). Avg agent judge score: 87/100 across correctness, completeness, and rigor dimensions. See [`evals/`](evals/) for methodology and [`evals/STATUS.md`](evals/STATUS.md) for latest results.
 
 ---
 
