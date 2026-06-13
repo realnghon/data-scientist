@@ -1,58 +1,64 @@
-# L2 评测运行规程（agent-in-the-loop）
+# L2 评测运行规程（后台并发模式）
 
 L2 用真实 agent 跑案例，评测的是 **SKILL.md 的表述质量与 Agent 的路由/决策行为**——这是 L1 确定性管线覆盖不到的部分。
 
-## 运行方式
-
-在 Claude Code 主会话中，对每个 case spawn 一个 `general-purpose` 子 agent。**子 agent 只拿到 SKILL.md + 用户 prompt + 数据路径，不拿 ground truth。**
-
-### Spawn prompt 模板
+## 架构（2026-06-13 改造）
 
 ```
-你是一个安装了 data-scientist 插件的数据分析 agent。
-
-技能文件（必须先读取并遵循）：
-<REPO>/plugins/data-scientist/skills/analysis-workflow/SKILL.md
-技能引用的 references/ 与 scripts/ 在同一目录下，按 SKILL.md 指引按需加载。
-
-用户请求：
-<prompt.txt 的内容，其中 dataset.csv 替换为数据集绝对路径>
-
-硬性约定（评测 harness 要求，不要省略）：
-1. 所有产物写入目录：<RUN_DIR>
-2. 结构化产物用 SKILL.md 规定的名字保存为独立 JSON 文件：
-   data_manifest.json / readiness_report.json / analysis_plan.json /
-   evidence_matrix.json / critique.json（按你路由判定实际需要的子集）
-3. 最终报告保存为 final_report.md；图表保存为 png 文件
-4. 以 auto 模式运行：不要向用户提问，按推荐选项决策并记录在报告的
-   Human Decision Log 中
+主会话（飞轮决策）
+   │  只消费 summary.json：分数 + FAIL 项 + judge defects
+   ▼
+run_l2.py ── ThreadPool 并发 ──┬─ 选手₁: claude -p（headless，读 SKILL.md 跑 case）
+                               ├─ 选手₂: claude -p
+                               └─ 选手ₙ: claude -p
+                                    │ 产物落盘 .runs/l2/<batch>/<case>/
+                                    ▼
+                               judge: score_case.py (regex, 免费)
+                                    + judge_score.py (agent 裁判, headless claude -p)
 ```
 
-`<RUN_DIR>` 约定：`evals/.runs/l2/<case-id>-<YYYYMMDD-HHmm>/`
+关键原则：
+- **上下文隔离**：选手的完整输出（`_contestant_stdout.log`、`final_report.md`）只落盘备查，
+  主会话**不要读**——只读 `summary.json` 里的分数、regex FAIL 项和 judge defects。
+- **裁判独立**：judge 是单独的 headless 进程，看不到选手的对话过程，只看产物。
+- **选手无 GT**：选手 prompt 只含 SKILL.md 路径 + 用户请求 + 数据绝对路径。
 
-### 评分
-
-子 agent 完成后：
+## 运行
 
 ```bash
-python evals/harness/score_case.py evals/cases/<case-id> evals/.runs/l2/<run-dir> \
-    --json evals/.runs/l2/<run-dir>/score.json
+python evals/harness/run_l2.py                    # 全部 case，默认并发 3
+python evals/harness/run_l2.py case-01 case-04    # 子串过滤
+python evals/harness/run_l2.py --jobs 5           # 提高并发
+python evals/harness/run_l2.py --skip-judge       # 只跑选手（调试用）
 ```
 
-输出 per-check 明细：FAIL 项直接对应要修的 skill 段落（路由 FAIL → Shortcut Routing 表；finding FAIL → 对应 reference / 工作流步骤；anti-pattern FAIL → 反模式黑名单）。
+主会话建议用 `run_in_background` 跑上面的命令，结束后只读：
 
-## 推荐的最小回归集
+```bash
+cat evals/.runs/l2/<batch-ts>/summary.json
+```
 
-| 目的 | cases |
-|---|---|
-| 完整流程质量 | case-01（驱动+混淆）、case-04（SPC）、case-05（Simpson） |
-| 路由正确性 | case-06（profile-only）、case-07（named-method）、case-08（blocked） |
-| 快速冒烟 | case-01 + case-06 |
+## 评分口径
+
+- `regex_score`：score_case.py 确定性检查（产物/结论/图表/反模式）。快、免费、可回归，
+  但审计（AUDIT_20260613.md）发现历史上靠放宽正则刷出过虚高分——**只作冒烟参考**。
+- `judge_score`：5 维 agent 裁判（correctness/completeness/rigor/clarity/anti_gaming），
+  语义评估，**作为飞轮的主要信号**。judge 报告截断已修复（3000→30000 字）。
+- 两者显著背离时：人工抽查该 case 的 final_report.md（这是唯一需要人看选手输出的场景）。
+
+## 迭代闭环中的位置
+
+```
+1. npm run eval:l1                      # 全绿才继续
+2. python evals/harness/run_l2.py &     # 后台并发，主会话不阻塞
+3. 读 summary.json → 定位 FAIL/defects → 改 SKILL.md（一次一个维度）
+4. 重跑失败 case 验证
+5. record_result.py 记录 → 提升 commit / 回退 revert
+```
 
 ## 注意事项
 
 - 每轮迭代**一次只改一个维度**，否则无法归因分数变化。
-- 子 agent 输出的产物文件名若不规范，评分器会按文件名片段模糊匹配
-  （见 score_case.py 的 ARTIFACT_ALIASES），但 spawn prompt 中仍应显式规定命名。
-- 评分 FAIL 项需人工抽查一遍正则是否误判，再决定改 skill 还是改 ground truth。
-- 记录结果：`python evals/harness/record_result.py --old <旧> --new <新> --dimension <改动> --note <说明> --eval-mode l2`
+- 评分 FAIL 项需人工抽查正则是否误判，再决定改 skill 还是改 ground truth；
+  ground truth 修正与 skill 修改不要混在同一个 commit。
+- 选手产物文件名不规范时评分器按 ARTIFACT_ALIASES 模糊匹配，但 spawn prompt 已显式规定命名。

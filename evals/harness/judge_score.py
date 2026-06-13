@@ -111,13 +111,13 @@ def spawn_judge_agent(
 3. 发现逻辑矛盾必须扣分
 4. 关注核心推理链而非冗长形式"""
 
-    # Spawn agent via claude CLI (pass prompt via stdin)
+    # Spawn agent via claude CLI headless mode (pass prompt via stdin)
     result = subprocess.run(
-        ["claude"],
+        ["claude", "-p"],
         input=prompt,
         capture_output=True,
         text=True,
-        timeout=180
+        timeout=300
     )
 
     if result.returncode != 0:
