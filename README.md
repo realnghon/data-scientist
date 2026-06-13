@@ -21,11 +21,11 @@ Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks i
 - Time series (seasonality, anomaly detection, change-points)
 - Root cause analysis (multi-source joins, Simpson's paradox)
 
-- **Key features**:
+**Key features**:
 - 8-dimension data quality check before analysis (blocks if data is insufficient)
 - 3-tier evidence framework (separates reliable findings from directional signals)
 - Manufacturing-grade methods (SPC, MSA, DOE, interaction effects)
-- Validated on 3 comprehensive test cases (avg judge score: 87/100 on correctness+completeness+rigor)
+- Validated on 3 comprehensive test cases (avg agent judge score: 83.7/100)
 
 ---
 
@@ -77,7 +77,7 @@ Supports Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, 
 - **11 method families** — regression, A/B tests, SPC, time series, correlation, survival analysis, etc.
 - **8 data quality gates** — sample size, missingness, grain, leakage, balance, measurement reliability
 - **21 chart functions** — ready-made plots for all analysis types (no hand-written matplotlib)
-- **248 tests** — 89% coverage, validated on 9 real cases at 100% accuracy
+- **3 evaluation cases** — manufacturing, business, time series (avg 83.7/100 agent judge score)
 
 ---
 
@@ -112,7 +112,7 @@ python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.p
 pip install -e ".[io]"
 ```
 
-**Evaluation**: 3 comprehensive test cases covering manufacturing (multi-table root cause), business analytics (A/B test with Simpson's paradox), and time series (anomaly + seasonality). Avg agent judge score: 87/100 across correctness, completeness, and rigor dimensions. See [`evals/`](evals/) for methodology and [`evals/STATUS.md`](evals/STATUS.md) for latest results.
+**Evaluation**: 3 comprehensive test cases covering manufacturing (multi-table root cause), business analytics (A/B test with Simpson's paradox), and time series (anomaly + seasonality). Final agent judge scores: Case A (manufacturing) 76.5, Case B (business) 92.2, Case C (time series) 82.4 — avg 83.7/100 across correctness, completeness, and rigor dimensions. See [`evals/`](evals/) for methodology and [`evals/STATUS.md`](evals/STATUS.md) for detailed results.
 
 ---
 

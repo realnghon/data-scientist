@@ -5,63 +5,75 @@
 | 层 | 跑什么 | 测什么 | 成本 |
 |---|---|---|---|
 | **L1** | `run_full_workflow.py` 确定性管线 | helper 库 + 产物 envelope 回归（profile/readiness/shaping） | 零 token，可进 CI |
-| **L2** | spawn 真实 agent 读 SKILL.md 跑案例 | 路由判断、流程遵循、结论命中 ground truth、图表产出、反模式 | 每案例一次 agent 会话 |
+| **L2** | 后台并发真实 agent + 独立 judge | 路由判断、流程遵循、结论命中、完整性、严谨性、clarity、gaming检测 | 并发 headless，上下文隔离 |
 
 ## 目录
 
 ```
 evals/
-├── cases/case-XX-*/        # prompt.txt + ground_truth.json (+ dataset.csv/generate_data.py)
+├── cases/
+│   ├── case-a-manufacturing-comprehensive/  # 制造业质量综合分析（融合 01/04/09）
+│   ├── case-b-business-tradeoff/            # 商业决策悖论（融合 02/05）
+│   ├── case-c-timeseries-routing/           # 时序异常路由（融合 03/06/07/08）
+│   └── _archived-9case-20260613/            # 原 9-case 深度调试套件
 ├── harness/
-│   ├── score_case.py       # 确定性评分器（产物/结论/图表/反模式四类检查）
-│   ├── run_l1.py           # L1 全量运行 + 评分
-│   ├── run_l2.md           # L2 运行规程（spawn prompt 模板）
-│   └── record_result.py    # 迭代结果追加到 results.tsv
-├── results.tsv             # 迭代历史（与 darwin-results/results.tsv 同列）
+│   ├── run_l2.py           # L2 并发执行 + 独立 judge 评分
+│   ├── judge_score.py      # Agent judge（correctness/completeness/rigor/clarity/anti_gaming）
+│   └── regex_score.py      # Regex 评分器（ground_truth findings 匹配）
 └── .runs/                  # 运行产物（git-ignored）
 ```
 
-## 案例清单
+## 当前评测套件（3-case 压缩版）
 
-每个 case 目录统一为：`prompt.txt + ground_truth.json + generate_data.py + 数据 csv`（已于 2026-06-13 审计并去除 v1/v2/v3 版本混乱；数据信号已逐一用脚本验证与 ground truth 一致）。
+**2026-06-13 压缩**：原 9-case → 3 综合 case，token 成本 -60%（200k→80k/轮），能力覆盖 100%。
 
-| Case | 测试目标 | Ground truth 来源（已验证的信号） |
-|---|---|---|
-| 01 manufacturing-full | 完整流程：温度主效应 + equipment_age×temperature 交互 + 噪声排除 | 交互项 t=-9.5；噪声变量 \|r\|<0.04 |
-| 02 ab-test | 多指标权衡：转化 +2.7pp↑ vs 会话时长 -15.8%↓、跳出 +8pp↑ → 条件性建议 | 各效应均 p<1e-10 |
-| 03 time-series-anomaly | 日/周季节性 + 10 尖峰 + day90-95 水平偏移 + day120 后漂移 | 生成器审计修复后 10/10 尖峰落点 |
-| 04 spc | 3 产线分层 SPC：L3 在 5/16-17 失控（+0.8mm）；Cp≈1.86/1.16/0.98 | 受控段实测 Cp 与 GT 一致 |
-| 05 simpson-interaction | Simpson 悖论：Premium 整体 +23.9/月 vs South -84.2、West -27.1/月 | 市场份额 South→North 迁移 |
-| 06 routing-profile-only | 路由：profile 请求不产出 analysis_plan/evidence_matrix，不做统计推断 | 路由约定（humidity 缺失 1.4% 实存） |
-| 07 routing-named-method | 路由：指定 t-test 但 revenue 严重偏态（skew=5.95、86.9% 零值）→ 检查假设并给替代 | 路由约定 + 数据实测 |
-| 08 readiness-blocked | revenue 缺失 44.4% → readiness=blocked → emit data_request | 实测缺失率 44.4% |
-| 09 wafer-rca | 三表整合根因：litho C2 → cd_nm 82 vs 90（spec 85-95）→ 良率 67 vs 90 | C2 与 C1/C3 差 22.5pp；已知良性混杂见 GT notes |
+| Case | 测试目标 | 复杂度 | 最新成绩 (regex/judge) |
+|---|---|---|---|
+| **A** | 制造业质量综合分析<br>多表整合根因 + 分层 SPC + 交互效应<br>融合 case-01/04/09 | 4 表，300 wafer<br>4 层信号 | 93.7 / 76.5 |
+| **B** | 商业决策悖论<br>A/B test 多指标权衡 + Simpson's paradox<br>融合 case-02/05 | 2.4 万用户<br>23 月数据 | 93.4 / 92.2 |
+| **C** | 时序异常路由<br>多周期季节性 + 尖峰 + 变点 + 路由分支<br>融合 case-03/06/07/08 | 180 天时序<br>7 尖峰 + 2 变点 | 76.0 / 82.4 |
+| **平均** | — | — | **87.7 / 83.7** |
+
+**最新结果**：见 [`STATUS.md`](STATUS.md)（含 baseline 对比、修复历史、飞轮迭代记录）。
+
+**原 9-case 套件**：已归档到 `_archived-9case-20260613/`，保留作深度调试用途。
 
 ## 快速使用
 
 ```bash
-# L1（确定性回归，CI 安全）
-npm run eval:l1                  # 或 python evals/harness/run_l1.py [case 名过滤]
+# L2（3-case 完整评测，并发运行）
+cd /path/to/data-scientist
+python evals/harness/run_l2.py case-a case-b case-c --jobs 3
 
-# L2（agent 实测）— 按 harness/run_l2.md 的模板 spawn 子 agent，然后：
-python evals/harness/score_case.py evals/cases/case-01-manufacturing-full \
-    evals/.runs/l2/case-01-manufacturing-full-<ts> --json .../score.json
+# 单个 case 测试
+python evals/harness/run_l2.py case-a --jobs 1
+
+# 结果目录
+ls evals/.runs/l2/$(date +%Y%m%d)-*/
 ```
+
+**运行要求**：
+- Claude Code 或兼容环境（支持 Agent tool 的 headless spawn）
+- Python 3.10+
+- 每次完整运行耗时 ~20-30 分钟（3-case 并发）
 
 ## 迭代闭环
 
 ```
-1. 跑 L1（npm run eval:l1）→ 全绿才进入 2；L1 变红说明 helper/envelope 回归
-2. 跑 L2（run_l2.md）→ score_case.py 输出 per-check 明细
-3. 定位 FAIL → 改 SKILL.md / references / agents 的具体段落（一次只改一个维度）
-   - routing FAIL → SKILL.md「Shortcut Routing」
-   - finding FAIL → 对应 reference 或工作流步骤
-   - anti-pattern FAIL → 反模式黑名单
-4. 重跑失败的 case 验证
-5. 记录：python evals/harness/record_result.py --old <旧> --new <新> \
-       --dimension <改动维度> --note <说明> --eval-mode l2
-6. 提升 → commit（status=keep）；下降/无效 → git revert（status=rollback）
+1. 建立 baseline：python evals/harness/run_l2.py case-a case-b case-c --jobs 3
+2. 读 summary.json 中的 defects → 定位 SKILL.md 薄弱维度
+3. 修复一个维度（一次只改一处）：
+   - correctness → 工作流步骤或方法选择
+   - completeness → 产物完整性或发现遗漏
+   - rigor → 假设检查、统计严谨性
+   - clarity → 报告结构、术语定义
+4. 重跑 3-case 验证改进（并发）
+5. 对比 judge 分数：提升 → commit，下降 → revert
+6. 更新 STATUS.md 记录迭代
 ```
 
-注意：评分 FAIL 先人工抽查正则是否误判，再决定改 skill 还是改 ground truth；
-ground truth 修正与 skill 修改不要混在同一个 commit。
+**飞轮第 1 轮成果**（2026-06-13）：
+- Baseline: 平均 judge 72.5
+- 6 个 SKILL.md 修复 commits
+- 最终: 平均 judge **83.7** (+11.2)
+- 详见 [`STATUS.md`](STATUS.md)
