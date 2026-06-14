@@ -6,7 +6,7 @@ Usage::
     python evals/harness/record_result.py \
         --old 84.2 --new 88.0 --status keep \
         --dimension "路由表强化" --note "case-06 路由从 profile 误判修复" \
-        --eval-mode l2
+        --eval-mode l2 --process 100 --outcome 78.5 --k 3 --std 4.2
 """
 from __future__ import annotations
 
@@ -35,16 +35,23 @@ def main() -> int:
     ap.add_argument("--skill", default="data-scientist")
     ap.add_argument("--old", required=True, help="score before the change ('-' for baseline)")
     ap.add_argument("--new", required=True, help="score after the change")
-    ap.add_argument("--status", default="keep", choices=["baseline", "keep", "rollback"])
+    ap.add_argument("--status", default="keep",
+                    choices=["baseline", "keep", "rollback", "inconclusive"])
     ap.add_argument("--dimension", required=True, help="what dimension/aspect was changed")
     ap.add_argument("--note", required=True)
     ap.add_argument("--eval-mode", default="l2", choices=["l1", "l2", "dry_run", "full_test"])
+    # 双线分布列（修「秤」后，2026-06-14）：process 确定性、outcome 为 judge 均值 + 跨 rep std
+    ap.add_argument("--process", default="-", help="process_score mean (deterministic)")
+    ap.add_argument("--outcome", default="-", help="outcome_score mean (judge)")
+    ap.add_argument("--k", default="-", help="reps per case")
+    ap.add_argument("--std", default="-", help="outcome_score std across reps")
     args = ap.parse_args()
 
     ts = datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds")
     row = "\t".join(
         [ts, current_commit(), args.skill, args.old, args.new,
-         args.status, args.dimension, args.note, args.eval_mode]
+         args.status, args.dimension, args.note, args.eval_mode,
+         str(args.process), str(args.outcome), str(args.k), str(args.std)]
     )
     with RESULTS.open("a", encoding="utf-8") as f:
         f.write(row + "\n")

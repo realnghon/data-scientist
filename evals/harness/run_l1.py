@@ -113,6 +113,8 @@ def main() -> int:
     for case_dir in cases:
         if not case_dir.is_dir():
             continue
+        if not (case_dir / "ground_truth.json").exists():
+            continue  # skip archives / non-case dirs (e.g. _archived-*)
         if only and only not in case_dir.name:
             continue
         result = run_case(case_dir)

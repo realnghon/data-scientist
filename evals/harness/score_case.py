@@ -247,6 +247,7 @@ def score_findings(gt: dict, rf: RunFiles) -> list[Check]:
         if pattern is None:
             continue  # handled by other categories (see ground truth note)
         hit = _search(pattern, rf.text_blob)
+        tier = finding.get("tier", "required")
         detail = "matched" if hit else "no evidence match"
         numeric = finding.get("numeric")
         if hit and numeric:
@@ -261,7 +262,11 @@ def score_findings(gt: dict, rf: RunFiles) -> list[Check]:
                     detail = "numeric group unparseable; keyword evidence accepted"
             else:
                 detail = "keyword matched but numeric pattern not found"
-        checks.append(Check("finding", fid, hit, WEIGHTS["finding"], detail))
+        # Use the GT's per-finding weight (required findings carry more weight
+        # than optional ones) instead of a flat 4.0. Falls back to the default
+        # when a finding omits an explicit weight.
+        weight = float(finding.get("weight", WEIGHTS["finding"]))
+        checks.append(Check("finding", fid, hit, weight, f"[{tier}] {detail}"))
     return checks
 
 
@@ -310,6 +315,25 @@ def _l1_relevant(check: Check) -> bool:
     return artifact in L1_ARTIFACTS
 
 
+# Two-line scoring (audit 2026-06-14): keep the process-adherence signal
+# (deterministic, ~zero variance — did the agent follow the skill's
+# non-negotiable gates?) separate from the outcome-quality signal (did the
+# analysis reach the right conclusions?). The flywheel reads process_score when
+# tuning skill workflow requirements; outcome_score is dominated by base-model
+# capability and must be compared as a distribution, not a single point.
+PROCESS_CATEGORIES = {"routing_must", "routing_must_not", "artifact_schema"}
+OUTCOME_CATEGORIES = {"finding", "charts", "anti_pattern"}
+
+
+def _weighted_score(checks: list[Check]) -> float | None:
+    """Weighted pass-rate over a check subset; None when the subset is empty."""
+    if not checks:
+        return None
+    total_w = sum(c.weight for c in checks) or 1.0
+    earned = sum(c.weight for c in checks if c.passed)
+    return round(100.0 * earned / total_w, 1)
+
+
 def score_case(case_dir: Path, run_dir: Path, subset: str = "full") -> dict:
     gt = json.loads((case_dir / "ground_truth.json").read_text(encoding="utf-8"))
     rf = index_run_dir(run_dir)
@@ -327,11 +351,16 @@ def score_case(case_dir: Path, run_dir: Path, subset: str = "full") -> dict:
     total_w = sum(c.weight for c in checks) or 1.0
     earned = sum(c.weight for c in checks if c.passed)
     score = round(100.0 * earned / total_w, 1)
+
+    process_checks = [c for c in checks if c.category in PROCESS_CATEGORIES]
+    outcome_checks = [c for c in checks if c.category in OUTCOME_CATEGORIES]
     return {
         "case_id": gt.get("case_id", case_dir.name),
         "run_dir": str(run_dir),
         "subset": subset,
         "score": score,
+        "process_score": _weighted_score(process_checks),
+        "outcome_score": _weighted_score(outcome_checks),
         "passed": sum(c.passed for c in checks),
         "total": len(checks),
         "checks": [
@@ -396,10 +425,11 @@ def main() -> int:
         print(f"  Judge: {result['judge_score']}")
         print(f"  Combined (0.4×regex + 0.6×judge): {result['combined_score']}")
     else:
-        # Legacy regex scoring
+        # Deterministic two-line scoring (regex)
         result = score_case(args.case_dir, args.run_dir, args.subset)
         print(f"\n=== {result['case_id']}  score={result['score']}  "
-              f"({result['passed']}/{result['total']} checks) ===")
+              f"(process={result['process_score']} outcome={result['outcome_score']}; "
+              f"{result['passed']}/{result['total']} checks) ===")
         for c in result["checks"]:
             mark = "PASS" if c["passed"] else "FAIL"
             print(f"  [{mark}] {c['category']:<16} {c['id']:<40} {c['detail']}")

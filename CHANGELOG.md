@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.1.0] - 2026-06-14
+
+### 🎯 Evaluation System — Fixed the Scale（修「秤」）
+
+The flywheel had been chasing noise: skill changes were judged by a metric decoupled
+from what they actually changed, so iterations got reverted on sampling variance.
+Reworked the eval harness so the feedback signal tracks the skill.
+
+### ✨ Changed
+- **Two-line scoring** (`score_case.py`): split `process_score` (deterministic
+  workflow-adherence, ~zero variance) from `outcome_score` (semantic conclusion
+  quality). Findings now use per-finding `tier`/`weight` from ground truth.
+- **Judge sees the workflow** (`judge_score.py`): feeds `analysis_plan` + `critique`
+  to the judge so rigor/anti-gaming can tell real execution from form-filling.
+- **Real plugin loading** (`run_l2.py`): contestants spawn with `--plugin-dir` (real
+  skill trigger) instead of an injected SKILL.md path; each case runs k times
+  (default 3) and reports mean ± std distributions.
+- **A/B flywheel discipline** (`flywheel_compare.py`, new): compares before/after
+  distributions — `keep` only when intervals don't overlap, `inconclusive` (no
+  revert) when noise dominates.
+
+### 🐛 Fixed
+- Removed the 50% coverage hard-threshold cliff in `score_two_stage.py` that
+  amplified single-run variance into 0 scores.
+- `run_l1.py` no longer crashes on non-case directories (e.g. archived suites).
+
+### 🧹 Removed
+- 39 iteration-process docs (session summaries, progress/status snapshots, round
+  results, failure analyses) — flywheel scaffolding with no lasting value. Eval
+  methodology now lives in `evals/README.md` + `evals/harness/run_l2.md`.
+
+---
+
 ## [2.0.0] - 2026-06-13
 
 ### 🎯 Major Improvements

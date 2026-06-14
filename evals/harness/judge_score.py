@@ -7,7 +7,7 @@ Replaces keyword regex matching with semantic quality assessment.
 import json
 import subprocess
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 
 JUDGE_DIMENSIONS = {
@@ -61,6 +61,32 @@ JUDGE_DIMENSIONS = {
 # only the data-overview section. 30k chars covers every report produced so far.
 MAX_REPORT_CHARS = 30000
 
+# Each appended process artifact (analysis_plan / critique) is capped separately
+# so the rigor & anti_gaming judges can see the workflow without blowing up the
+# prompt. Added 2026-06-14 so judges can tell real execution from form-filling.
+MAX_PROCESS_ARTIFACT_CHARS = 8000
+
+
+def _load_process_artifacts(run_dir: Path) -> str:
+    """Append analysis_plan + critique (if present) for rigor/anti-gaming judging.
+
+    Optional by design — profile-only routes won't produce them; a missing file
+    is silently skipped so the judge simply sees less context, never an error.
+    """
+    parts: List[str] = []
+    for name, label in (
+        ("analysis_plan", "ANALYSIS PLAN — method selection & rationale"),
+        ("critique", "CRITIQUE — self-audit of claims"),
+    ):
+        for cand in sorted(run_dir.glob(f"*{name}*.json")):
+            try:
+                text = cand.read_text(encoding="utf-8", errors="replace")
+            except OSError:
+                continue
+            parts.append(f"\n\n## [{label} ({cand.name})]\n{text[:MAX_PROCESS_ARTIFACT_CHARS]}")
+            break  # first match per artifact is enough
+    return "".join(parts)
+
 
 def spawn_judge_agent(
     dimension: str,
@@ -87,8 +113,8 @@ def spawn_judge_agent(
 ## 参考标准
 {gt_context}
 
-## Agent 分析输出
-{agent_output[:MAX_REPORT_CHARS]}
+## Agent 分析输出（最终报告 + 关键流程产物 analysis_plan / critique）
+{agent_output}
 
 ## 任务
 评分 0-3：
@@ -169,7 +195,7 @@ def spawn_judge_agent(
 def score_case_with_agent_judge(
     case_dir: Path,
     run_dir: Path,
-    dimensions: List[str] = None
+    dimensions: Optional[List[str]] = None
 ) -> Dict[str, Any]:
     """Score case using agent-spawned LLM judges"""
 
@@ -180,11 +206,14 @@ def score_case_with_agent_judge(
     gt_path = case_dir / "ground_truth.json"
     gt = json.loads(gt_path.read_text())
 
-    # Load agent report
+    # Load agent report + key process artifacts. Feeding analysis_plan / critique
+    # (not only the final report) lets the rigor & anti_gaming judges tell a real
+    # executed workflow from "提到方法名但未真正执行" form-filling (audit 2026-06-14).
     report_path = run_dir / "final_report.md"
     if not report_path.exists():
         raise FileNotFoundError(f"Agent report not found: {report_path}")
-    agent_output = report_path.read_text()
+    agent_output = report_path.read_text(encoding="utf-8", errors="replace")[:MAX_REPORT_CHARS]
+    agent_output += _load_process_artifacts(run_dir)
 
     # Score each dimension with spawned agent
     judge_scores = {}
