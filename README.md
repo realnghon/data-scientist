@@ -34,11 +34,12 @@ Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks i
 ### Install
 
 ```bash
-# For Claude Code / Codex / Cursor
-npx skills add realnghon/data-scientist
+# Claude Code
+/plugin marketplace add realnghon/data-scientist
+/plugin install data-scientist@data-scientist
 ```
 
-Supports Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, Gemini CLI. See [INSTALL.md](INSTALL.md) for platform-specific setup.
+Supports Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, Gemini CLI. See [INSTALL.md](INSTALL.md) for platform-specific setup and per-runtime installation.
 
 ### Run
 
@@ -113,6 +114,14 @@ pip install -e ".[io]"
 ```
 
 **Evaluation**: 3 comprehensive test cases covering manufacturing (multi-table root cause), business analytics (A/B test with Simpson's paradox), and time series (anomaly + seasonality). Scored on two independent lines — `process_score` (deterministic workflow-adherence) and `outcome_score` (agent-judge conclusion quality) — compared as before/after distributions to drive skill iteration. See [`evals/`](evals/) for methodology.
+
+## Plugin Contents
+
+- One Claude Code skill at `plugins/data-scientist/skills/analysis-workflow/SKILL.md`
+- Seven staged subagents under `plugins/data-scientist/agents/`
+- Four slash commands under `plugins/data-scientist/commands/`
+- Shared references under `plugins/data-scientist/skills/analysis-workflow/references/`
+- Tested Python helpers under `plugins/data-scientist/skills/analysis-workflow/scripts/ds_skill/`
 
 ---
 

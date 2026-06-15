@@ -11,6 +11,17 @@
   "homepage": "https://github.com/realnghon/data-scientist",
   "repository": "https://github.com/realnghon/data-scientist",
   "license": "MIT",
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "agents": [
+    "./agents/ds-intake-agent.md",
+    "./agents/ds-readiness-agent.md",
+    "./agents/ds-shaping-agent.md",
+    "./agents/ds-method-planner-agent.md",
+    "./agents/ds-execution-agent.md",
+    "./agents/ds-critic-agent.md",
+    "./agents/ds-report-agent.md"
+  ],
   "keywords": [
     "data-science",
     "statistics",

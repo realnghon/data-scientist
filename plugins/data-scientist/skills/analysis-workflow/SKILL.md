@@ -33,6 +33,7 @@ Do not read every reference upfront. Load on demand using this table. Skip refer
 | Reference | Read when | Skip if |
 |-----------|-----------|---------|
 | `workflow.md` | Starting any non-trivial analysis; need the canonical end-to-end sequence; user asks "what's the process". | This is a one-shot lookup (single number, single chart) with no decision branches. |
+| `multi-agent-orchestration.md` | Running the full 7-stage pipeline; using Claude Code sub-agents; invoking `/ds-*` commands; coordinating staged artifacts across runtimes. | One-off statistic, profile-only request, or any task that can be answered without stage hand-offs. |
 | `data-readiness.md` | Building `readiness_report`; user asks "is this data good enough"; missingness/coverage/leakage looks suspicious; before any modeling. | User supplied a clean curated table and only wants a chart or descriptive stat. |
 | `data-shaping.md` | Data is long-form needing pivot; wide-form needing melt; grain mismatch between `Y` and `X`; need to aggregate, dedupe, or join; suspected leakage columns. | Data already arrives in the exact analysis grain with no joins or reshaping required. |
 | `method-registry.md` | Selecting a statistical/ML method; user asks "which test should I use"; multiple defensible methods disagree; need rejected-alternatives rationale. | Method is fully prescribed by a golden template you've already matched. |
@@ -85,7 +86,7 @@ Import only the module needed for the current method family. Never `import *` an
 6. Identify whether the data must be reshaped, pivoted, aggregated, or converted to an analysis view. Use `references/data-shaping.md`.
 7. Choose methods by analysis purpose, not by method name. Use `references/method-registry.md`.
 8. For manufacturing data, check the domain playbook. Use `references/manufacturing-playbook.md`.
-9. For complex work, split responsibilities by `references/multi-agent-orchestration.md`.
+9. For complex work, load `references/multi-agent-orchestration.md` before dispatching sub-agents or emulating staged hand-offs. In Claude Code, use the plugin's `agents/` directory; in runtimes without native sub-agents, run the same stage contracts sequentially.
 10. 🔴 **CHECK ds_skill helpers before hand-coding**: For each method selected in the previous steps, check if a corresponding `ds_skill.*` helper exists in "Code Helpers — Lazy Import Map" above. **Default behavior: if a helper exists, MUST attempt to import and call it first.** Only fall back to hand-coding if: (a) import fails after trying the sys.path bootstrap in "Make the helpers importable"; (b) helper's signature doesn't match this specific use case after reading its docstring; (c) helper returns an error after 1 retry. Record the decision (used helper vs hand-coded, and why) in the analysis_plan artifact below.
 11. **Generate analysis_plan artifact** before execution. This is a structured JSON file documenting method selection logic for auditability:
    ```json
