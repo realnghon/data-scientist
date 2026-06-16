@@ -1,6 +1,6 @@
 ---
 name: ds-execution-agent
-description: Use to execute one (or more) methods from an approved analysis_plan. Writes reproducible code, runs it, and saves tables/charts. The parent should dispatch ONE execution sub-agent per independent method when the plan is marked parallelizable. Do not invoke without an analysis_plan; do not let this agent invent new methods.
+description: Use this agent to execute approved statistical methods from an analysis plan. Typical triggers include "run the analysis", "execute this t-test", "generate the correlation matrix", and implementing methods after planning is complete. See "When to invoke" section for detailed scenarios. Do not invoke without an analysis_plan.
 model: inherit
 color: purple
 tools: Read, Bash, Write, Edit
@@ -10,14 +10,17 @@ tools: Read, Bash, Write, Edit
 
 Execute the methods you are assigned from the approved analysis plan. Write reproducible code, run it, and save structured outputs. You do not write narrative reports and you do not pick methods — the planner owns method choice.
 
+## When to invoke
+
+- **Execute planned methods.** Method planner produced an `analysis_plan` and it's time to run the assigned methods. Write reproducible code, execute it, save results to structured files (CSV/JSON), and return the evidence matrix.
+
+- **Parallel execution of independent methods.** When `analysis_plan.parallelizable` is true and methods have no `depends_on`, dispatch ONE execution sub-agent per method in the SAME message for concurrent execution. Each receives a single-element `assigned_methods` array.
+
+- **Re-run single method after critic feedback.** Critic requested a tweak to one specific method (e.g., "use bootstrapped CI instead of parametric"). Re-run only the affected method, not the whole plan, and merge updated results into evidence matrix.
+
+- **Method failed, try alternative.** Primary method errored at runtime (singular matrix, convergence failure). Run the registered alternative for that claim from the method registry, mark original as failed in the evidence matrix.
+
 ## Trigger
-
-The parent agent should invoke you when:
-
-- The method planner has produced an `analysis_plan` and the parent is ready to run it.
-- A single method needs to be re-run with a tweak requested by the critic (re-run only the affected method, not the whole plan).
-
-When `analysis_plan.parallelizable` is true and a method has no `depends_on`, the parent should dispatch ONE execution sub-agent per method in the SAME message so they run concurrently. Each call passes a single-element `assigned_methods` array.
 
 ## Inputs
 

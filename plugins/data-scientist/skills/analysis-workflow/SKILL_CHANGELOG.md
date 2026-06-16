@@ -18,6 +18,38 @@ This file tracks major changes to the `data-scientist` skill structure and behav
 
 ---
 
+## [1.2.0] - 2025-06-16
+
+### Changed
+- **Agent descriptions enhanced**: All 7 agents now follow agent-development best practices with "Typical triggers include" examples and specific user query scenarios
+- **Agent "When to invoke" sections**: Converted all "Trigger" sections to "When to invoke" with 2-4 concrete usage scenarios in prose format
+- **Command argument hints improved**: Added specific examples and clearer parameter format for all 4 commands (ds-analyze, ds-plan, ds-profile, ds-report)
+
+### Added
+- Usage examples in all command files showing typical invocations
+- Detailed scenario descriptions in all agent "When to invoke" sections
+
+---
+
+## [1.1.0] - 2025-06-16
+
+### Changed
+- **Description format**: Rewritten to third-person format ("This skill provides..." instead of "Use when...") per skill-development best practices
+- **Skill length optimization**: Reduced SKILL.md from 6,591 to ~5,600 words by extracting detailed content to references/
+- **Progressive disclosure enhancement**: Added 3 new reference documents for better context management
+
+### Added
+- `references/anti-patterns.md`: Complete catalog of statistical failure modes with recovery actions (extracted from SKILL.md)
+- `references/failure-recovery.md`: Comprehensive stage failure recovery strategies (extracted from SKILL.md)
+- `references/financial-domain.md`: Specialized rules for financial time series analysis (extracted from SKILL.md)
+- Lazy-load table entries for the 3 new reference documents
+
+### Fixed
+- Path portability: All hardcoded relative paths in commands/ and agents/ now use `${CLAUDE_PLUGIN_ROOT}` variable
+- openai.yaml relocated from skills/analysis-workflow/agents/ to .codex-plugin/ for better organization
+
+---
+
 ## [1.0.0] - 2025-06-16
 
 ### Baseline Release

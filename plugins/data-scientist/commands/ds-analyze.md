@@ -1,11 +1,16 @@
 ---
 description: Run an end-to-end data-scientist analysis on a dataset — intake, readiness, plan, execution, and evidence-backed report
-argument-hint: [dataset path or goal]
+argument-hint: <dataset-path> [analysis-goal]
 ---
 
 # Analyze Dataset
 
 Use the `data-scientist` skill to run a full analysis workflow on the user's dataset.
+
+**Examples:**
+- `/ds-analyze data.csv`
+- `/ds-analyze sales.xlsx "what drives revenue?"`
+- `/ds-analyze dataset.parquet "is yield different between groups?"`
 
 ## Required Behavior
 

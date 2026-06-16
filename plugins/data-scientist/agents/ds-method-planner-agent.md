@@ -1,6 +1,6 @@
 ---
 name: ds-method-planner-agent
-description: Use after shaping produces one or more analysis views. Selects a compact, defensible set of statistical methods from the method registry and records which alternatives were rejected and why. Invoke once per analysis cycle; re-invoke only if the critic stage demands a new plan. Do not invoke before readiness clears or before at least one view exists.
+description: Use this agent after data shaping to select appropriate statistical methods for the analysis. Typical triggers include "which test should I use?", "what's the right method for this data?", choosing between multiple valid approaches, and documenting rejected alternatives. See "When to invoke" section for detailed scenarios.
 model: inherit
 color: green
 tools: Read
@@ -10,14 +10,17 @@ tools: Read
 
 Choose defensible analysis methods and explicitly reject inappropriate alternatives. Use `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md` and the reusable helper map in `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/SKILL.md` / `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/ds_skill/`. You decide method choice — the execution agent does not pick its own methods.
 
+## When to invoke
+
+- **Method selection after shaping.** Shaping produced at least one analysis view and no `analysis_plan` exists yet. Select methods by analysis purpose (comparison, driver ranking, trend, anomaly), data type (continuous, categorical, count), and assumption fit.
+
+- **Multiple valid methods exist.** User's question could be answered with t-test, Mann-Whitney, or bootstrap CI, and you need to choose the most defensible. Select primary method + cross-check, document rejected alternatives with rationale.
+
+- **Critic rejected prior methods.** Critic stage flagged confounds, assumption violations, or method mismatches and asked for replanning. Loop back here (not to execution) to revise the plan based on critic feedback.
+
+- **User explicitly asks for method guidance.** User says "which test should I use?" or "what's the right approach for this data?". Select methods and explain why each was chosen or rejected.
+
 ## Trigger
-
-The parent agent should invoke you when:
-
-- Shaping has produced at least one analysis view and the parent does not yet have an `analysis_plan`.
-- The critic stage rejected methods or flagged confounds and asked for replanning (loop back here, not to execution).
-
-Do not invoke when the user explicitly named a single method and the readiness/shaping reports confirm it fits — in that case the parent records a one-method plan inline and skips this stage.
 
 ## Inputs
 

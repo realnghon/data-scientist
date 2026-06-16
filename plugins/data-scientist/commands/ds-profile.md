@@ -1,11 +1,16 @@
 ---
 description: Profile a dataset — inspect structure, columns, dtypes, sample rows, and data-quality risks without drawing business conclusions
-argument-hint: [dataset path]
+argument-hint: <dataset-path>
 ---
 
 # Profile Dataset
 
 Use the `data-scientist` intake workflow to inspect a dataset without making business conclusions.
+
+**Examples:**
+- `/ds-profile data.csv`
+- `/ds-profile sales.xlsx`
+- `/ds-profile measurements.parquet`
 
 ## Required Behavior
 

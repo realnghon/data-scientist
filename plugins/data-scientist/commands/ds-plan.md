@@ -1,11 +1,16 @@
 ---
 description: Turn a profiled dataset and user goal into a defensible analysis plan with selected methods, assumption checks, and rejected alternatives
-argument-hint: [analysis goal or target metric]
+argument-hint: <analysis-goal> [target-metric]
 ---
 
 # Plan Analysis
 
 Use the `data-scientist` method-planning workflow to turn a profiled dataset and user goal into a defensible analysis plan.
+
+**Examples:**
+- `/ds-plan "compare treatment vs control"`
+- `/ds-plan "rank drivers of conversion"`
+- `/ds-plan "detect yield drop" yield_pct`
 
 ## Required Behavior
 

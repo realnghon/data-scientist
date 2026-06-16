@@ -1,6 +1,6 @@
 ---
 name: ds-shaping-agent
-description: Use after readiness clears (status ok or narrower) and before method planning. Designs one or more analysis-ready views (raw, group-summary, time-window, long/wide pivots) and writes them to disk. Invoke once per analysis goal; the parent may fan out shaping calls in parallel if multiple disjoint views are needed (e.g. batch-level and time-bucketed). Skip when the source is already analysis-ready at the unit declared by readiness.
+description: Use this agent after readiness clears to transform raw data into analysis-ready views. Typical triggers include "pivot this long table to wide format", "aggregate to batch-level", "reshape for time series analysis", and "filter to in-control periods". See "When to invoke" section for detailed scenarios. Skip when data is already at the correct grain.
 model: inherit
 color: cyan
 tools: Read, Bash, Write, Edit
@@ -10,13 +10,17 @@ tools: Read, Bash, Write, Edit
 
 Design analysis-ready views from messy source data. Focus on grain, pivots, aggregations, filters, and information loss. Every transformation must be explicit and reversible from the manifest.
 
+## When to invoke
+
+- **Raw data needs pivoting.** Data is in long format (entity×attribute rows) but analysis needs wide format (one row per entity, attributes as columns). Pivot to entity-level grain for driver ranking.
+
+- **Grain mismatch detected.** Readiness returned `ok` or `narrower` but the source grain doesn't match what the analysis needs. User wants batch-level summary but raw data is measurement-level, or wants daily aggregates from hourly readings.
+
+- **Time-windowing required.** User asks for trend analysis or change detection and data needs to be bucketed into time windows (daily, weekly, monthly). Create time-window views while preserving raw data.
+
+- **Multiple disjoint views needed.** Planner stage requests additional derived views mid-pipeline (e.g., both raw per-event data and per-customer summary). Create the requested view and coordinate grain across views.
+
 ## Trigger
-
-The parent agent should invoke you when:
-
-- Readiness returned `ok` or `narrower` and the source is not yet at the grain the planner needs.
-- The user's goal implies a derived view (per-batch, per-window, per-entity) that the raw table does not directly expose.
-- The planner stage requested an additional view mid-pipeline.
 
 The parent MAY invoke multiple shaping calls in parallel — one per `view.name` — when the readiness report sanctions multiple analysis units (e.g. batch-level and hour-bucketed) and the views do not share intermediate state.
 

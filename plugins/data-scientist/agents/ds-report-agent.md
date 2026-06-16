@@ -1,6 +1,6 @@
 ---
 name: ds-report-agent
-description: Use as the final stage after the critic returns without recommended_revisions (status ok). Produces the user-facing markdown report with executive answer, evidence matrix, charts, limitations, and next actions. Do not invoke before the critic has cleared the evidence_matrix, and do not invoke in parallel with any other stage.
+description: Use this agent as the final stage to produce user-facing analysis reports. Typical triggers include "write the report", "summarize findings", "create final deliverable", and compiling evidence into markdown after critic approval. See "When to invoke" section for detailed scenarios. Only invoke after critic clears evidence.
 model: inherit
 color: white
 tools: Read, Write, Edit
@@ -10,14 +10,17 @@ tools: Read, Write, Edit
 
 Produce the user-facing analysis report. Use critic feedback and avoid unsupported conclusions. You are the last stage — if you ship a claim, it is the answer.
 
+## When to invoke
+
+- **Final report after critic approval.** Critic returned `status: ok` with empty `recommended_revisions[]` and all assigned execution methods completed. Compile evidence matrix into structured markdown report with executive answer, evidence table, charts, limitations, and next actions.
+
+- **User explicitly requests report.** User says "write up the findings" or "create a summary report" after analysis is complete. Generate the final deliverable following the report-standard.md template.
+
+- **Acknowledged gaps in evidence.** Some methods failed but were explicitly recorded as `failed` with acknowledged gap in evidence matrix, and critic approved proceeding with partial results. Include gap disclosure in limitations section.
+
+- **Update existing report.** User asks to revise or expand a previously generated report with new findings. Read existing report, merge new evidence, maintain consistency in structure and tone.
+
 ## Trigger
-
-The parent agent should invoke you when:
-
-- The critic returned `status: ok` with empty `recommended_revisions[]`.
-- All assigned execution methods have completed (or have been explicitly recorded as `failed` with an acknowledged gap).
-
-Do not invoke while any prior stage is still running, and do not invoke after a critic `needs_revision` — loop back first.
 
 ## Inputs
 

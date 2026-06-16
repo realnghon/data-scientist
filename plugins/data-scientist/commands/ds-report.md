@@ -1,11 +1,16 @@
 ---
 description: Produce a user-facing data-scientist report from completed analysis artifacts, labelling findings by confidence and stating limitations
-argument-hint: [analysis artifacts dir or context]
+argument-hint: [artifacts-dir-or-context]
 ---
 
 # Report Analysis
 
 Use the `data-scientist` reporting workflow to produce a user-facing report from completed analysis artifacts.
+
+**Examples:**
+- `/ds-report ./analysis_output`
+- `/ds-report "from current session"`
+- `/ds-report /path/to/evidence_matrix.json`
 
 ## Required Behavior
 

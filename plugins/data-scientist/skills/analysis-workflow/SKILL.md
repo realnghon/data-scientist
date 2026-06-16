@@ -1,7 +1,7 @@
 ---
 name: data-scientist
-version: 1.0.0
-description: Interactive data science analysis for messy structured datasets (CSV, Excel, Parquet, JSON, SQL results). Use when the user wants to inspect or profile a data file, judge whether the data can answer a business question, reshape long/wide tables, choose a defensible statistical, manufacturing, hypothesis-testing, modeling, or charting method, run the analysis, or get evidence-backed conclusions with charts and data-quality feedback. Typical triggers — analyze this dataset, why did yield or defect rate change, what drives a metric, is the difference significant, is this data good enough, run an A/B test, SPC or Cpk or control chart, find anomalies.
+version: 1.2.0
+description: This skill provides Python-based interactive data science analysis for messy structured datasets (CSV, Excel, Parquet, JSON, SQL results). It should be used when analyzing a data file, profiling data quality, judging whether data can answer a business question, reshaping long/wide tables, choosing defensible statistical/manufacturing/hypothesis-testing/modeling/charting methods, or producing evidence-backed conclusions with charts and data-quality feedback. Typical user requests — "analyze this dataset", "why did yield or defect rate change", "what drives a metric", "is the difference significant", "is this data good enough", "run an A/B test", "SPC or Cpk or control chart", "find anomalies".
 ---
 
 # Data Scientist
@@ -42,6 +42,9 @@ Do not read every reference upfront. Load on demand using this table. Skip refer
 | `report-standard.md` | Writing `final_report`; preparing deliverable for the user; need section ordering, evidence-citing format, or limitations template. | Intermediate exploration only; result will not be packaged as a report. |
 | `golden-templates.md` | Question matches a recurring pattern (yield drop, A/B test, root cause, capability study, MTBF); before designing a custom plan. | Question is clearly bespoke and no template name matches the user's goal. |
 | `manufacturing-playbook.md` | Data contains lot/batch/line/operator/recipe/SPC/yield/defect fields; user mentions Cpk, control charts, MSA, OEE; semiconductor/process/MFG domain. | Domain is finance, marketing, web analytics, healthcare, or general business — none of the MFG vocabulary applies. |
+| `anti-patterns.md` | Before finalizing any report; when caught in a failure mode; stakeholder asks for something on the blacklist. | Analysis is still in planning or data-prep stage. |
+| `failure-recovery.md` | Hit a stage failure; environment/dependency/import/join/method error; need multi-step recovery strategy. | Analysis proceeding smoothly with no errors. |
+| `financial-domain.md` | Data contains OHLCV/tickers/price columns; user asks about returns/factors/momentum; financial markets domain. | Domain is manufacturing, healthcare, web analytics, or general business. |
 
 ## Code Helpers — Lazy Import Map
 
@@ -168,24 +171,14 @@ Detailed shortcut rules:
 
 ## Failure Modes & Recovery
 
-When a stage hits a wall, do not abort the whole analysis. Each row is a three-step fallback: try the first-line fix, escalate to the fallback, and only then stop with a concrete ask.
+When a stage hits a wall, do not abort the whole analysis. Consult `references/failure-recovery.md` for complete recovery strategies. Critical failures that require immediate attention:
 
 | Trigger condition | First-line fix | If that still fails |
 |---|---|---|
-| **File unreadable / wrong encoding** | retry with explicit encoding + delimiter sniff; sample first 1000 rows | return a data-request naming the format needed; do not invent a manifest |
-| **No plausible target `Y`** | propose ranked candidates from column roles; ask once (guided) | fall back to `exploratory` profile-only mode; report what's needed to define `Y` |
-| **Python environment inadequate** | detect active pyenv/conda/venv with `which python` and test key imports (pandas, numpy, scipy); if imports fail, check if `pip install` is available | 🔴 CHECKPOINT: ask user "Install missing packages to the current environment, or create an isolated venv?"; create a venv only on user confirmation (see Environment policy in step 2) |
-| **Virtual environment creation fails** | retry with `python3 -m venv .venv` instead of `virtualenv`; check disk space | ask user to manually create environment or use system Python; document chosen fallback in analysis metadata |
-| **Dependency installation fails** | retry with `--no-cache-dir` and `--upgrade pip`; try installing packages individually to isolate the failing one | report missing dependencies + minimal reproduction command; offer to run analysis with available packages only (degraded mode) |
-| **Readiness = blocked** (leakage / sparse / mixed grain) | apply the data-readiness narrowing (drop leaked col, restrict to adequate-N subset) | emit the `data_request` artifact and stop downstream stages — never force a conclusion |
-| **Shaping collapses sample** (post-filter N too small) | loosen the filter or pick a coarser grain that preserves N | bounce to readiness with the new N; narrow the question to what survives |
-| **Join match-rate too low** | normalize keys (strip/case/dtype); try `merge_asof` with tolerance | report per-join match rate; drop the join and analyze sources separately |
-| **Every candidate method rejected** | swap to the non-parametric / robust alternative in `method-registry.md` | emit a "method-blocked" note; never run a method whose assumptions fail |
-| **Primary method errors at runtime** | run the registered alternative for that claim | mark the claim `unsupported`, keep other claims; record the failure, don't abort |
-| **Primary and cross-check disagree** | reconcile (confound, Simpson, sample diff) | downgrade to directional signal with the disagreement stated; never silently pick one |
-| **Helper import fails** (`ds_skill` off path) | run the `sys.path` bootstrap in "Make the helpers importable" | fall back to task-specific code and say so; don't skip the analysis |
-| **Charts unavailable** (matplotlib/seaborn missing) | `pip install matplotlib seaborn` or `pip install -e ".[viz]"` | deliver text + tables, note charts were skipped and why |
-| **Cleanup blocked** (permission denied on .venv) | try with elevated command or check if directory is in use | skip cleanup for that artifact; warn user about leftover files with manual cleanup command |
+| **File unreadable / wrong encoding** | retry with explicit encoding + delimiter sniff | return data-request naming the format needed |
+| **No plausible target `Y`** | propose ranked candidates from column roles | fall back to `exploratory` profile-only mode |
+| **Readiness = blocked** (leakage / sparse / mixed grain) | apply data-readiness narrowing | emit `data_request` and stop — never force a conclusion |
+| **Every candidate method rejected** | swap to non-parametric alternative | emit "method-blocked" note; never run a method whose assumptions fail |
 
 Stage-to-stage bounces (readiness ↔ shaping, planner → reframe, critic → re-run one claim) are spelled out in `references/workflow.md` → "Loops And Bounces". Loop only the affected stage; never restart from intake.
 
@@ -226,12 +219,7 @@ When a gate fires: provide 2-3 concrete choices + a recommendation. Never ask an
 
 ## Domain Rules — Financial Time Series
 
-When the data is stock / crypto / fund / market-factor data (price columns, OHLCV, tickers, factor panels):
-
-- **Targets**: raw price level (`close`) is valid for *descriptive trend* statements only. For driver ranking, factor analysis, or any predictive claim, default to returns — `log_return_1d`, `forward_return_5d/20d`, or excess return vs a benchmark when one exists. Present the target choice to the user as price-level (descriptive) vs returns (driver/predictive).
-- **Target-derived features**: anything computed from the target series (momentum, moving averages, volatility of `Y`) must be tagged `target_derived` and excluded from driver ranking. They may appear only as technical-state descriptors, never as "drivers".
-- **Stationarity & autocorrelation**: do not run plain correlation/regression on price levels; use returns or state the non-stationarity caveat and downgrade the claim to directional.
-- **No investment advice**: do not produce buy/sell/hold, position-sizing, or stop-loss recommendations unless the user explicitly asks for trading-strategy analysis. Phrase results as analytical scenarios and risk indicators.
+When data is stock/crypto/fund/market-factor data (OHLCV, tickers, factor panels), consult `references/financial-domain.md` for specialized rules. Key constraints: use returns (not raw price) for driver ranking; tag momentum/MA/volatility as `target_derived`; check stationarity; avoid investment advice unless explicitly requested.
 
 ## Golden Templates
 
@@ -292,26 +280,6 @@ See `scripts/ds_skill/__init__.py` for the one-line description of each module. 
 
 ## Anti-Patterns — Red-Flag Blacklist
 
-🚫 These failure modes silently corrupt an analysis. Scan this list before reporting any claim; each maps to a recovery action. If a stakeholder asks for one of these, explain the risk instead of complying silently.
+Before reporting any claim, scan `references/anti-patterns.md` for failure modes that silently corrupt analyses. Common pitfalls: reporting p-values without effect sizes, leaked features, causal language on observational data, capability on unstable processes, single-method claims without cross-checks, silently excluding negative findings. Each anti-pattern maps to a recovery action.
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
-|---|---|---|
-| **Report p-value as business impact** | large N (n>1000) makes trivial effects "significant"; significance ≠ magnitude | pair every p with effect size + units + CI |
-| **Conclude on leaked features** | post-outcome / target-derived `X` inflates accuracy; won't replicate | run the leakage scan (data-readiness dim 6) first; drop offenders |
-| **Force a conclusion on sparse data** | n<5 per cell, >30% missing on `Y`, or constant `Y` → any test is noise | report descriptive-only; route the question to Tier 3 unsupported |
-| **Causal language on observational data** | "X causes Y" needs an experiment or quasi-experiment | use "associated with" / "predicts" / "differs by" unless a causal design exists |
-| **Correlate against same-row outcomes** | features measured *after* or *alongside* Y (same timestamp, same event) may be effects not causes | verify time order; exclude concurrent/post-event features from driver ranking |
-| **Skip pivot on entity×attribute long data** | driver ranking on unpivoted data mixes entity-level signal with measurement-type noise | pivot to entity-level (one row per wafer/patient/customer, attributes as columns) before ranking drivers |
-| **Aggregate away the signal** | group-mean hides Simpson's paradox and station-level failure modes | check within-group before declaring a pooled effect |
-| **Cp/Cpk on an unstable process** | capability on an out-of-control process is a meaningless number | confirm SPC stability first; compute capability on the in-control segment only |
-| **Single method, no cross-check** | one test can fire on an artifact; no triangulation | every Tier-1 claim needs a second method agreeing in direction |
-| **Silently impute `Y`** | inventing the target biases every downstream estimate | never impute `Y`; imputing `X` requires a documented, reported strategy |
-| **Refit control/CV limits on the judged data** | circular — the limits always "fit" | hold out a known in-control window / keep train-test separation |
-| **Pick a method by name or popularity** | impressive ≠ defensible; the data shape decides | choose by purpose + data type + assumption fit (`method-registry.md`) |
-| **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (see step 2) |
-| **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns (see Domain Rules) |
-| **Call a target-derived feature a "driver"** | mechanically correlated with `Y`; not an independent explanation | tag `target_derived`, exclude from driver ranking |
-| **Silently exclude weak features** | omitting "X has no effect" hides what was tested; reader assumes you didn't check | explicitly state negative findings: "recipe, waiting_time tested, no significant effect (p>0.05, ρ<0.1)" |
-| **Claim "comprehensive analysis" when readiness = partial** | over-promises; hides what was dropped | state the `narrowed_scope`: what is answerable, what is not, and why |
-
-When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
+When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the recovery action.
