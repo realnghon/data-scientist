@@ -1,6 +1,8 @@
 ---
 name: ds-readiness-agent
 description: Use after intake to decide whether the data can actually support the user's question. Invoke once per dataset+goal pair before any shaping or method work begins. Returns one of three statuses (ok / narrower / blocked) that dictate whether the pipeline proceeds, narrows scope, or halts to request more data. Do not invoke when the request is a trivial lookup or when readiness has already cleared the current goal.
+model: inherit
+color: yellow
 tools: Read, Bash
 ---
 

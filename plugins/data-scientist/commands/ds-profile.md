@@ -10,7 +10,7 @@ Use the `data-scientist` intake workflow to inspect a dataset without making bus
 ## Required Behavior
 
 1. Identify file type, file size, sheets/tables, columns, row counts, and sample records.
-2. Use `skills/analysis-workflow/scripts/profile_dataset.py` for supported local files.
+2. Use `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/profile_dataset.py` for supported local files.
 3. Infer candidate field roles: target, time, entity id, group, process parameter, and outcome label.
 4. Flag data-quality risks that could block later analysis.
 

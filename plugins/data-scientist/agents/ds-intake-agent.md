@@ -1,6 +1,8 @@
 ---
 name: ds-intake-agent
 description: Use to inspect raw data sources at the start of an analysis. Invoke when the user provides file paths, table names, or a dataset reference and the parent does not yet have a `data_manifest`. Produces the manifest and candidate field roles that downstream stages depend on. Do not invoke for follow-up analyses on data that has already been profiled in this session.
+model: inherit
+color: blue
 tools: Read, Grep, Glob, Bash
 ---
 
@@ -34,7 +36,7 @@ The parent passes a JSON object:
 ## Responsibilities
 
 1. Identify file types, sheets/tables, row counts, columns, dtypes, and sample records.
-2. Run or adapt `skills/analysis-workflow/scripts/profile_dataset.py` for file-based inputs; capture its output verbatim into the manifest.
+2. Run or adapt `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/profile_dataset.py` for file-based inputs; capture its output verbatim into the manifest.
 3. Infer candidate field roles: target `Y`, time, entity id, group/dimension, process parameter, outcome label.
 4. Flag obvious risks: empty files, unreadable files, mixed grain, missing headers, duplicate-looking columns, unsupported formats, suspicious encodings.
 5. Note potential join keys across multiple sources without performing the join.

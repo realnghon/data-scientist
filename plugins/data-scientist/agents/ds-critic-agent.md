@@ -1,6 +1,8 @@
 ---
 name: ds-critic-agent
 description: Use after execution produces an evidence_matrix and before the report stage. Challenges claims, flags unsupported conclusions, confounds, leakage, and method mismatches. May be invoked on a partial evidence_matrix to give early feedback while remaining execution methods finish. If it returns recommended_revisions, the parent must loop back to method-planner or execution before reporting.
+model: inherit
+color: red
 tools: Read, Bash
 ---
 

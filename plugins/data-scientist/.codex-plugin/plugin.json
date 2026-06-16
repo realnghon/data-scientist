@@ -1,31 +1,34 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "data-scientist",
+  "displayName": "Data Scientist",
   "version": "1.0.0",
-  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, and evidence-backed reporting.",
+  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
+  "author": {
+    "name": "realnghon",
+    "url": "https://github.com/realnghon"
+  },
+  "homepage": "https://github.com/realnghon/data-scientist",
+  "repository": "https://github.com/realnghon/data-scientist",
   "license": "MIT",
+  "skills": "./skills/",
+  "commands": "./commands/",
+  "agents": [
+    "./agents/ds-intake-agent.md",
+    "./agents/ds-readiness-agent.md",
+    "./agents/ds-shaping-agent.md",
+    "./agents/ds-method-planner-agent.md",
+    "./agents/ds-execution-agent.md",
+    "./agents/ds-critic-agent.md",
+    "./agents/ds-report-agent.md"
+  ],
   "keywords": [
     "data-science",
     "statistics",
     "manufacturing",
-    "analysis"
-  ],
-  "skills": "./skills/",
-  "interface": {
-    "displayName": "Data Scientist",
-    "shortDescription": "Analyze messy data with evidence.",
-    "longDescription": "Data Scientist helps agents inspect structured data, assess readiness, reshape tables, choose statistical and manufacturing analysis methods, execute reproducible code, and produce evidence-backed conclusions with charts and caveats.",
-    "developerName": "Data Scientist Plugin Maintainers",
-    "category": "Productivity",
-    "capabilities": [
-      "Interactive",
-      "Read",
-      "Write"
-    ],
-    "defaultPrompt": [
-      "Use $data-scientist to inspect my dataset and produce an analysis plan.",
-      "Use $data-scientist to analyze which factors affect my target metric.",
-      "Use $data-scientist to assess whether this manufacturing dataset can support a quality analysis."
-    ],
-    "screenshots": []
-  }
+    "analysis",
+    "charts",
+    "skills",
+    "agents"
+  ]
 }

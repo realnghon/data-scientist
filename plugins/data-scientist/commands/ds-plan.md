@@ -10,7 +10,7 @@ Use the `data-scientist` method-planning workflow to turn a profiled dataset and
 ## Required Behavior
 
 1. Confirm the target metric `Y`, analysis grain, and allowed analysis scope.
-2. Read `references/method-registry.md`, `references/data-readiness.md`, and relevant domain playbooks.
+2. Read `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md`, `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/data-readiness.md`, and relevant domain playbooks.
 3. Choose methods by purpose, data type, assumptions, and business usefulness.
 4. Record rejected methods and why they are weaker or invalid.
 5. Include cross-checks for important claims.

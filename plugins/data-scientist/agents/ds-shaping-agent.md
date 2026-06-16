@@ -1,6 +1,8 @@
 ---
 name: ds-shaping-agent
 description: Use after readiness clears (status ok or narrower) and before method planning. Designs one or more analysis-ready views (raw, group-summary, time-window, long/wide pivots) and writes them to disk. Invoke once per analysis goal; the parent may fan out shaping calls in parallel if multiple disjoint views are needed (e.g. batch-level and time-bucketed). Skip when the source is already analysis-ready at the unit declared by readiness.
+model: inherit
+color: cyan
 tools: Read, Bash, Write, Edit
 ---
 

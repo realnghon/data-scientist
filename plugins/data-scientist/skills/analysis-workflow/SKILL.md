@@ -1,5 +1,6 @@
 ---
 name: data-scientist
+version: 1.0.0
 description: Interactive data science analysis for messy structured datasets (CSV, Excel, Parquet, JSON, SQL results). Use when the user wants to inspect or profile a data file, judge whether the data can answer a business question, reshape long/wide tables, choose a defensible statistical, manufacturing, hypothesis-testing, modeling, or charting method, run the analysis, or get evidence-backed conclusions with charts and data-quality feedback. Typical triggers — analyze this dataset, why did yield or defect rate change, what drives a metric, is the difference significant, is this data good enough, run an A/B test, SPC or Cpk or control chart, find anomalies.
 ---
 

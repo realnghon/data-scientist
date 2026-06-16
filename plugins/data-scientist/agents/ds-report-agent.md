@@ -1,6 +1,8 @@
 ---
 name: ds-report-agent
 description: Use as the final stage after the critic returns without recommended_revisions (status ok). Produces the user-facing markdown report with executive answer, evidence matrix, charts, limitations, and next actions. Do not invoke before the critic has cleared the evidence_matrix, and do not invoke in parallel with any other stage.
+model: inherit
+color: white
 tools: Read, Write, Edit
 ---
 

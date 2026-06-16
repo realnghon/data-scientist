@@ -10,7 +10,7 @@ Use the `data-scientist` skill to run a full analysis workflow on the user's dat
 ## Required Behavior
 
 1. Identify the dataset source and user goal.
-2. Load `skills/analysis-workflow/SKILL.md` and follow its workflow.
+2. Load `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/SKILL.md` and follow its workflow.
 3. Start with intake and readiness; do not jump directly to modeling or hypothesis tests.
 4. Ask no more than 5 human questions. Ask only when the answer materially changes the analysis.
 5. Produce an analysis plan before executing non-trivial analysis code.

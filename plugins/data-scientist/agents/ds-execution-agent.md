@@ -1,6 +1,8 @@
 ---
 name: ds-execution-agent
 description: Use to execute one (or more) methods from an approved analysis_plan. Writes reproducible code, runs it, and saves tables/charts. The parent should dispatch ONE execution sub-agent per independent method when the plan is marked parallelizable. Do not invoke without an analysis_plan; do not let this agent invent new methods.
+model: inherit
+color: purple
 tools: Read, Bash, Write, Edit
 ---
 
