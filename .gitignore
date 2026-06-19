@@ -66,3 +66,12 @@ darwin-results/
 skills-lock.json
 .agents/
 evals/.runs/
+
+# Internal dev infrastructure — kept local, never published (history cleaned 2026-06-19).
+# These power local eval/test/iteration but end-users of the plugin don't need them.
+/evals/
+/tests/
+/pyrightconfig.json
+/requirements-dev.txt
+/scripts/sync_skill.sh
+/.github/workflows/test.yml
