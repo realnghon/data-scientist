@@ -5,7 +5,6 @@
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
   <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
-  <img alt="Tests" src="https://img.shields.io/badge/tests-248%20passed-brightgreen.svg">
   <img alt="Platforms" src="https://img.shields.io/badge/platforms-Claude%20%7C%20Cursor%20%7C%20Codex%20%7C%20%2B5-7c3aed.svg">
 </p>
 
@@ -25,7 +24,7 @@ Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks i
 - 8-dimension data quality check before analysis (blocks if data is insufficient)
 - 3-tier evidence framework (separates reliable findings from directional signals)
 - Manufacturing-grade methods (SPC, MSA, DOE, interaction effects)
-- Validated on 3 comprehensive test cases with two-line scoring (process adherence + outcome quality)
+- Tested statistical helpers (bootstrap/BCa CIs, log-rank, Weibull MLE, Welch ANOVA, Cp/Cpk) with explicit assumption checks
 
 ---
 
@@ -78,7 +77,6 @@ Supports Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, 
 - **11 method families** — regression, A/B tests, SPC, time series, correlation, survival analysis, etc.
 - **8 data quality gates** — sample size, missingness, grain, leakage, balance, measurement reliability
 - **21 chart functions** — ready-made plots for all analysis types (no hand-written matplotlib)
-- **3 evaluation cases** — manufacturing, business, time series (scored on process adherence + outcome quality)
 
 ---
 
@@ -102,18 +100,15 @@ intake → readiness check → data shaping → method selection → execution �
 
 ## Development
 
-```bash
-# Run tests
-npm test
+The plugin's Python helpers live under `plugins/data-scientist/skills/analysis-workflow/scripts/`.
 
-# Profile a dataset (no AI in the loop)
+```bash
+# Profile a dataset (deterministic, no AI in the loop)
 python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py data.csv
 
-# Install with Excel/Parquet support
+# Install the helpers locally with Excel/Parquet support
 pip install -e ".[io]"
 ```
-
-**Evaluation**: 3 comprehensive test cases covering manufacturing (multi-table root cause), business analytics (A/B test with Simpson's paradox), and time series (anomaly + seasonality). Scored on two independent lines — `process_score` (deterministic workflow-adherence) and `outcome_score` (agent-judge conclusion quality) — compared as before/after distributions to drive skill iteration. See [`evals/`](evals/) for methodology.
 
 ## Plugin Contents
 

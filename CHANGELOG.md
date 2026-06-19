@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [2.2.0] - 2026-06-19
+
+### 🐛 Fixed — statistical correctness (plugin helpers)
+- **regression**: the Anderson-Darling normality p-value was inverted in its interpolation branch on large samples; ridge/lasso now standardize features before fitting (scale-fair L1/L2 penalty, coefficients back-transformed to original units); the residual "influential observations" output is relabeled to reflect that leverage is approximated as uniform.
+- **classification**: logistic `feature_importance` now uses standardized-coefficient magnitude (|β|·sd) so it reflects predictive contribution rather than a feature's measurement unit.
+- **ab_validator**: pairwise effect-size CIs for 3+ arms carry a Bonferroni adjustment + warning; the mean-difference CI uses Student's t (Welch–Satterthwaite dof) instead of the normal approximation.
+- **spc**: control-chart run-rule zones derive σ from the wider control-limit half-width, so a clamped p-chart limit no longer distorts Western Electric / Nelson zones.
+- **caching**: the cache key now hashes full content (previously only the first/last three rows, which could silently return one dataset's cached result for a different dataset).
+
+### 🧹 Removed
+- Internal development infrastructure (`evals/` evaluation harness, `tests/` unit suite, dev-only configs) is no longer published in this repo — end users of the plugin don't need it. It remains in local development only.
+
+---
+
 ## [2.1.0] - 2026-06-14
 
 ### 🎯 Evaluation System — Fixed the Scale（修「秤」）

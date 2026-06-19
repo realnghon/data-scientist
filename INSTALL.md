@@ -308,23 +308,15 @@ analyze my dataset.csv
 
 ## Post-Installation
 
-### 1. Run the test suite
+### 1. Verify the install (deterministic, no AI in the loop)
 
 ```bash
 cd data-scientist
-python -m pytest tests/ -v
-```
-
-Expected: **248 passed, 1 skipped** (the skip needs the optional `lifelines` package for survival curves; Excel/Parquet tests now run because `requirements-dev.txt` includes `openpyxl`/`pyarrow`).
-
-### 2. Try the profile script and baseline workflow
-
-```bash
 python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py examples/manufacturing_yield/dataset.csv
 python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py examples/manufacturing_yield/dataset.csv --target yield_pct --output .local/baseline
 ```
 
-### 3. Explore examples
+### 2. Explore examples
 
 ```bash
 # Install chart + notebook dependencies
@@ -388,16 +380,9 @@ export PYTHONPATH="$PWD/plugins/data-scientist/skills/analysis-workflow/scripts:
 # Reinstall with exact versions
 pip install -r requirements.txt --force-reinstall
 
-# Or install dev dependencies
-pip install -r requirements-dev.txt
+# Or install with Excel/Parquet + chart extras
+pip install -e ".[io,viz]"
 ```
-
-### Issue: Tests fail on Windows
-
-**Solution**:
-- Some tests use Unix-style paths. This is a known issue.
-- Core functionality works; test failures are cosmetic.
-- Run: `pytest tests/ -k "not path"` to skip path-related tests.
 
 ---
 

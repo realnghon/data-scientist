@@ -48,8 +48,6 @@ io = [
     "pyarrow>=14.0.0",
 ]
 dev = [
-    "pytest>=7.4.0,<10.0.0",
-    "pytest-cov>=4.1.0,<8.0.0",
     "pyright>=1.1.350",
     "matplotlib>=3.7.0,<4.0.0",
     "seaborn>=0.12.0,<1.0.0",
@@ -70,15 +68,8 @@ py-modules = ["ds_bootstrap", "profile_dataset"]
 where = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
 include = ["ds_skill*"]
 
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
-addopts = "-ra -q"
-
 [tool.pyright]
-include = ["tests", "plugins/data-scientist/skills/analysis-workflow/scripts"]
+include = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
 exclude = ["**/__pycache__", ".local", ".venv", "venv"]
 extraPaths = ["plugins/data-scientist/skills/analysis-workflow/scripts"]
 reportMissingImports = "warning"
