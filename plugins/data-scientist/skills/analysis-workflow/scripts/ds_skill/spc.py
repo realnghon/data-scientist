@@ -432,14 +432,18 @@ def u_chart(
 def _zones(chart: ControlChart) -> tuple[float, float, float] | None:
     """Return (sigma_1, sigma_2, sigma_3) widths around the centerline.
 
-    The classic SPC 3-sigma limits split the band into three equal zones.
-    A sigma estimate must be available; we derive it from
-    (UCL - center_line) / 3 if not explicitly provided.
+    The classic SPC 3-sigma limits split the band into three equal zones. We
+    derive sigma from the 3-sigma half-width of the limits. p/c/u charts clamp
+    one limit (UCL at 1.0, LCL at 0), which would shrink that side's half-width
+    and distort the zones — so we take the *wider* of the two halves, which on a
+    clamped chart is the unclamped (correct) side and on a symmetric chart is
+    either. (X-bar carries within-subgroup sigma in ``chart.sigma``, not the
+    plotted-mean SE, so the limits — not ``chart.sigma`` — are the right source.)
     """
 
     if chart.ucl is None or chart.lcl is None:
         return None
-    half = (chart.ucl - chart.center_line)
+    half = max(chart.ucl - chart.center_line, chart.center_line - chart.lcl)
     if not np.isfinite(half) or half <= 0:
         return None
     sigma = half / 3.0

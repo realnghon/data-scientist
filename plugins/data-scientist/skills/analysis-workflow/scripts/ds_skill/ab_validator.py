@@ -131,13 +131,22 @@ def effect_size_with_ci(
         mean_b = float(np.mean(b_arr))
         var_a = float(np.var(a_arr, ddof=1))
         var_b = float(np.var(b_arr, ddof=1))
+        n_a, n_b = len(a_arr), len(b_arr)
         diff = mean_b - mean_a
         # Welch SE
-        se = math.sqrt(var_a / len(a_arr) + var_b / len(b_arr))
-        ci = (diff - z * se, diff + z * se)
+        se = math.sqrt(var_a / n_a + var_b / n_b)
+        # Use the t distribution with Welch-Satterthwaite dof (not z) so small
+        # samples get correctly-wider CIs; t -> z as dof grows.
+        if se > 0:
+            dof = (var_a / n_a + var_b / n_b) ** 2 / (
+                (var_a / n_a) ** 2 / max(n_a - 1, 1) + (var_b / n_b) ** 2 / max(n_b - 1, 1)
+            )
+            crit = float(stats.t.ppf(0.5 + confidence / 2.0, dof))
+        else:
+            crit = z
+        ci = (diff - crit * se, diff + crit * se)
 
         # Cohen's d (pooled SD)
-        n_a, n_b = len(a_arr), len(b_arr)
         pooled = math.sqrt(((n_a - 1) * var_a + (n_b - 1) * var_b) / (n_a + n_b - 2))
         cohens_d = (diff / pooled) if pooled > 0 else float("nan")
 
@@ -294,6 +303,19 @@ def validate_ab_test(
             summary[str(arm)] = {"n": int(len(vals))}
 
     arms = sorted(summary.keys())
+    # With >2 arms there are k(k-1)/2 pairwise comparisons; reading each at the
+    # nominal 95% inflates the family-wise error rate. Apply a Bonferroni
+    # adjustment to the per-comparison confidence so the family-wise alpha stays
+    # at 0.05, and flag it so the interpretation (CI-excludes-zero) is honest.
+    n_pairs = len(arms) * (len(arms) - 1) // 2
+    pair_confidence = 0.95
+    if n_pairs > 1:
+        pair_confidence = 1.0 - 0.05 / n_pairs
+        warnings_.append(
+            f"{n_pairs} pairwise arm comparisons; CIs use Bonferroni-adjusted "
+            f"confidence {pair_confidence:.4f} (family-wise alpha 0.05). "
+            "Do not read any single pair at the nominal 95%."
+        )
     effect_sizes: list[dict] = []
     if is_numeric:
         metric = "proportion" if is_binary else "mean"
@@ -302,7 +324,7 @@ def validate_ab_test(
                 a_arr = pd.to_numeric(sub.loc[sub[group_col].astype(str) == a, outcome_col], errors="coerce").to_numpy()
                 b_arr = pd.to_numeric(sub.loc[sub[group_col].astype(str) == b, outcome_col], errors="coerce").to_numpy()
                 try:
-                    eff = effect_size_with_ci(a_arr, b_arr, metric=metric)
+                    eff = effect_size_with_ci(a_arr, b_arr, metric=metric, confidence=pair_confidence)
                     eff["arm_a"] = a
                     eff["arm_b"] = b
                     effect_sizes.append(eff)

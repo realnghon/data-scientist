@@ -276,7 +276,12 @@ def fit_classifier(
         if method == "logistic":
             coef = getattr(model, "coef_", None)
             if coef is not None:
-                imp = np.mean(np.abs(coef), axis=0)
+                # Scale by each feature's train-fold std so the importance is the
+                # standardized-coefficient magnitude (|beta_j| * sd(x_j)). Raw
+                # |beta_j| on unstandardized features ranks by measurement unit,
+                # not predictive contribution.
+                feat_std = np.asarray(X[train_idx].std(axis=0), dtype=float)
+                imp = np.mean(np.abs(coef), axis=0) * feat_std
                 feature_importance_sum += imp
                 importance_folds += 1
         else:

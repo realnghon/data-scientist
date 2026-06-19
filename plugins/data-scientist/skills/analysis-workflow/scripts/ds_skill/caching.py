@@ -21,11 +21,49 @@ import pickle
 from pathlib import Path
 from typing import Any, Callable, TypeVar
 
+import numpy as np
+import pandas as pd
+from pandas.util import hash_pandas_object
+
 F = TypeVar('F', bound=Callable[..., Any])
 
 
+def _fingerprint(obj: Any) -> Any:
+    """Content-based, JSON-stable fingerprint of a single argument.
+
+    DataFrames / Series are hashed over their FULL contents and ndarrays over
+    their full bytes. (The previous head/tail-of-3 sketch collided whenever two
+    datasets shared their first and last rows — e.g. same shape, different middle
+    — silently returning one dataset's cached statistic for another.) Anything
+    else is returned as-is for ``json.dumps(default=str)`` to render.
+    """
+    if isinstance(obj, pd.DataFrame):
+        row_hash = hash_pandas_object(obj, index=True).to_numpy()
+        return {
+            'type': 'DataFrame',
+            'shape': list(obj.shape),
+            'columns': [str(c) for c in obj.columns],
+            'content': hashlib.sha256(np.ascontiguousarray(row_hash).tobytes()).hexdigest(),
+        }
+    if isinstance(obj, pd.Series):
+        row_hash = hash_pandas_object(obj, index=True).to_numpy()
+        return {
+            'type': 'Series',
+            'name': str(obj.name),
+            'content': hashlib.sha256(np.ascontiguousarray(row_hash).tobytes()).hexdigest(),
+        }
+    if isinstance(obj, np.ndarray):
+        return {
+            'type': 'ndarray',
+            'shape': list(obj.shape),
+            'dtype': str(obj.dtype),
+            'content': hashlib.sha256(np.ascontiguousarray(obj).tobytes()).hexdigest(),
+        }
+    return obj
+
+
 def _hash_args(*args: Any, **kwargs: Any) -> str:
-    """Create a stable hash of function arguments.
+    """Create a stable, content-aware hash of function arguments.
 
     Args:
         *args: Positional arguments
@@ -34,35 +72,9 @@ def _hash_args(*args: Any, **kwargs: Any) -> str:
     Returns:
         Hex digest of the arguments
     """
-    # Convert args to a stable representation
-    # For DataFrames, use shape + column names + first/last few rows
-    stable_repr = []
-
-    for arg in args:
-        if hasattr(arg, 'shape') and hasattr(arg, 'columns'):
-            # Likely a DataFrame
-            stable_repr.append({
-                'type': 'DataFrame',
-                'shape': arg.shape,
-                'columns': list(arg.columns),
-                'head': arg.head(3).to_dict(),
-                'tail': arg.tail(3).to_dict(),
-            })
-        else:
-            stable_repr.append(arg)
-
+    stable_repr: list[Any] = [_fingerprint(arg) for arg in args]
     for key, value in sorted(kwargs.items()):
-        if hasattr(value, 'shape') and hasattr(value, 'columns'):
-            stable_repr.append({
-                'key': key,
-                'type': 'DataFrame',
-                'shape': value.shape,
-                'columns': list(value.columns),
-                'head': value.head(3).to_dict(),
-                'tail': value.tail(3).to_dict(),
-            })
-        else:
-            stable_repr.append({key: value})
+        stable_repr.append({key: _fingerprint(value)})
 
     # Hash the JSON representation
     json_repr = json.dumps(stable_repr, sort_keys=True, default=str)
@@ -76,6 +88,10 @@ def cached_computation(
     verbose: bool = False,
 ) -> Callable[[F], F]:
     """Decorator to cache expensive computations to disk.
+
+    Security note: cache entries are loaded with ``pickle``, which executes
+    arbitrary code on unpickling. Only point ``cache_dir`` at a location you
+    trust (not a world-writable or shared directory).
 
     Args:
         cache_dir: Directory to store cache files

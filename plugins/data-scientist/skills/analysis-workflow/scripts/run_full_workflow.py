@@ -172,9 +172,18 @@ def run_workflow(
                 }
                 for r in results
             ]
-            # Derive a simple driver ranking from correlation results
+            # Derive a driver ranking from correlation results, keeping only the
+            # single strongest method per feature so the same feature isn't
+            # double-counted across pearson / spearman / mutual_info rows.
+            best_per_feature: dict[str, dict[str, Any]] = {}
+            for r in correlation_rows:
+                if r["effect_strength"] is None:
+                    continue
+                current = best_per_feature.get(r["feature"])
+                if current is None or r["effect_strength"] > current["effect_strength"]:
+                    best_per_feature[r["feature"]] = r
             scored = sorted(
-                [r for r in correlation_rows if r["effect_strength"] is not None],
+                best_per_feature.values(),
                 key=lambda r: r["effect_strength"],
                 reverse=True,
             )

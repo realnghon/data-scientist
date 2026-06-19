@@ -296,6 +296,16 @@ def _fit_regularized(
 
     LinearRegression, Ridge, RidgeCV, Lasso, LassoCV = _lazy_sklearn()
 
+    # Ridge/Lasso penalties are scale-sensitive: a feature measured in large
+    # units is barely penalized while a small-unit feature is over-shrunk, and
+    # the CV-selected alpha shifts with the units. Standardize the design (and
+    # run CV) on the z-scored scale, then back-transform the coefficients to
+    # original units so predictions and returned coefficients stay interpretable.
+    mu = X.mean(axis=0)
+    sigma = X.std(axis=0, ddof=0)
+    sigma_safe = np.where(sigma > 0, sigma, 1.0)
+    X_std = (X - mu) / sigma_safe
+
     if isinstance(alpha, (list, tuple, np.ndarray)):
         alphas = list(alpha)
         if len(alphas) == 0:
@@ -304,7 +314,7 @@ def _fit_regularized(
             model = RidgeCV(alphas=alphas, cv=cv_folds)
         else:
             model = LassoCV(alphas=alphas, cv=cv_folds, max_iter=10000)
-        model.fit(X, y)
+        model.fit(X_std, y)
         alpha_used = float(model.alpha_)
     else:
         if alpha <= 0:
@@ -313,20 +323,22 @@ def _fit_regularized(
             model = Ridge(alpha=float(alpha))
         else:
             model = Lasso(alpha=float(alpha), max_iter=10000)
-        model.fit(X, y)
+        model.fit(X_std, y)
         alpha_used = float(alpha)
 
-    # scikit-learn's linear predict is a matmul; suppress spurious matmul
-    # warnings on ill-conditioned designs (the fit itself already succeeded).
-    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
-        fitted = model.predict(X)
-    resid = y - fitted
     coef = model.coef_
     if coef is None:
         raise RuntimeError("Regularized model was fitted without coefficients.")
-    coef_array = np.asarray(coef, dtype=float)
+    coef_std = np.asarray(coef, dtype=float)
+    # Back-transform: beta_orig_j = beta_std_j / sigma_j (a zero coefficient
+    # stays exactly zero, so Lasso sparsity is preserved); the intercept absorbs
+    # the centering term. The fitted values equal model.predict(X_std).
+    coef_array = coef_std / sigma_safe
+    intercept = float(model.intercept_) - float(np.sum(coef_std * mu / sigma_safe))
     coefficients = {feats[i]: float(coef_array[i]) for i in range(k)}
-    intercept = float(model.intercept_)
+    with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+        fitted = X @ coef_array + intercept
+    resid = y - fitted
     r2 = _r_squared(y, fitted)
     adj_r2 = _adj_r_squared(r2, n, k)
     vif = _vif(X, feats)
@@ -472,8 +484,11 @@ def residual_diagnostics(
             elif stat > crits.max():
                 norm_p = float(sig_levels.min())
             else:
-                # linear interpolation
-                norm_p = float(np.interp(stat, crits, sig_levels[::-1]))
+                # Linear interpolation. Anderson-Darling critical values are
+                # ascending and map to DESCENDING significance levels (a larger
+                # statistic == stronger evidence against normality == smaller p),
+                # so np.interp pairs ascending ``crits`` with ``sig_levels`` as-is.
+                norm_p = float(np.interp(stat, crits, sig_levels))
         except Exception:
             norm_p = float("nan")
 
@@ -498,14 +513,15 @@ def residual_diagnostics(
         homo_flag = False
         lin_flag = False
 
-    # Influence: Cook's distance approximation
-    # Standardized residual^2 / k / (1 - h_ii) approximated by using leverage = mean
-    # Simpler proxy: scaled squared residual
+    # Influence proxy: the result does not carry the design matrix X, so true
+    # per-observation leverage h_ii is unavailable. We approximate leverage as
+    # uniform ((k+1)/n), which makes this score a function of residual magnitude
+    # only — it flags large-residual points but CANNOT see high-leverage /
+    # small-residual points (the most dangerous influence case). Treat the output
+    # as "large standardized residuals", not a true Cook's distance.
     k = result.n_features
     sigma_hat = float(np.sqrt(np.sum(residuals ** 2) / max(n - k - 1, 1)))
     if sigma_hat > 0:
-        # crude Cook's-like score: r_i^2 / (k+1) / sigma_hat^2 * leverage_factor
-        # without X access we approximate leverage as (k+1)/n (uniform)
         h = (k + 1) / n
         cooks = (residuals ** 2) / ((k + 1) * sigma_hat ** 2) * (h / (1 - h) ** 2 if h < 1 else 1.0)
         threshold = 4.0 / n
@@ -524,7 +540,11 @@ def residual_diagnostics(
     if lin_flag:
         recs.append("Residual mean varies across fitted-value quartiles; relationship may be non-linear.")
     if influential:
-        recs.append(f"{len(influential)} influential observations flagged (Cook's-like > 4/n); inspect them.")
+        recs.append(
+            f"{len(influential)} observations with large standardized residuals "
+            "(approximate; leverage assumed uniform, so high-leverage/low-residual "
+            "points may be missed); inspect them and re-check with full leverage if X is available."
+        )
     if mc_flag:
         recs.append("VIF > 10 on at least one feature; consider ridge or removing collinear features.")
     if not recs:
