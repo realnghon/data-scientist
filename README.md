@@ -1,46 +1,33 @@
-<div align="center">
+# Data Scientist
 
-# 🧪 Data Scientist
+AI skill for structured data analysis — structured data profiling, statistical testing, manufacturing analytics, and evidence-backed reporting.
 
-**AI skill for structured data analysis — from messy CSVs to evidence-backed conclusions**
+*Supports: Claude Code · Cursor · Windsurf · Codex · OpenCode · Cline · GitHub Copilot · Gemini CLI*
 
-<p>
-  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
-  <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+">
-  <img src="https://img.shields.io/badge/platforms-Claude%20%7C%20Cursor%20%7C%20Codex%20%7C%20%2B6-7c3aed.svg" alt="Platforms">
-</p>
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![Platforms](https://img.shields.io/badge/platforms-8%20runtimes-7c3aed)
 
-<p><i>Drop-in data science skill for AI coding assistants</i></p>
+## Overview
 
-</div>
+Give it a CSV, Excel, or Parquet file and a question. The skill profiles the data, checks whether analysis is feasible, selects the appropriate statistical method, runs it, and produces a report with charts, confidence intervals, and a clear statement of limitations.
 
----
-
-## ✨ What it does
-
-Give it a CSV / Excel / Parquet file and a question. It runs a complete analysis pipeline:
-
-```
-📥 Intake → ✅ Readiness check → 🔧 Shaping → 📋 Method plan → ⚙️ Execution 
-→ 🔍 Critic → 📝 Report with charts & CIs
-```
-
-No prompt engineering, no copy-pasting into Jupyter. One command, end-to-end.
+Pipeline: **Intake** → **Readiness** → **Shaping** → **Method selection** → **Execution** → **Critic** → **Report**
 
 ---
 
-## 🎯 Use cases
+## Use cases
 
-| Area | What it can do | Example command |
-|------|---------------|-----------------|
-| 🏭 **Manufacturing** | Yield driver ranking, SPC control charts, Cp/Cpk, defect root cause | `/ds-analyze fab_data.csv --target yield_pct` |
-| 🧪 **A/B Tests** | Multi-metric tradeoffs, SRM check, Simpson's paradox detection | `/ds-analyze experiment.csv --target conversion_rate` |
-| 📈 **Time Series** | Seasonality decomposition, anomaly detection, change-points, trend | `/ds-analyze sensors.csv --target sensor_value` |
-| 🔍 **Root Cause** | Multi-source join & pivot, mechanism tracing, negative reporting | `/ds-analyze orders.csv --target defect_rate` |
+| Area | Description |
+|------|-------------|
+| Manufacturing | Yield driver ranking, SPC control charts, Cp/Cpk, defect root cause, equipment anomaly detection |
+| Experiments | A/B test evaluation (multi-metric tradeoffs, SRM check, effect size ± CI), interaction effects, Simpson's paradox |
+| Time series | Seasonality decomposition, anomaly/change-point detection, trend estimation, stationarity checks |
+| Root cause | Multi-source joins, mechanism tracing, negative reporting (tested-but-rejected claims) |
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
 ### Install
 
@@ -50,123 +37,99 @@ No prompt engineering, no copy-pasting into Jupyter. One command, end-to-end.
 /plugin install data-scientist@data-scientist
 ```
 
-**Works on** Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, Gemini CLI.  
-See [INSTALL.md](INSTALL.md) for per-platform setup.
+See [INSTALL.md](INSTALL.md) for platform-specific setup (Cursor, Windsurf, Codex, OpenCode, Cline, Copilot, Gemini CLI).
 
 ### Run
 
 ```bash
-# Analyze a dataset (Claude Code / Codex)
+# Analyze a dataset
 /ds-analyze examples/manufacturing_yield/dataset.csv
 
-# Or just ask in natural language
+# Or ask in natural language
 "Analyze examples/ab_test/dataset.csv — is treatment better than control?"
 ```
 
 ### Output
 
-> 📊 Data profile → ✅ Readiness assessment → 📋 Analysis plan
-> → ⚙️ Statistical execution → 🖼️ Charts → 📝 Evidence-backed report
+A structured report containing: data profile, readiness assessment, method rationale with rejected alternatives, evidence matrix with effect sizes and confidence intervals, charts, and a 3-tier conclusions section.
 
 ---
 
-## 🧱 Key features
+## Key capabilities
 
-| Feature | What it does for you |
-|---------|---------------------|
-| **8-dimension data quality gates** | Blocks analysis if data is too small, too missing, wrong grain, or has leakage. No more garbage-in-garbage-out. |
-| **3-tier evidence framework** | Separates reliable conclusions (p<0.05, cross-checked, effect size+CI) from directional signals and tested-but-rejected. Never overclaim. |
-| **Manufacturing-grade statistics** | SPC (X-bar/R, I-MR, p/c/u charts, Cp/Cpk/Pp/Ppk, Western Electric & Nelson rules), DOE, interaction effects, Weibull reliability. |
-| **Tested Python helpers** | 17 modules with 248 unit tests — bootstrap BCa CIs, log-rank, Weibull MLE, Welch ANOVA, Benjamini-Hochberg FDR, and more. |
-| **7 staged subagents** | Intake → Readiness → Method planner → Execution → Shaping → Critic → Report. Each role is a dedicated agent with its own system prompt. |
-| **Multi-platform** | Same SKILL.md works on Claude Code, Cursor, Windsurf, Copilot, Codex, OpenCode, Gemini CLI. Zero porting. |
+| Layer | What it does |
+|-------|-------------|
+| Data quality gates | 8-dimension check before any modeling — sample size, missingness, grain, time coverage, balance, leakage, role clarity, measurement reliability. A `blocked` dimension stops analysis and emits a structured `data_request`. |
+| Evidence framework | Three tiers — Tier 1 (p < 0.05, cross-checked, effect size + CI, physically plausible), Tier 2 (signal present but uncertain), Tier 3 (tested but rejected). |
+| Manufacturing statistics | SPC: X-bar/R, I-MR, p/c/u charts, Cp/Cpk/Pp/Ppk, Western Electric rules 1-4, Nelson rules 1-8. Capability analysis, interaction effects. |
+| Statistical helpers | 17 tested Python modules — bootstrap BCa CIs, log-rank test, Weibull MLE with right-censoring, Welch ANOVA, Benjamini-Hochberg FDR, ridge/lasso regression, and more. |
+| Staged subagents | 7 dedicated agents (intake, readiness, method planner, shaper, executor, critic, reporter) with structured handoffs. |
+| Cross-platform | Single SKILL.md works across 8 runtimes without porting. |
 
 ---
 
-## 📦 What's included
+## Package structure
 
 ```
 plugins/data-scientist/
-├── 📜 SKILL.md                          # 285-line analysis workflow
-├── agents/                              # 7 sub-agents (intake → report)
-├── commands/                            # 4 slash commands (/ds-analyze etc.)
-├── references/                          # 12 reference documents
-│   ├── workflow.md                      #    canonical 14-step pipeline
-│   ├── method-registry.md               #    method selection guide
-│   ├── data-readiness.md                #    8-dimension gate rubric
-│   ├── chart-catalog.md                 #    21 chart types
-│   ├── golden-templates.md              #    report structure templates
-│   ├── manufacturing-playbook.md        #    domain-specific guidance
-│   ├── anti-patterns.md                 #    common failures & fixes
-│   └── ...                              #    +5 more
-└── scripts/ds_skill/                    # 17 tested Python modules
-    ├── readiness.py                     #    8-dimension data assessment
-    ├── correlation.py                   #    Pearson / Spearman / MI + BH-FDR
-    ├── regression.py                    #    OLS / Ridge / Lasso + diagnostics
-    ├── ab_validator.py                  #    A/B tests + effect sizes
-    ├── bootstrap.py                     #    BCa / percentile bootstrap
-    ├── spc.py                           #    X-bar/I-MR/p/c/u + Cp/Cpk
-    ├── time_series.py                   #    MK trend / STL / CUSUM
-    ├── classification.py                #    Logistic / RF / GBM
-    ├── survival.py                      #    KM / log-rank / Weibull MLE
-    ├── anomaly.py                       #    IQR / MAD / Isolation Forest
-    └── ...                              #    +7 more
+├── SKILL.md                          Analysis workflow (285 lines)
+├── agents/                           Seven sub-agents
+├── commands/                         Slash commands
+├── references/
+│   ├── workflow.md                   14-step pipeline
+│   ├── method-registry.md            Method selection guide
+│   ├── data-readiness.md             8-dimension gate rubric
+│   ├── chart-catalog.md              21 chart types
+│   ├── manufacturing-playbook.md     Domain guidance
+│   ├── golden-templates.md           Report templates
+│   ├── anti-patterns.md              Failure patterns
+│   └── financial-domain.md           Finance-specific methods
+└── scripts/ds_skill/                 Python helpers (17 modules)
+    ├── readiness.py                  Data quality assessment
+    ├── correlation.py                Pairwise + target-feature correlation
+    ├── regression.py                 OLS, ridge, lasso with diagnostics
+    ├── ab_validator.py               A/B test effect sizes + SRM
+    ├── bootstrap.py                  BCa / percentile bootstrap CIs
+    ├── spc.py                        Control charts + capability indices
+    ├── time_series.py                Trend, STL decomposition, CUSUM
+    ├── classification.py             Logistic, random forest, gradient boosting
+    ├── survival.py                   Kaplan-Meier, log-rank, Weibull fit
+    └── anomaly.py                    IQR, MAD, Isolation Forest
 ```
 
-**11 method families, 21 chart functions, 248 passing tests.**
+11 method families, 21 chart functions, 248 unit tests.
 
 ---
 
-## 🛡️ Safety gates
+## Safety gates
 
-The analysis pipeline has hard stops that prevent bad conclusions:
+Analysis stops or downgrades conclusions when:
 
-1. **🔴 Data too small / too many missing / wrong grain** → Stops analysis, emits structured `data_request`
-2. **🔴 p ≥ 0.05** → Downgraded to "directional signal" — never claimed as reliable
-3. **🔴 Spec limits look wrong** → Measurement reliability flag before proceeding
-4. **🔴 Leakage detected** → Post-outcome / target-derived columns blocked from feature set
-5. **🔴 3-tier evidence** compels the agent to report what was *rejected*, not only what worked
-
----
-
-## 📐 3-tier evidence
-
-| Tier | Label | Requirements | What it means |
-|------|-------|-------------|---------------|
-| **1** | ✅ Reliable conclusion | p < 0.05, cross-checked, effect size + CI, physically plausible | "We're confident" |
-| **2** | 🔶 Directional signal | Signal present but p ≥ 0.05 or assumptions failed | "Worth investigating" |
-| **3** | ⚪ Unsupported | Tested but rejected, or data insufficient | "We checked — no evidence" |
-
-Every conclusion is bucketed. Never overclaimed.
+- Data is too small, too missing, or wrong grain — a structured `data_request` is emitted instead of proceeding.
+- A test has p ≥ 0.05 or failed assumptions — the conclusion is labeled "directional signal", never "reliable".
+- Feature columns contain post-outcome or target-derived data — leakage is flagged and blocked.
+- Spec limits appear implausible — measurement reliability is flagged before any capability analysis.
+- Only positive results are presented — the 3-tier framework compels the agent to report what was tested and rejected.
 
 ---
 
-## 🔧 Development
+## Development
 
 ```bash
 # Profile a dataset (deterministic, no AI)
 python scripts/profile_dataset.py data.csv
 
-# Install helpers locally
+# Install the helpers locally
 pip install -e ".[io]"
 
-# Run tests (requires local dev setup)
+# Run tests
 python -m pytest tests/
 ```
 
 ---
 
-## 📄 License & Contributing
+## License & Contributing
 
 MIT — see [LICENSE](LICENSE).
 
-Issues and PRs welcome. High-leverage contributions:
-- New method entries (GLM, Bayesian methods, survival regression)
-- Domain playbooks (logistics, finance, web analytics)
-- Platform integrations (JetBrains, VS Code)
-
----
-
-<div align="center">
-<i>From CSV to conclusion — one command.</i>
-</div>
+Contributions welcome. High-leverage areas: new method entries (GLM, Bayesian, survival regression), domain playbooks (logistics, finance, web analytics), platform integrations.
