@@ -1,34 +1,46 @@
-<h1 align="center">Data Scientist</h1>
+<div align="center">
 
-<p align="center"><i>AI skill for structured data analysis — from messy CSVs to evidence-backed reports</i></p>
+# 🧪 Data Scientist
 
-<p align="center">
-  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue.svg"></a>
-  <img alt="Python" src="https://img.shields.io/badge/python-3.10%2B-blue.svg">
-  <img alt="Platforms" src="https://img.shields.io/badge/platforms-Claude%20%7C%20Cursor%20%7C%20Codex%20%7C%20%2B5-7c3aed.svg">
+**AI skill for structured data analysis — from messy CSVs to evidence-backed conclusions**
+
+<p>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="Python 3.10+">
+  <img src="https://img.shields.io/badge/platforms-Claude%20%7C%20Cursor%20%7C%20Codex%20%7C%20%2B6-7c3aed.svg" alt="Platforms">
 </p>
 
----
+<p><i>Drop-in data science skill for AI coding assistants</i></p>
 
-## What it does
-
-Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks if analysis is possible, picks the right statistical method, runs it, and produces a report with charts, confidence intervals, and limitations.
-
-**Built for**:
-- Manufacturing analytics (yield drivers, SPC, Cp/Cpk, defect rates)
-- A/B test evaluation (multi-metric tradeoffs, assumption checks)
-- Time series (seasonality, anomaly detection, change-points)
-- Root cause analysis (multi-source joins, Simpson's paradox)
-
-**Key features**:
-- 8-dimension data quality check before analysis (blocks if data is insufficient)
-- 3-tier evidence framework (separates reliable findings from directional signals)
-- Manufacturing-grade methods (SPC, MSA, DOE, interaction effects)
-- Tested statistical helpers (bootstrap/BCa CIs, log-rank, Weibull MLE, Welch ANOVA, Cp/Cpk) with explicit assumption checks
+</div>
 
 ---
 
-## Quick start
+## ✨ What it does
+
+Give it a CSV / Excel / Parquet file and a question. It runs a complete analysis pipeline:
+
+```
+📥 Intake → ✅ Readiness check → 🔧 Shaping → 📋 Method plan → ⚙️ Execution 
+→ 🔍 Critic → 📝 Report with charts & CIs
+```
+
+No prompt engineering, no copy-pasting into Jupyter. One command, end-to-end.
+
+---
+
+## 🎯 Use cases
+
+| Area | What it can do | Example command |
+|------|---------------|-----------------|
+| 🏭 **Manufacturing** | Yield driver ranking, SPC control charts, Cp/Cpk, defect root cause | `/ds-analyze fab_data.csv --target yield_pct` |
+| 🧪 **A/B Tests** | Multi-metric tradeoffs, SRM check, Simpson's paradox detection | `/ds-analyze experiment.csv --target conversion_rate` |
+| 📈 **Time Series** | Seasonality decomposition, anomaly detection, change-points, trend | `/ds-analyze sensors.csv --target sensor_value` |
+| 🔍 **Root Cause** | Multi-source join & pivot, mechanism tracing, negative reporting | `/ds-analyze orders.csv --target defect_rate` |
+
+---
+
+## 🚀 Quick start
 
 ### Install
 
@@ -38,97 +50,123 @@ Give it a CSV/Excel/Parquet file and a question. It profiles your data, checks i
 /plugin install data-scientist@data-scientist
 ```
 
-Supports Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, Gemini CLI. See [INSTALL.md](INSTALL.md) for platform-specific setup and per-runtime installation.
+**Works on** Claude Code, Codex, Cursor, OpenCode, Cline, Windsurf, GitHub Copilot, Gemini CLI.  
+See [INSTALL.md](INSTALL.md) for per-platform setup.
 
 ### Run
 
 ```bash
-# Claude Code / Codex
+# Analyze a dataset (Claude Code / Codex)
 /ds-analyze examples/manufacturing_yield/dataset.csv
 
-# Or just ask
+# Or just ask in natural language
 "Analyze examples/ab_test/dataset.csv — is treatment better than control?"
 ```
 
-**Output**: Data profile → readiness check → method plan → execution → charts → report with limitations.
+### Output
+
+> 📊 Data profile → ✅ Readiness assessment → 📋 Analysis plan
+> → ⚙️ Statistical execution → 🖼️ Charts → 📝 Evidence-backed report
 
 ---
 
-## Use cases
+## 🧱 Key features
 
-**Manufacturing**:
-- Yield driver ranking (which process variables affect output?)
-- SPC control charts (is the line in control? Cpk calculation)
-- Equipment anomaly detection (seasonal patterns, change-points)
-
-**Experiments**:
-- A/B test evaluation (multi-metric tradeoffs, SRM check, effect size + CI)
-- DOE analysis (interaction effects, optimal parameter ranges)
-
-**Operations**:
-- Time series forecasting (decompose seasonality, detect anomalies)
-- Root cause analysis (join multiple data sources, trace mechanisms)
+| Feature | What it does for you |
+|---------|---------------------|
+| **8-dimension data quality gates** | Blocks analysis if data is too small, too missing, wrong grain, or has leakage. No more garbage-in-garbage-out. |
+| **3-tier evidence framework** | Separates reliable conclusions (p<0.05, cross-checked, effect size+CI) from directional signals and tested-but-rejected. Never overclaim. |
+| **Manufacturing-grade statistics** | SPC (X-bar/R, I-MR, p/c/u charts, Cp/Cpk/Pp/Ppk, Western Electric & Nelson rules), DOE, interaction effects, Weibull reliability. |
+| **Tested Python helpers** | 17 modules with 248 unit tests — bootstrap BCa CIs, log-rank, Weibull MLE, Welch ANOVA, Benjamini-Hochberg FDR, and more. |
+| **7 staged subagents** | Intake → Readiness → Method planner → Execution → Shaping → Critic → Report. Each role is a dedicated agent with its own system prompt. |
+| **Multi-platform** | Same SKILL.md works on Claude Code, Cursor, Windsurf, Copilot, Codex, OpenCode, Gemini CLI. Zero porting. |
 
 ---
 
-## What's included
-
-- **1 skill** — 42KB workflow with 8 reference documents and tested helpers
-- **11 method families** — regression, A/B tests, SPC, time series, correlation, survival analysis, etc.
-- **8 data quality gates** — sample size, missingness, grain, leakage, balance, measurement reliability
-- **21 chart functions** — ready-made plots for all analysis types (no hand-written matplotlib)
-
----
-
-## How it works
+## 📦 What's included
 
 ```
-intake → readiness check → data shaping → method selection → execution → critic → report
+plugins/data-scientist/
+├── 📜 SKILL.md                          # 285-line analysis workflow
+├── agents/                              # 7 sub-agents (intake → report)
+├── commands/                            # 4 slash commands (/ds-analyze etc.)
+├── references/                          # 12 reference documents
+│   ├── workflow.md                      #    canonical 14-step pipeline
+│   ├── method-registry.md               #    method selection guide
+│   ├── data-readiness.md                #    8-dimension gate rubric
+│   ├── chart-catalog.md                 #    21 chart types
+│   ├── golden-templates.md              #    report structure templates
+│   ├── manufacturing-playbook.md        #    domain-specific guidance
+│   ├── anti-patterns.md                 #    common failures & fixes
+│   └── ...                              #    +5 more
+└── scripts/ds_skill/                    # 17 tested Python modules
+    ├── readiness.py                     #    8-dimension data assessment
+    ├── correlation.py                   #    Pearson / Spearman / MI + BH-FDR
+    ├── regression.py                    #    OLS / Ridge / Lasso + diagnostics
+    ├── ab_validator.py                  #    A/B tests + effect sizes
+    ├── bootstrap.py                     #    BCa / percentile bootstrap
+    ├── spc.py                           #    X-bar/I-MR/p/c/u + Cp/Cpk
+    ├── time_series.py                   #    MK trend / STL / CUSUM
+    ├── classification.py                #    Logistic / RF / GBM
+    ├── survival.py                      #    KM / log-rank / Weibull MLE
+    ├── anomaly.py                       #    IQR / MAD / Isolation Forest
+    └── ...                              #    +7 more
 ```
 
-**Gates that stop bad analysis**:
-1. If data is too small / too many missing / wrong grain → emits data request, stops analysis
-2. If p ≥ 0.05 → downgrade to "directional signal", never claim reliable
-3. If spec limits look wrong → flag measurement issue before proceeding
-
-**3-tier evidence**:
-- **Tier-1 (reliable)**: p < 0.05, cross-checked, effect size + CI, physically plausible
-- **Tier-2 (directional)**: p ≥ 0.05 or failed assumptions, signal present but uncertain
-- **Tier-3 (no evidence)**: tested but rejected, reported to show what was checked
+**11 method families, 21 chart functions, 248 passing tests.**
 
 ---
 
-## Development
+## 🛡️ Safety gates
 
-The plugin's Python helpers live under `plugins/data-scientist/skills/analysis-workflow/scripts/`.
+The analysis pipeline has hard stops that prevent bad conclusions:
+
+1. **🔴 Data too small / too many missing / wrong grain** → Stops analysis, emits structured `data_request`
+2. **🔴 p ≥ 0.05** → Downgraded to "directional signal" — never claimed as reliable
+3. **🔴 Spec limits look wrong** → Measurement reliability flag before proceeding
+4. **🔴 Leakage detected** → Post-outcome / target-derived columns blocked from feature set
+5. **🔴 3-tier evidence** compels the agent to report what was *rejected*, not only what worked
+
+---
+
+## 📐 3-tier evidence
+
+| Tier | Label | Requirements | What it means |
+|------|-------|-------------|---------------|
+| **1** | ✅ Reliable conclusion | p < 0.05, cross-checked, effect size + CI, physically plausible | "We're confident" |
+| **2** | 🔶 Directional signal | Signal present but p ≥ 0.05 or assumptions failed | "Worth investigating" |
+| **3** | ⚪ Unsupported | Tested but rejected, or data insufficient | "We checked — no evidence" |
+
+Every conclusion is bucketed. Never overclaimed.
+
+---
+
+## 🔧 Development
 
 ```bash
-# Profile a dataset (deterministic, no AI in the loop)
-python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py data.csv
+# Profile a dataset (deterministic, no AI)
+python scripts/profile_dataset.py data.csv
 
-# Install the helpers locally with Excel/Parquet support
+# Install helpers locally
 pip install -e ".[io]"
+
+# Run tests (requires local dev setup)
+python -m pytest tests/
 ```
-
-## Plugin Contents
-
-- One Claude Code skill at `plugins/data-scientist/skills/analysis-workflow/SKILL.md`
-- Seven staged subagents under `plugins/data-scientist/agents/`
-- Four slash commands under `plugins/data-scientist/commands/`
-- Shared references under `plugins/data-scientist/skills/analysis-workflow/references/`
-- Tested Python helpers under `plugins/data-scientist/skills/analysis-workflow/scripts/ds_skill/`
 
 ---
 
-## License
+## 📄 License & Contributing
 
 MIT — see [LICENSE](LICENSE).
 
+Issues and PRs welcome. High-leverage contributions:
+- New method entries (GLM, Bayesian methods, survival regression)
+- Domain playbooks (logistics, finance, web analytics)
+- Platform integrations (JetBrains, VS Code)
+
 ---
 
-## Contributing
-
-Issues and PRs welcome. High-leverage contributions:
-- New method entries (logistic regression, GLM, Bayesian methods)
-- Golden templates for new domains (logistics, finance, web analytics)
-- Platform integrations (JetBrains, VS Code extensions)
+<div align="center">
+<i>From CSV to conclusion — one command.</i>
+</div>
