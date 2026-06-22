@@ -2,17 +2,17 @@
 
 Data Scientist is a production-grade, cross-platform AI plugin for rigorous structured data analysis. Starting with manufacturing analytics, it generalizes to operational datasets across domains with evidence-backed statistical rigor.
 
-**Version:** 1.2.0 | **License:** MIT | **Status:** Production Ready
+**Version:** 2.1.0 | **License:** MIT | **Status:** Production Ready
 
 ## What It Provides
 
 ### Core Components
 
-- **Top-level `data-scientist` skill** — Full-cycle analysis pipeline (intake → readiness → shaping → method planning → execution → critic → report) with 6 non-negotiable quality gates
-- **7 staged subagents** — Autonomous agents for each pipeline stage with precise triggering and clear responsibilities
+- **Top-level `data-scientist` skill** — Router with 6 leading-word gates (_routed_ / _red_ / _ready_ / _planned_ / _rigorous_ / _critiqued_) and progressive disclosure to the canonical 7-stage pipeline
+- **7 staged subagents** — One per pipeline stage with shared envelope contract and stage-specific schemas
 - **4 slash commands** — `/ds-analyze`, `/ds-profile`, `/ds-plan`, `/ds-report` for interactive workflows
 - **Tested Python library** — `ds_skill` with 180+ unit tests, 17 analysis modules, and 21 chart functions
-- **12 reference documents** — Progressive disclosure architecture with method registry, anti-patterns, failure recovery, domain playbooks
+- **15 reference documents** — Lazy-load architecture: workflow SSoT, method registry, anti-patterns, domain playbooks
 
 ### Key Features
 
@@ -77,18 +77,18 @@ The plugin follows a 7-stage quality-gated pipeline:
 6. **Critic** — Challenge claims for weak evidence, leakage, confounds, method mismatches
 7. **Report** — User-facing markdown with executive answer, evidence matrix, limitations
 
-Each stage has a dedicated subagent with precise triggering conditions and clear output contracts.
+Each stage has a dedicated subagent with clear output contracts. The authoritative process definition lives in [`workflow.md`](skills/analysis-workflow/references/workflow.md); `SKILL.md` acts as the router.
 
 ## Quality Standards
 
 ### Non-Negotiable Gates
 
-1. ✅ Route analysis type first (full/profile-only/named-method/one-off/blocked)
-2. ✅ `data_manifest` + `readiness_report` + `analysis_plan` must exist before execution
-3. ✅ `evidence_matrix` + `critique` must exist before final report
-4. ✅ Tier-1 claims require: p < 0.05 + effect size + CI + cross-check agreement
-5. ✅ `readiness = blocked` stops pipeline (no forced conclusions)
-6. ✅ Spec/unit sanity checks before proceeding
+1. ✅ **_routed_** — Route analysis type first (full/profile-only/named-method/one-off/blocked)
+2. ✅ **_red_** — `readiness = blocked` stops pipeline (no forced conclusions)
+3. ✅ **_ready_** — `readiness_report` must exist before shaping or methods
+4. ✅ **_planned_** — `analysis_plan` must exist before execution
+5. ✅ **_rigorous_** — Tier-1 claims require: p < 0.05 + effect size + CI + cross-check agreement
+6. ✅ **_critiqued_** — `critique` must exist before final report
 
 ### Anti-Pattern Protection
 
@@ -117,27 +117,26 @@ See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-wor
 - **[Agent Development](agents/)** — 7 subagent implementations
 - **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 17 Python modules with 180+ tests
 
-## What's New in 1.2.0
+## What's New in 2.1.0
 
-### Enhanced Agent Triggering
-- All 7 agents now have specific user query examples in descriptions
-- "When to invoke" sections with 2-4 concrete usage scenarios
-- Improved autonomous triggering accuracy
+### Structural Refactoring
+- **SKILL.md → router** — No longer embeds the 15-step workflow; delegates to `workflow.md` as the single source of truth
+- **Leading-word gates** — Gates renamed from numbered lists to semantic names: _routed_ / _red_ / _ready_ / _planned_ / _rigorous_ / _critiqued_
+- **Anti-patterns consolidated** — Removed inline anti-pattern tables from 4 documents; unified in `anti-patterns.md`
+- **Multi-agent orchestration simplified** — 8 platform-specific sections → 2 runtime classes (native fan-out vs sequential)
+- **Agent deduplication** — Shared envelope contract extracted to orchestration doc; agents keep only stage-specific schemas
 
-### Better Command Usability
-- Clearer argument hints with `<required>` vs `[optional]` notation
-- Real-world usage examples for all 4 commands
-- Improved discoverability
+### Token Efficiency
+- SKILL.md: 107 → 78 lines (−27%)
+- workflow.md: 241 → 150 lines (−38%)
+- multi-agent-orchestration.md: 290 → 128 lines (−56%)
+- 7 agents: 891 → 572 lines (−36%)
+- Net: −460 lines across 17 files
 
-### Expanded References
-- `anti-patterns.md` — Complete failure mode catalog
-- `failure-recovery.md` — Stage-by-stage recovery strategies
-- `financial-domain.md` — Time series and market data rules
-
-### Quality Improvements
-- SKILL.md optimized (6,591 → 5,661 words, -14%)
-- 100% path portability with `${CLAUDE_PLUGIN_ROOT}`
-- Multi-platform configuration fully synchronized
+### Removed
+- Gate 6 (Spec/unit sanity) — subsumed by readiness measurement_reliability dimension
+- `## Safety` and `## Domain — Financial` sections — covered by lazy-load map
+- Duplicate workflow steps, anti-patterns tables, and platform descriptions
 
 See [`skills/analysis-workflow/SKILL_CHANGELOG.md`](skills/analysis-workflow/SKILL_CHANGELOG.md) for complete version history.
 
