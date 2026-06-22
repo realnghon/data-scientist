@@ -23,13 +23,13 @@ The first line of work is always: `route: <route> — <reason>`. Re-route mid-an
 
 ## Trigger Conditions
 
-| User request pattern | Route | Execute steps | Rationale |
-|---------------------|-------|---------------|-----------|
-| "mean of X", "calculate Y", single stat | one-off | inline answer | No readiness/planning needed |
-| "quick look", "just profile", "先看看数据", "profile 一下" | profile-only | 1-5, skip 6-14 | Data understanding, no claims |
-| "run a t-test on...", explicit method | named-method | 1-5, 7 (assume check), 11-14 | Skip method *selection*, validate assumptions |
-| "全套分析", "analyze this data", "分析数据", "找出影响 Y 的因素" | full | 1-14 | Default: complete workflow |
-| Readiness scores `blocked` on a gating dimension | blocked | 1-5, then `data_request` + stop | Never force conclusions |
+| User request pattern | Route | Stages run | Rationale |
+|---------------------|-------|------------|-----------|
+| "mean of X", "calculate Y", single stat | one-off | inline answer (no stages) | No readiness/planning needed |
+| "quick look", "just profile", "先看看数据", "profile 一下" | profile-only | intake → readiness, then stop | Data understanding, no claims |
+| "run a t-test on...", explicit method | named-method | intake → readiness → shaping → execution → critic → report (skip method planning) | Skip method *selection*, validate assumptions |
+| "全套分析", "analyze this data", "分析数据", "找出影响 Y 的因素" | full | all 7 stages | Default: complete workflow |
+| Readiness scores `blocked` on a gating dimension | blocked | intake → readiness, then `data_request` + stop | Never force conclusions |
 
 ## Boundary Rules
 

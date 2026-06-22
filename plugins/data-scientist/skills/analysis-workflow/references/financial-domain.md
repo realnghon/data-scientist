@@ -1,3 +1,8 @@
+---
+name: financial-domain
+description: Domain rules for financial time series (OHLCV, returns, factors) — returns vs raw price levels, stationarity, target-derived features, spurious correlation. Use when data is stock/crypto/fund/market-factor. Triggers — stock data, returns, OHLCV, price level, factor panel, financial time series.
+---
+
 # Domain Rules — Financial Time Series
 
 When the data is stock / crypto / fund / market-factor data (price columns, OHLCV, tickers, factor panels), apply these specialized rules to avoid common pitfalls in financial data analysis.

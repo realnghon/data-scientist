@@ -11,8 +11,8 @@ Data Scientist is a production-grade, cross-platform AI plugin for rigorous stru
 - **Top-level `data-scientist` skill** — Router with 6 leading-word gates (_routed_ / _red_ / _ready_ / _planned_ / _rigorous_ / _critiqued_) and progressive disclosure to the canonical 7-stage pipeline
 - **7 staged subagents** — One per pipeline stage with shared envelope contract and stage-specific schemas
 - **4 slash commands** — `/ds-analyze`, `/ds-profile`, `/ds-plan`, `/ds-report` for interactive workflows
-- **Tested Python library** — `ds_skill` with 180+ unit tests, 17 analysis modules, and 21 chart functions
-- **15 reference documents** — Lazy-load architecture: workflow SSoT, method registry, anti-patterns, domain playbooks
+- **Tested Python library** — `ds_skill` with 240+ unit tests, 16 analysis modules, and 21 chart functions
+- **16 reference documents** — Lazy-load architecture: workflow SSoT, method registry, anti-patterns, domain playbooks
 
 ### Key Features
 
@@ -113,9 +113,8 @@ See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-wor
 
 ### For Developers
 
-- **[Plugin Structure](../../../docs/plugin-structure.md)** — Architecture and organization
 - **[Agent Development](agents/)** — 7 subagent implementations
-- **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 17 Python modules with 180+ tests
+- **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 16 Python modules with 240+ tests
 
 ## What's New in 2.1.0
 
@@ -138,7 +137,7 @@ See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-wor
 - `## Safety` and `## Domain — Financial` sections — covered by lazy-load map
 - Duplicate workflow steps, anti-patterns tables, and platform descriptions
 
-See [`skills/analysis-workflow/SKILL_CHANGELOG.md`](skills/analysis-workflow/SKILL_CHANGELOG.md) for complete version history.
+See [`../../CHANGELOG.md`](../../CHANGELOG.md) for complete version history.
 
 ## Support
 

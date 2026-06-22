@@ -1,3 +1,8 @@
+---
+name: failure-recovery
+description: Three-step fallback table for stage failures (unreadable file, no target, env/dependency errors, sample collapse, low join match, method rejection, runtime errors, disagreement). Use when a stage hits a wall. Triggers — stage failed, method errored, file won't load, install failed, sample collapsed, what now.
+---
+
 # Failure Modes & Recovery
 
 When a stage hits a wall, do not abort the whole analysis. Each row is a three-step fallback: try the first-line fix, escalate to the fallback, and only then stop with a concrete ask.

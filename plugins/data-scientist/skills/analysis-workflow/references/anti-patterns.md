@@ -1,3 +1,8 @@
+---
+name: anti-patterns
+description: Red-flag blacklist of statistical, causal, data-prep, domain, method, and reporting failure modes, each with a recovery action. Use before finalizing any report or claim. Triggers — is this conclusion safe, sanity check, did I leak, p-value as impact, causal claim, before reporting.
+---
+
 # Anti-Patterns — Red-Flag Blacklist
 
 🚫 These failure modes silently corrupt an analysis. Scan this list before reporting any claim; each maps to a recovery action. If a stakeholder asks for one of these, explain the risk instead of complying silently.

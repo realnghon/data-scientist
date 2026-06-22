@@ -62,7 +62,7 @@ A structured report containing: data profile, readiness assessment, method ratio
 | Data quality gates | 8-dimension check before any modeling — sample size, missingness, grain, time coverage, balance, leakage, role clarity, measurement reliability. A `blocked` dimension stops analysis and emits a structured `data_request`. |
 | Evidence framework | Three tiers — Tier 1 (p < 0.05, cross-checked, effect size + CI, physically plausible), Tier 2 (signal present but uncertain), Tier 3 (tested but rejected). |
 | Manufacturing statistics | SPC: X-bar/R, I-MR, p/c/u charts, Cp/Cpk/Pp/Ppk, Western Electric rules 1-4, Nelson rules 1-8. Capability analysis, interaction effects. |
-| Statistical helpers | 17 tested Python modules — bootstrap BCa CIs, log-rank test, Weibull MLE with right-censoring, Welch ANOVA, Benjamini-Hochberg FDR, ridge/lasso regression, and more. |
+| Statistical helpers | 16 tested Python modules — bootstrap BCa CIs, log-rank test, Weibull MLE with right-censoring, Welch ANOVA, Benjamini-Hochberg FDR, ridge/lasso regression, and more. |
 | Staged subagents | 7 dedicated agents (intake, readiness, method planner, shaper, executor, critic, reporter) with structured handoffs. |
 | Cross-platform | Single SKILL.md works across 8 runtimes without porting. |
 
@@ -72,11 +72,11 @@ A structured report containing: data profile, readiness assessment, method ratio
 
 ```
 plugins/data-scientist/
-├── SKILL.md                          Analysis workflow (285 lines)
+├── SKILL.md                          Router skill (gates + lazy-load map)
 ├── agents/                           Seven sub-agents
 ├── commands/                         Slash commands
 ├── references/
-│   ├── workflow.md                   14-step pipeline
+│   ├── workflow.md                   7-stage pipeline (process SSoT)
 │   ├── method-registry.md            Method selection guide
 │   ├── data-readiness.md             8-dimension gate rubric
 │   ├── chart-catalog.md              21 chart types
@@ -84,7 +84,7 @@ plugins/data-scientist/
 │   ├── golden-templates.md           Report templates
 │   ├── anti-patterns.md              Failure patterns
 │   └── financial-domain.md           Finance-specific methods
-└── scripts/ds_skill/                 Python helpers (17 modules)
+└── scripts/ds_skill/                 Python helpers (16 modules)
     ├── readiness.py                  Data quality assessment
     ├── correlation.py                Pairwise + target-feature correlation
     ├── regression.py                 OLS, ridge, lasso with diagnostics
@@ -97,7 +97,7 @@ plugins/data-scientist/
     └── anomaly.py                    IQR, MAD, Isolation Forest
 ```
 
-11 method families, 21 chart functions, 248 unit tests.
+11 method families, 21 chart functions, 249 unit tests.
 
 ---
 
