@@ -18,6 +18,31 @@ This file tracks major changes to the `data-scientist` skill structure and behav
 
 ---
 
+## [2.1.0] - 2026-06-22
+
+### Changed
+- **SKILL.md 重构为 router**：删除 15 步内嵌流程清单（与 workflow.md 三处重复），改为 Gates + Modes + Pipeline 指针 + Required Artifacts 表 + Lazy Load Map + Human-in-the-Loop。SKILL.md 不再承载流程定义，workflow.md 成为唯一流程 SSoT。107 → 78 行。
+- **Gates 收敛从 6 → 6 但语义重构**：移除制造业偏置的 Gate 6 (Spec/unit sanity，落入 readiness 的 measurement_reliability 维度，属 no-op)；新增 _ready_ / _planned_ / _critiqued_ 三个状态门，把"artifact 必须 exist before next stage"从嵌入式步骤显式化为 gates，与 _routed_ / _red_ / _rigorous_ 一致使用 leading word。
+- **workflow.md 压缩为唯一流程 SSoT**：删除 inline ToC、3-level fallback 表的冗余列、Anti-Patterns 末段（指向 anti-patterns.md）、When To Skip Stages（指向 branch-routing.md）、散落的 parallelization hint 提示。241 → 150 行。
+- **anti-patterns 单一真源化**：data-readiness.md / data-shaping.md / method-registry.md 三处 inline anti-patterns 表全部删除，改为 "Checkpoints" 表 + 指向 anti-patterns.md。
+- **multi-agent-orchestration.md 平台收敛**：8 个平台逐段描述 → 2 类 runtime（Claude Code 原生 fan-out / 其余顺序执行），删除 6 段重复的 sequential 说明。290 → 128 行。
+- **7 个 agent 文档去重**：每个 agent 不再逐字重复完整 envelope 契约（5 个共享键 ×7 = 35 处重复），改为"Stage-specific inputs/produced"+ 指向 multi-agent-orchestration.md 的共享 envelope。description 从啰嗦的"Typical triggers include... See When to invoke section"压缩为单句 leading word 触发式。891 → 572 行。
+
+### Removed
+- SKILL.md Gate 6 (Spec/unit sanity) — 属 readiness measurement_reliability 维度的 no-op 重复。
+- SKILL.md ## Domain — Financial Time Series 段 — 已在 Lazy Load Map 表项覆盖，重复。
+- SKILL.md ## Safety — 记录 transformations/seeds/versions 是默认行为，no-op。
+- SKILL.md ## Anti-Patterns — 与 workflow.md / anti-patterns.md 三重重复，收敛为一行 checkpoint 提示。
+- SKILL.md 15 步 Core Workflow — 与 workflow.md 7 阶段完全重叠。
+- workflow.md inline anti-patterns 段、When To Skip Stages 段。
+- data-readiness.md / data-shaping.md / method-registry.md 内嵌 anti-patterns 表。
+- multi-agent-orchestration.md 6 段单平台 sequential 重复描述、Section 5 完整 worked example（290→128 行瘦身）。
+
+### Fixed
+- agents/*.md 中对 references/ 与 SKILL.md 的相对路径全部错误（写成 `../references/` 实际应为 `../skills/analysis-workflow/references/`），批量修正并通过断链校验。
+
+---
+
 ## [2.0.0] - 2026-06-22
 
 ### Changed

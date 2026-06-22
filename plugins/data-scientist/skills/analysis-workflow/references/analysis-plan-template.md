@@ -5,7 +5,7 @@ description: JSON template for the analysis_plan artifact — method selection l
 
 # Analysis Plan Template
 
-This is the canonical JSON structure for the `analysis_plan` artifact. Every non-trivial analysis must produce one before executing code (Gate 2).
+This is the canonical JSON structure for the `analysis_plan` artifact. Every non-trivial analysis must produce one before executing code (the _planned_ gate in `SKILL.md`).
 
 ## Template
 

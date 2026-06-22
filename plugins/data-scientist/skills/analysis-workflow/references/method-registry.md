@@ -388,19 +388,16 @@ For every important claim, record: primary, alternative(s), cross-check, **rejec
 
 ---
 
-## Anti-Patterns — Method Selection Red Flags
+## Method Selection Checkpoints
 
-🚫 These lead to unreliable or misleading results:
-
-| Anti-pattern | Why it's wrong | Do this instead |
+| Check | Why it matters | Action |
 |---|---|---|
-| **Pick a method by name popularity** ("everyone uses random forest") | Impressive ≠ defensible; data shape and assumptions decide | Use the registry: match purpose + data type + assumption fit first |
-| **Skip assumption checks** (run t-test without checking normality/variance) | Violated assumptions inflate false positives or reduce power | Always check; swap to alternative when assumptions fail (Welch t, Mann-Whitney) |
-| **Single method, no cross-check** | One test can fire on an artifact; no triangulation | Every Tier-1 claim needs a second method agreeing in direction |
-| **Use p-value alone as evidence** | Large N makes trivial effects "significant"; magnitude lost | Always pair p-value with effect size + units + CI |
-| **Apply parametric tests to small/skewed data** (n<20/group, heavy tails) | Parametric CIs assume normality; breaks at low n or skew | Use non-parametric alternative (Mann-Whitney, Kruskal-Wallis, bootstrap CI) |
-| **Force a method when data too sparse** (n<5 per cell, >30% missing on Y) | Any test result is noise, won't replicate | Mark claim `unsupported`; route to descriptive-only or collect more data |
-| **Run multiple tests without FDR correction** | Family-wise error inflates; 1 in 20 tests spuriously significant | Apply BH-FDR adjustment when testing >5 hypotheses (`ds_skill.correlation` does this) |
-| **Choose method by computational ease** ("linear is fast") | Ease ≠ fit; wrong method gives wrong answer fast | Choose by assumptions first; if multiple pass, then pick simpler/faster |
+| **Match purpose + assumptions first** | Popularity is not fit | Choose from this registry by question type, data type, and assumption fit |
+| **Validate assumptions** | Violated assumptions inflate false positives or reduce power | Swap to an alternative when assumptions fail (e.g., Welch t, Mann-Whitney) |
+| **Cross-check every Tier-1 claim** | One method can fire on an artifact | Use a second method agreeing in direction |
+| **Pair p-value with magnitude** | Significance ≠ importance | Report effect size + units + CI |
+| **Use non-parametric alternatives for small/skewed data** | Parametric CIs assume normality | Prefer Mann-Whitney, Kruskal-Wallis, bootstrap CI when n < 20/group or heavy tails |
+| **Mark sparse claims unsupported** | n < 5 per cell or >30% missing on Y makes any test noise | Route to descriptive-only or collect more data |
+| **Correct for multiple tests** | Family-wise error inflates false positives | Apply BH-FDR when testing >5 hypotheses (`ds_skill.correlation` does this) |
 
-When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
+Scan [anti-patterns.md](anti-patterns.md) before finalizing any claim.

@@ -7,7 +7,7 @@ description: Shortcut routing rules for narrow requests — which stages to skip
 
 Not every request needs the full 7-stage pipeline. Route narrow requests directly to save time and context.
 
-## Route Declaration (Gate 1)
+## Route Declaration (the _routed_ gate)
 
 The first line of work is always: `route: <route> — <reason>`. Re-route mid-analysis only if new evidence changes the request shape; record the change.
 

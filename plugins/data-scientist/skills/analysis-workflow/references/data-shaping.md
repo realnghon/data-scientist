@@ -264,21 +264,20 @@ Every view emitted into `analysis_views[]` is the contract for Stage 4 method pl
 
 ---
 
-## Anti-Patterns — Shaping Red Flags
+## Shaping Checkpoints
 
-🚫 These silently corrupt the analysis:
-
-| Anti-pattern | Why it breaks | Do this instead |
+| Check | Why it matters | Action |
 |---|---|---|
-| **Aggregate without recording grain** | Downstream doesn't know unit of analysis | Every view must declare grain explicitly (row=?, entity=?, time=?) |
-| **Join without checking match rate** | Low match rate (<80%) means data loss or key mismatch | Log per-join match rate; <80% triggers investigation |
-| **Drop rows silently** | Sample size collapses, analysis underpowered | Record row count delta for every filter; bounce to readiness if N<20 |
-| **Pivot time into columns** (wide-form) | Breaks time-series analysis, hides trends | Keep time as rows (long-form) unless explicitly needed for cross-tab |
-| **Aggregate away the signal** (group-mean hides within-group variation) | Simpson's paradox, station-level failures hidden | Check within-group before declaring pooled effect |
-| **Impute without documenting** | Changes data, biases estimates | Document every imputation strategy in `analysis_views`; never impute Y |
-| **Join on non-unique keys** (1:N inflation) | Duplicates rows, inflates significance | Validate join keys are unique on at least one side; dedupe or aggregate first |
-| **Mix grains in one table** (unit-level + batch-summary rows) | Aggregations produce wrong results, biased stats | Split by row-type flag, aggregate separately to common grain |
-| **Apply rolling window without lag** (window includes current row) | Leaks future information into features | Use `rolling(window).shift(1)` before aggregation |
-| **Normalize using full-dataset stats** | Test set sees training distribution, overfit | Fit scaler on training fold only, apply (don't refit) to validation/test |
+| **Declare grain explicitly** | Downstream must know the unit of analysis | Every view must state `grain` (row=?, entity=?, time=?) |
+| **Log per-join match rate** | Low match rate means data loss or key mismatch | Investigate if match rate < 80% |
+| **Record row-count delta** | Sample size collapses, analysis underpowered | Bounce to readiness if N < 20 |
+| **Prefer long-form time** | Wide-form breaks time-series analysis | Keep time as rows unless explicitly needed for cross-tab |
+| **Check within-group before pooled effects** | Group-mean hides Simpson's paradox | Verify within-group pattern |
+| **Document every imputation** | Changes data, biases estimates | Record strategy in `analysis_views`; never impute Y |
+| **Validate join-key uniqueness** | 1:N inflation duplicates rows, inflates significance | Ensure at least one side is unique; dedupe or aggregate first |
+| **Use lagged rolling windows** | Window including current row leaks future information | Use `rolling(window).shift(1)` before aggregating features |
+| **Fit scalers on training fold only** | Test set sees training distribution, overfit | Fit on train; apply (don't refit) to validation/test |
 
 When shaping collapses sample size below readiness thresholds, bounce back to Stage 2 with the new N.
+
+Scan [anti-patterns.md](anti-patterns.md) before finalizing any claim.

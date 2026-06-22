@@ -12,7 +12,7 @@ Every claim in a report belongs to exactly one of these tiers. Mixing tiers in o
 
 ### Tier 1: Reliable Conclusions
 
-Minimum bar: Gate 4 in `SKILL.md` (the _rigorous_ gate). Full qualifying criteria below:
+Minimum bar: the _rigorous_ gate in `SKILL.md`. Full qualifying criteria below:
 
 - At least two independent methods (or one method + one cross-check) point the same direction.
 - Assumptions of the method were checked and met (or the method is assumption-light).
