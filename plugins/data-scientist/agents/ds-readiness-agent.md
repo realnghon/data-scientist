@@ -21,6 +21,8 @@ Do not invoke for trivial single-column lookups, or when readiness has already r
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 2](../skills/analysis-workflow/references/workflow.md#stage-2--readiness). The 8-dimension scoring and rollup rules are defined in [data-readiness.md](../skills/analysis-workflow/references/data-readiness.md). The checklist below is this agent's standalone working copy; if it conflicts with those, they win.
+
 1. Define the unit of analysis: one row means what?
 2. Check whether `Y` exists, can be derived, or is missing entirely.
 3. Evaluate missingness, sample size, group balance, time coverage, duplicates, and leakage risks against the chosen `analysis_goal`.

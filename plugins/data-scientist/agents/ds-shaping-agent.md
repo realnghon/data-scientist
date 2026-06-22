@@ -21,6 +21,8 @@ Skip when data is already at the correct grain and shape.
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 3](../skills/analysis-workflow/references/workflow.md#stage-3--shaping). Grain/reshape/leakage detail lives in [data-shaping.md](../skills/analysis-workflow/references/data-shaping.md). The checklist below is this agent's standalone working copy; if it conflicts with those, they win.
+
 1. Decide whether the source table can be analyzed as-is for this goal.
 2. Design one or more analysis views among: raw-row, group-summary, time-window, long-to-wide feature, wide-to-long metric.
 3. For each view, specify: grain, source columns, join order, filters, aggregations, pivot keys, derived columns, and information loss.

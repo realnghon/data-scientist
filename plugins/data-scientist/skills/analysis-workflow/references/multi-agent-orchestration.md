@@ -33,16 +33,7 @@ intake ──→ readiness ──→ shaping ─┼─ shaping ─────�
                                   └────────────────────┘         └──────────────────────┘
 ```
 
-**Can run in parallel:**
-- Intake across disjoint sources (merge manifests after).
-- Shaping of independent views.
-- Execution of methods with empty `depends_on`.
-- Critic claim-by-claim (reconcile sequentially at the end).
-
-**Must stay sequential:**
-- readiness before shaping.
-- method planner before execution.
-- critic before report.
+The graph's parallel/sequential rules are defined once in [workflow.md](workflow.md) → "Parallelization"; this graph is their visual form. Do not restate them here.
 
 ## Runtime classes
 

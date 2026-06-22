@@ -12,12 +12,9 @@ Every claim in a report belongs to exactly one of these tiers. Mixing tiers in o
 
 ### Tier 1: Reliable Conclusions
 
-Minimum bar: the _rigorous_ gate in `SKILL.md`. Full qualifying criteria below:
+Minimum bar: the _rigorous_ gate in `SKILL.md` (significance + cross-check + effect size + CI). Two additional report-tier requirements on top of the gate:
 
-- At least two independent methods (or one method + one cross-check) point the same direction.
-- Assumptions of the method were checked and met (or the method is assumption-light).
-- Effect size is reported and is large enough to be practically meaningful (not just statistically significant).
-- N is adequate for the method's documented minimum (see `method-registry.md`).
+- Method assumptions were checked and met (or the method is assumption-light); N clears the method's documented minimum (see `method-registry.md`).
 - No identified leakage, confound, or sampling bias that the conclusion is sensitive to.
 
 Language: declarative. "Yield differs by line; Line B runs 3.2 pp lower than Line A (95% CI 2.1-4.3 pp, n_A=412, n_B=389, Welch t-test p<0.001, confirmed by Mann-Whitney)."

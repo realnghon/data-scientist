@@ -7,7 +7,7 @@ description: Catalog of statistical and ML methods indexed by analysis purpose (
 
 Catalog of method groups, indexed by analysis purpose. Pick by purpose + data shape + assumption fit, **not** by name. Every important claim must record: primary method, cross-check, rejected alternatives + reason, confidence calibration.
 
-**Each group below ends with a `Reusable helper` line naming a *tested* function — call it instead of re-deriving the statistic.** The helpers live in the `ds_skill` package under `scripts/ds_skill/` (one module per method family, lazy-imported). They already handle the edge cases (small N, censoring, FDR control, singular matrices, non-normality). See SKILL.md → "Make the helpers importable" for the one-time `sys.path` snippet, then `from ds_skill.<module> import <func>`. Every charting helper named here lives in `ds_skill.plotting` (headless matplotlib). When you cite a method in an `analysis_plan`, put its helper in the `helper_ref` field as `ds_skill.<module>.<func>`.
+**Each group below ends with a `Reusable helper` line naming a *tested* function — call it instead of re-deriving the statistic.** The helpers live in the `ds_skill` package under `scripts/ds_skill/` (one module per method family, lazy-imported). They already handle the edge cases (small N, censoring, FDR control, singular matrices, non-normality). See [helper-bootstrap.md](helper-bootstrap.md) for the one-time `sys.path` snippet and environment policy, then `from ds_skill.<module> import <func>`. Every charting helper named here lives in `ds_skill.plotting` (headless matplotlib). When you cite a method in an `analysis_plan`, put its helper in the `helper_ref` field as `ds_skill.<module>.<func>`.
 
 Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness.md](data-readiness.md) supplies the assumption flags that drive accept/reject; [data-shaping.md](data-shaping.md) supplies the analysis view; [chart-catalog.md](chart-catalog.md) maps each chart to a `ds_skill.plotting` function.
 
@@ -18,15 +18,15 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 1. [Group Comparison](#1-group-comparison) — does Y differ across groups?
 2. [Driver Ranking / Feature Importance](#2-driver-ranking--feature-importance) — which X drives Y?
    - [2a. Simpson's Paradox & Interaction Detection](#2a-simpsons-paradox--interaction-detection)
-3. [Correlation / Pairwise Association](#3-correlation--pairwise-association) — relationship strength
+3. [Correlation & Dependency Analysis](#3-correlation--dependency-analysis) — relationship strength
 4. [Time Series — Trend, Seasonality, Change, Anomaly](#4-time-series--trend-seasonality-change-anomaly)
-5. [Hypothesis Tests — A/B, Experiments, NHST](#5-hypothesis-tests--ab-experiments-nhst)
-6. [Regression Modeling — Continuous Y](#6-regression-modeling--continuous-y)
-7. [Classification Modeling — Categorical Y](#7-classification-modeling--categorical-y)
-8. [Survival / Censored-Time Analysis](#8-survival--censored-time-analysis)
-9. [Process Control — SPC, Capability](#9-process-control--spc-capability) — Western Electric 8 rules + Cp/Cpk workflow
-10. [Exploratory — Quick Scans Before Method Selection](#10-exploratory--quick-scans-before-method-selection)
-11. [Method Selection Decision Tree](#method-selection-decision-tree)
+5. [Regression](#5-regression) — continuous Y
+6. [Classification](#6-classification) — categorical Y
+7. [Anomaly / Outlier Detection](#7-anomaly--outlier-detection)
+8. [Survival / Reliability](#8-survival--reliability) — time-to-event with censoring
+9. [Statistical Process Control (SPC)](#9-statistical-process-control-spc) — Nelson run rules + Cp/Cpk workflow
+10. [A/B / Experiment Validation](#10-ab--experiment-validation)
+11. [Bootstrap & Resampling](#11-bootstrap--resampling)
 
 ---
 
@@ -292,7 +292,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 - Drift detection → **EWMA** or **CUSUM** for small shifts.
 - **Out-of-control detection** → Western Electric / Nelson run rules (8 rules, see below).
 
-**Western Electric / Nelson Run Rules** (apply to I-MR, Xbar-R/S charts; fire on violated rule number):
+**Western Electric / Nelson Run Rules** — canonical list (SSOT for run rules; manufacturing-playbook and helper-bootstrap reference this). Apply to I-MR, Xbar-R/S charts. The numbering below matches the `Nelson-1..8` ids emitted by `ds_skill.spc.apply_nelson_rules`; the classic Western Electric subset is `WE-1..4` (= Nelson rules 1, 5, 6, plus "8 consecutive on one side") via `apply_western_electric_rules`. Report violations by id, not bare number:
 1. One point beyond ±3σ from center line (hard limit violation).
 2. **Nine consecutive points on same side of center** (sustained shift).
 3. Six consecutive increasing or decreasing points (trend/drift).
@@ -311,7 +311,7 @@ Cross-references: [workflow.md](workflow.md) Stage 4 calls this; [data-readiness
 
 **Cross-checks:** Western Electric / Nelson run rules (all 8) in addition to ±3σ; capability after confirming stability; histogram with spec lines + normality check (Shapiro-Wilk if n<5000, Anderson-Darling otherwise).
 
-**Simpson paradox check for stratified processes**: When comparing driver effects or A/B results within a manufacturing/service process, **always stratify by the natural blocking variable** (line, shift, operator, machine) and check whether pooled vs stratified conclusions agree. If pooled ranks driver A highest but stratified ranks driver B highest within every stratum → Simpson's paradox, report the stratified result as primary.
+**Simpson paradox check for stratified processes**: always stratify by the natural blocking variable (line, shift, operator, machine) before reporting a pooled effect. Full detection protocol in [§2a](#2a-simpsons-paradox--interaction-detection).
 
 **Confidence calibration:** high if both control limits and ≥2 run rules agree the process is in/out; medium if single-rule violation on a noisy chart; low if rule 7/8 fires alone (often false positive without context).
 

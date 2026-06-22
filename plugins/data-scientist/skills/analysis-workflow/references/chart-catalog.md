@@ -157,9 +157,6 @@ Method groups listed below come from `method-registry.md`. Do not edit that file
 | **Too many lines on one chart** (>5 series) | Overlapping lines become unreadable spaghetti | Use small multiples (faceted panels), one series per panel |
 | **Connecting discrete categories** (line chart for categorical X) | Implies continuity where none exists | Use bar/dot chart for categorical data |
 | **Color without legend** | Reader can't decode color meaning | Always include legend or direct labels on chart elements |
-| **Too many lines on one chart** (>5 series) | Overlapping lines become unreadable spaghetti | Use small multiples (faceted panels), one series per panel |
-| **Connecting discrete categories** (line chart for categorical X) | Implies continuity where none exists | Use bar/dot chart for categorical data |
-| **Color without legend** | Reader can't decode color meaning | Always include legend or direct labels on chart elements |
 
 Pick the chart that exposes the evidence; reject decoration.
 
@@ -247,7 +244,7 @@ Not every chart is optional. Certain analysis types MUST produce a core set of c
 
 #### Classifying Anomalies: Sporadic vs Systematic
 
-When anomalies are detected, classify them by pattern to guide action:
+This is the action/urgency lens; the method-side anomaly typology (isolated spike / level shift / trend change) is in [method-registry.md](method-registry.md) §4. When anomalies are detected, classify them by pattern to guide action:
 
 **Sporadic (偶发)**:
 - **Pattern**: Isolated points or short bursts (<5 consecutive time points for time series; <5% of group for non-time data)

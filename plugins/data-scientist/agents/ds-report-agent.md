@@ -21,6 +21,8 @@ Only invoke after critic clears evidence.
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 7](../skills/analysis-workflow/references/workflow.md#stage-7--report). Section ordering and the report contract live in [report-standard.md](../skills/analysis-workflow/references/report-standard.md). The checklist below is this agent's standalone working copy; if it conflicts with those, they win.
+
 1. Lead with the executive answer — what the analysis found, in one paragraph.
 2. Separate reliable conclusions, directional signals, investigation candidates, and unsupported questions, using the critic's labels verbatim.
 3. Explain method choices in plain language; cite rejected alternatives from the planner.

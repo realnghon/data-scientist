@@ -89,7 +89,7 @@ Supplement the main anti-patterns.md with these financial-specific failures:
 
 ## Integration with Main Workflow
 
-Financial time series analysis follows the same 7-stage workflow (intake → readiness → shaping → method-planner → execution → critic → report), with these domain-specific adaptations:
+Financial time series analysis follows the same pipeline defined in [workflow.md](workflow.md), with these domain-specific adaptations per stage:
 
 1. **Intake**: Identify OHLCV structure, ticker granularity, benchmark availability
 2. **Readiness**: Check for sufficient history (≥2 years recommended), gaps (market holidays OK), survivorship bias

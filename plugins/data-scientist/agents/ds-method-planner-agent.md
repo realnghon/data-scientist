@@ -19,6 +19,8 @@ Choose defensible analysis methods and explicitly reject inappropriate alternati
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 4](../skills/analysis-workflow/references/workflow.md#stage-4--method-planning). The checklist below is this agent's standalone working copy; if it ever conflicts with workflow.md, workflow.md wins.
+
 1. Classify the analysis purpose into one goal type: compare_groups, explain_drivers, monitor_stability, estimate_capability, detect_change, find_anomalies, predict, explore.
 2. Choose a compact method set — typically 1 to 4 methods, never the full registry.
 3. For each method, record: why it answers the question, required assumptions, how to check assumptions, expected outputs, charts, and explicit rejected alternatives with reasons.

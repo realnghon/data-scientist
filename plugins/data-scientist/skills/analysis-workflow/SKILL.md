@@ -55,6 +55,7 @@ Load on demand. Skip references unrelated to the current analysis.
 | [data-readiness.md](references/data-readiness.md) | Building `readiness_report` | Clean curated table; only needs a chart or stat |
 | [data-shaping.md](references/data-shaping.md) | Data needs pivot/melt/aggregation/join | Data arrives in exact analysis grain |
 | [method-registry.md](references/method-registry.md) | Selecting a statistical/ML method | Method fully prescribed by a matched golden template |
+| [advanced-techniques.md](references/advanced-techniques.md) | >2 continuous predictors, categorical noise factors, root-cause tracing, or A/B multi-metric | Single predictor; purely descriptive |
 | [chart-catalog.md](references/chart-catalog.md) | Producing report charts | Pure-text answer; user said "no charts" |
 | [report-standard.md](references/report-standard.md) | Writing `final_report` | Intermediate exploration only |
 | [analysis-plan-template.md](references/analysis-plan-template.md) | Generating `analysis_plan` | One-off or profile-only |

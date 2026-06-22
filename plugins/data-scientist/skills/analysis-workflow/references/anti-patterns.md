@@ -32,7 +32,7 @@
 | 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
 |---|---|---|
 | **Cp/Cpk on an unstable process** | capability on an out-of-control process is a meaningless number | confirm SPC stability first; compute capability on the in-control segment only |
-| **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns (see Domain Rules) |
+| **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns (see [financial-domain.md](financial-domain.md)) |
 | **Refit control/CV limits on the judged data** | circular — the limits always "fit" | hold out a known in-control window / keep train-test separation |
 
 ## Method Selection Failures
@@ -52,7 +52,7 @@
 
 | 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
 |---|---|---|
-| **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (see step 2) |
+| **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (Environment Policy in [helper-bootstrap.md](helper-bootstrap.md)) |
 
 ---
 

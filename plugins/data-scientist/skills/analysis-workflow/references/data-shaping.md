@@ -162,7 +162,7 @@ Always report `join_match_rate = matched_rows / left_rows` in the view metadata.
 
 ## 6. Leakage Points During Shaping
 
-Shaping is where leakage most often slips in. Audit every transform:
+The leakage taxonomy and gating rules live in [data-readiness.md](data-readiness.md) dim 6; this section covers the transform-time slips that introduce it. Audit every transform:
 
 - **Post-outcome columns merged in.** If `Y` is `is_defective`, any column populated by the failure-analysis team after defect detection is leaked. Drop or restrict to pre-`Y` snapshot.
 - **Future timestamps.** Rolling features computed with a window that includes the current row's outcome time. Use a lag: `rolling(window).shift(1)` before any aggregation that feeds `X`.

@@ -8,7 +8,7 @@ When a stage hits a wall, do not abort the whole analysis. Each row is a three-s
 |---|---|---|
 | **File unreadable / wrong encoding** | retry with explicit encoding + delimiter sniff; sample first 1000 rows | return a data-request naming the format needed; do not invent a manifest |
 | **No plausible target `Y`** | propose ranked candidates from column roles; ask once (guided) | fall back to `exploratory` profile-only mode; report what's needed to define `Y` |
-| **Python environment inadequate** | detect active pyenv/conda/venv with `which python` and test key imports (pandas, numpy, scipy); if imports fail, check if `pip install` is available | 🔴 CHECKPOINT: ask user "Install missing packages to the current environment, or create an isolated venv?"; create a venv only on user confirmation (see Environment policy in step 2) |
+| **Python environment inadequate** | detect active pyenv/conda/venv with `which python` and test key imports (pandas, numpy, scipy); if imports fail, check if `pip install` is available | 🔴 CHECKPOINT: ask user "Install missing packages to the current environment, or create an isolated venv?"; create a venv only on user confirmation (see Environment Policy in [helper-bootstrap.md](helper-bootstrap.md)) |
 | **Virtual environment creation fails** | retry with `python3 -m venv .venv` instead of `virtualenv`; check disk space | ask user to manually create environment or use system Python; document chosen fallback in analysis metadata |
 | **Dependency installation fails** | retry with `--no-cache-dir` and `--upgrade pip`; try installing packages individually to isolate the failing one | report missing dependencies + minimal reproduction command; offer to run analysis with available packages only (degraded mode) |
 | **Readiness = blocked** (leakage / sparse / mixed grain) | apply the data-readiness narrowing (drop leaked col, restrict to adequate-N subset) | emit the `data_request` artifact and stop downstream stages — never force a conclusion |
@@ -17,7 +17,7 @@ When a stage hits a wall, do not abort the whole analysis. Each row is a three-s
 | **Every candidate method rejected** | swap to the non-parametric / robust alternative in `method-registry.md` | emit a "method-blocked" note; never run a method whose assumptions fail |
 | **Primary method errors at runtime** | run the registered alternative for that claim | mark the claim `unsupported`, keep other claims; record the failure, don't abort |
 | **Primary and cross-check disagree** | reconcile (confound, Simpson, sample diff) | downgrade to directional signal with the disagreement stated; never silently pick one |
-| **Helper import fails** (`ds_skill` off path) | run the `sys.path` bootstrap in "Make the helpers importable" | fall back to task-specific code and say so; don't skip the analysis |
+| **Helper import fails** (`ds_skill` off path) | run the `sys.path` bootstrap in [helper-bootstrap.md](helper-bootstrap.md) | fall back to task-specific code and say so; don't skip the analysis |
 | **Charts unavailable** (matplotlib/seaborn missing) | `pip install matplotlib seaborn` or `pip install -e ".[viz]"` | deliver text + tables, note charts were skipped and why |
 | **Cleanup blocked** (permission denied on .venv) | try with elevated command or check if directory is in use | skip cleanup for that artifact; warn user about leftover files with manual cleanup command |
 

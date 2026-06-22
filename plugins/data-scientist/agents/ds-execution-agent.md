@@ -21,6 +21,8 @@ Do not invoke without an `analysis_plan`.
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 5](../skills/analysis-workflow/references/workflow.md#stage-5--execution). The checklist below is this agent's standalone working copy; if it ever conflicts with workflow.md, workflow.md wins.
+
 1. For each assigned method, locate its definition in `analysis_plan.methods[]` and the matching view in `analysis_views[]`.
 2. Write or run reproducible Python/R code; prefer `helper_ref` from the plan. Record the helper outcome in `helper_decision`.
 3. Run `analysis_plan.cross_checks[]` and record results in the same `evidence_matrix` entry.

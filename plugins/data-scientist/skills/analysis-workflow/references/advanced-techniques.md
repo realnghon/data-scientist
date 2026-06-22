@@ -14,7 +14,7 @@ When analyzing multiple drivers of a target `Y`:
 1. Check whether pairs of features interact (e.g., temperature × equipment_age, where the effect of temperature depends on equipment age).
 2. Check whether a feature's apparent effect disappears or reverses when controlling for another (Simpson's paradox or confounding).
 
-Methods: fit a model with interaction terms; compare coefficients before and after adding suspected confounders; or stratify by levels of a potential confounder.
+Methods: fit a model with interaction terms; compare coefficients before and after adding suspected confounders; or stratify by levels of a potential confounder. Full Simpson/interaction detection protocol: [method-registry.md](method-registry.md) §2a.
 
 **Trigger condition**: (i) >2 continuous predictors exist, or (ii) correlation/feature-importance rankings show contradictions (e.g., a variable ranks high in RF importance but has no significant univariate correlation). Such contradictions often signal interactions or confounding — investigate explicitly before concluding.
 

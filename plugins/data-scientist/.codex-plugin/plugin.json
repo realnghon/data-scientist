@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "data-scientist",
   "displayName": "Data Scientist",
-  "version": "1.2.0",
+  "version": "2.1.0",
   "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
   "author": {
     "name": "realnghon",

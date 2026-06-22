@@ -19,6 +19,8 @@ Challenge the analysis before the report stage ships. Look for unsupported claim
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 6](../skills/analysis-workflow/references/workflow.md#stage-6--critic). The checklist below is this agent's standalone working copy; if it ever conflicts with workflow.md, workflow.md wins.
+
 1. For each claim implied by `evidence_matrix`, check whether it follows from the data and method used.
 2. Identify overclaiming — especially causal language on observational data.
 3. Cross-check method assumptions against `assumption_check_results`; flag any `fail` or unexamined `warn`.

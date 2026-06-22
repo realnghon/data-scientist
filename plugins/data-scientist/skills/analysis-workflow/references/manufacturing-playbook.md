@@ -62,7 +62,7 @@ Process has ordered observations over time and the question involves stability, 
    - Capability (Cp/Cpk) only for in-control strata
 
 **Example**: If data has columns [timestamp, measurement, line] with lines L1/L2/L3:
-- ✅ Correct: Create 3 separate I-MR charts (one per line), report "L1: in-control, L2: out-of-control (Rule 2 @ samples 501-520), L3: in-control"
+- ✅ Correct: Create 3 separate I-MR charts (one per line), report "L1: in-control, L2: out-of-control (WE-2 @ samples 501-520), L3: in-control"
 - ❌ Wrong: Pool all data → single chart → report "process out-of-control" (hides which line is the problem)
 
 **Skip stratification only if**: (a) ANOVA shows no significant difference (p ≥ 0.05), OR (b) no categorical columns exist, OR (c) user explicitly requests pooled analysis.
@@ -70,19 +70,7 @@ Process has ordered observations over time and the question involves stability, 
 
 ### Special-Cause Rule Sets (apply, do not invent)
 
-Western Electric Rules (classic four):
-
-1. One point beyond 3-sigma.
-2. Two of three consecutive points beyond 2-sigma on the same side.
-3. Four of five consecutive points beyond 1-sigma on the same side.
-4. Eight consecutive points on the same side of centerline.
-
-Nelson Rules (extends to eight) -- add when finer sensitivity is needed:
-
-5. Six points in a row steadily increasing or decreasing.
-6. Fourteen points in a row alternating up and down.
-7. Fifteen points in a row within 1-sigma (stratification warning).
-8. Eight points in a row outside 1-sigma on either side (mixture warning).
+The canonical run-rule list lives in [method-registry.md](method-registry.md) §9 and matches the `WE-1..4` / `Nelson-1..8` ids emitted by `ds_skill.spc`. Apply Western Electric (`WE-1..4`) by default; add the full Nelson set (`Nelson-1..8`) when finer sensitivity is needed. Report violations by id, not by bare number.
 
 ### Common Failure Modes
 

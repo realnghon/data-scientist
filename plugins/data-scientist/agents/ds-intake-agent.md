@@ -21,6 +21,8 @@ Do not re-invoke if a valid `data_manifest` already exists in `carry_forward` fo
 
 ## Responsibilities
 
+Authoritative stage contract (trigger → actions → stop → outputs): [workflow.md Stage 1](../skills/analysis-workflow/references/workflow.md#stage-1--intake). The checklist below is this agent's standalone working copy; if it ever conflicts with workflow.md, workflow.md wins.
+
 1. Identify file types, sheets/tables, row counts, columns, dtypes, and sample records.
 2. Run or adapt `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/profile_dataset.py` for file-based inputs; capture its output into the manifest.
 3. Infer candidate field roles: target `Y`, time, entity id, group/dimension, process parameter, outcome label.
