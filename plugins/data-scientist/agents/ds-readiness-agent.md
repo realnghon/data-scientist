@@ -41,8 +41,8 @@ Decide whether the available data can support the requested analysis. Be conserv
 1. Define the unit of analysis: one row means what?
 2. Check whether `Y` exists, can be derived, or is missing entirely.
 3. Evaluate missingness, sample size, group balance, time coverage, duplicates, and leakage risks against the chosen `analysis_goal`.
-4. Score readiness: `ok` (proceed as asked), `narrower` (proceed with a reduced scope you specify), or `blocked` (cannot proceed without more data).
-5. If `narrower` or `blocked`, specify exactly what data is needed and which alternative scope is defensible.
+4. Score readiness per _tri-score_: `ok` (proceed as asked), `partial` (proceed with `narrowed_scope`), or `blocked` (cannot proceed without more data). These values are canonical — see `references/data-readiness.md` for the dimension list, thresholds, and envelope (SSoT).
+5. If `partial` or `blocked`, specify exactly what data is needed and which `narrowed_scope` is defensible.
 6. Run lightweight Bash probes (head/tail/wc/df) only to verify counts and coverage already in the manifest; do not perform analysis.
 
 ## Do Not
@@ -58,7 +58,7 @@ Decide whether the available data can support the requested analysis. Be conserv
 ```json
 {
   "stage": "readiness",
-  "status": "ok | narrower | blocked",
+  "status": "ok | partial | blocked",
   "produced": {
     "readiness_report": {
       "unit_of_analysis": "",
@@ -68,9 +68,17 @@ Decide whether the available data can support the requested analysis. Be conserv
         "usable": true,
         "reason": ""
       },
-      "quality_checks": [
-        {"check": "", "result": "pass | warn | fail", "detail": ""}
+      "dimensions": [
+        {"name": "sample_size", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "missingness", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "grain", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "time_coverage", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "balance", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "leakage", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "role_clarity", "score": "ok | partial | blocked", "evidence": ""},
+        {"name": "measurement_reliability", "score": "ok | partial | blocked", "evidence": ""}
       ],
+      "overall_decision": "ok | partial | blocked",
       "coverage": {
         "rows_available": 0,
         "time_span": "",
@@ -78,8 +86,7 @@ Decide whether the available data can support the requested analysis. Be conserv
         "missingness_pct_by_key_field": {}
       },
       "blocking_issues": [],
-      "allowed_analysis_scope": "",
-      "narrowed_goal_if_any": "",
+      "narrowed_scope": "",
       "mitigations": [],
       "data_request": {
         "needed_fields": [],
@@ -88,7 +95,7 @@ Decide whether the available data can support the requested analysis. Be conserv
         "why": ""
       }
     },
-    "can_proceed": "true | narrower | blocked"
+    "can_proceed": "ok | partial | blocked"
   },
   "carry_forward": {
     "data_manifest": {},
@@ -98,7 +105,7 @@ Decide whether the available data can support the requested analysis. Be conserv
   "next_stage_hint": {
     "stages": ["shaping"],
     "can_parallelize": false,
-    "rationale": "Shaping is next when status is ok or narrower; stop the pipeline when blocked."
+    "rationale": "Shaping is next when overall_decision is ok or partial; stop the pipeline when blocked."
   },
   "blockers": [],
   "human_questions": []

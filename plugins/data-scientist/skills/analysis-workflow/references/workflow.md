@@ -222,17 +222,7 @@ Named artifacts (passed downstream as JSON or markdown blocks):
 
 ## When To Skip Stages
 
-Route names and trigger words live in `SKILL.md` → "Shortcut Routing" (the route decision is recorded as the first line of work, per the Non-Negotiable Gates). This table maps each situation to the stages skipped:
-
-| Situation | Skip | Why |
-|---|---|---|
-| Golden template matches user goal exactly (see `golden-templates.md`) | Stage 4 method planning | Plan is pre-baked; jump straight to execution with the template's plan. |
-| User asks a single named method ("run a t-test on Y by line") | Stages 1 framing + 4 planning collapse | Method is fixed; still run readiness + shaping + critic. |
-| Exploratory peek only ("just profile this") | Stages 4, 5, 6 | Produce `data_manifest` + `readiness_report` + summary; no claims means no critic. |
-| Re-run with new data on same plan | Stages 1, 4 | Reuse prior `analysis_plan`; redo readiness/shaping/execution/critic/report. |
-| Data already shaped (analytical mart) | Stage 3 | Confirm grain, then proceed; still record `analysis_views` for traceability. |
-| Critic re-execution loop | Stages 1–4 | Loop only Stage 5 → 6 for the affected claim. |
-| `readiness_report.decision == blocked` | Stages 3–7 | Emit data-request artifact, stop. |
+Shortcut routing rules, trigger conditions, and boundary rules are defined in [branch-routing.md](branch-routing.md). Route declaration is Gate 1 in `SKILL.md` — the first line of work is always `route: <route> — <reason>`.
 
 ---
 
@@ -245,17 +235,7 @@ Route names and trigger words live in `SKILL.md` → "Shortcut Routing" (the rou
 
 ---
 
-## Anti-Patterns — What NOT To Do
+## Anti-Patterns
 
-🚫 These break the workflow contract. Each maps to a recovery action.
-
-| Anti-pattern | Why it breaks the workflow | Do this instead |
-|---|---|---|
-| **Skip readiness, go straight to shaping** | Data quality issues surface too late after wasted shaping work | Always run readiness first; gate shaping on `decision: ok/partial` |
-| **Run methods before analysis_plan approved** | Executes wrong methods, wastes compute, confuses user | Wait for Stage 4 output; in guided mode block until user confirms plan |
-| **Drop carry_forward between stages** | Downstream stages lose context, must re-derive state from scratch | Thread full carry_forward envelope through every stage dispatch |
-| **Re-run full pipeline for single claim fix** | Wastes time re-executing unchanged stages | Use targeted loops: Stage 6→5 for one claim, Stage 3→2 for grain issues only |
-| **Force conclusions when readiness blocked** | Produces unreliable results that won't replicate | Stop at Stage 2, emit data_request artifact, do not proceed to Stage 3 |
-| **Parallelize stages with sequential dependencies** | Later stage starts before input ready, crashes or uses stale data | Respect the dependency graph: readiness must finish before any shaping starts |
-| **Let execution agents pick their own methods** | Planner's rejected alternatives resurface, assumptions ignored | Planner owns method choice; execution only runs assigned methods from the plan |
+Workflow red-flags are defined in [anti-patterns.md](anti-patterns.md). The key workflow-specific violations: skipping readiness before shaping, running methods before plan approval, dropping carry-forward between stages, re-running full pipeline for a single claim, forcing conclusions when blocked, parallelizing dependent stages, letting execution agents override planner method choices.
 

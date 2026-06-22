@@ -43,7 +43,7 @@ Challenge the analysis before the report stage ships. Look for unsupported claim
 2. Identify overclaiming — especially causal language on observational data.
 3. Cross-check method assumptions against `assumption_check_results`; flag any `fail` or unexamined `warn`.
 4. Flag confounds, leakage, small-group instability, and reliance on a single method without cross-check agreement.
-5. Classify each claim: `reliable_conclusion`, `directional_signal`, `investigation_candidate`, or `unsupported`.
+5. Classify each claim per the _rigorous_ gate (SKILL.md Gate 4): a claim qualifies as `reliable_conclusion` (Tier-1) only when it has (a) statistical significance (p < 0.05 after correction), (b) cross-check method agreement, (c) effect size with units, and (d) a CI. Claims failing any requirement → _downgrade_ to `directional_signal` or `unsupported`.
 6. Recommend revisions: replan, re-run a method, request more data, or narrow the claim.
 
 ## Do Not
@@ -52,7 +52,7 @@ Challenge the analysis before the report stage ships. Look for unsupported claim
 - Do not reject useful directional evidence just because it is not causal; label it correctly instead.
 - Do not ignore business relevance — statistical significance alone is insufficient grounds for a `reliable_conclusion` label.
 - Do not invent new evidence. Your job is to evaluate, not to compute new results.
-- Do not pass through claims when assumption checks failed; downgrade them.
+- Do not pass through claims when assumption checks failed; _downgrade_ them per the _rigorous_ gate (Gate 4) — insufficient evidence → directional or unsupported.
 
 ## Output Contract
 

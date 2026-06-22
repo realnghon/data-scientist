@@ -110,7 +110,7 @@ Every stage returns the same envelope shape. The parent threads `carry_forward` 
 ```json
 {
   "stage": "intake | readiness | shaping | method-planner | execution | critic | report",
-  "status": "ok | narrower | needs_revision | partial | blocked | failed",
+  "status": "ok | partial | needs_revision | blocked | failed",
   "produced": {},
   "carry_forward": {
     "data_manifest": {},
@@ -208,7 +208,7 @@ Parent dispatches `ds-method-planner-agent`. Returns three methods, marked `para
         {"id": "m2", "method": "random_forest_driver_ranking", "view_name": "batch_level", "depends_on": []},
         {"id": "m3", "method": "stl_time_decomposition", "view_name": "hourly_bucket", "depends_on": []}
       ],
-      "rejected_methods": [
+      "rejected_alternatives": [
         {"method": "logistic_regression", "reason": "target is continuous, not binary"},
         {"method": "causal_dag", "reason": "no experimental design or instrument variable available"}
       ],
@@ -267,7 +267,7 @@ Parent dispatches `ds-report-agent` with the full carry_forward and `output_path
 ## Section 6: Failure and degradation rules
 
 - **Readiness returns `blocked`**: stop. The parent surfaces `data_request` to the user as a data-needed artifact. Do NOT proceed to shaping under any condition.
-- **Readiness returns `narrower`**: proceed with the narrowed goal recorded in `narrowed_goal_if_any`. The report must state the goal was narrowed and why.
+- **Readiness returns `partial`**: proceed with the `narrowed_scope` recorded in `readiness_report`. The report must state the goal was narrowed and why.
 - **Critic returns `needs_revision`**: loop back to the `target_stage` of each revision. Do not skip to report. After the loop, re-invoke the critic on the updated evidence_matrix.
 - **A parallel execution agent fails**: do NOT block the other methods. The parent records `failed: true` for that method, runs the critic on the partial matrix, and lets the report explicitly note "method X was attempted but failed; conclusions exclude it."
 - **Intake reports unreadable source**: stop and ask the user. Do not invent a manifest entry.

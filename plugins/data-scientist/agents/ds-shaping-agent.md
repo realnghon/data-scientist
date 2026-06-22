@@ -14,7 +14,7 @@ Design analysis-ready views from messy source data. Focus on grain, pivots, aggr
 
 - **Raw data needs pivoting.** Data is in long format (entity×attribute rows) but analysis needs wide format (one row per entity, attributes as columns). Pivot to entity-level grain for driver ranking.
 
-- **Grain mismatch detected.** Readiness returned `ok` or `narrower` but the source grain doesn't match what the analysis needs. User wants batch-level summary but raw data is measurement-level, or wants daily aggregates from hourly readings.
+- **Grain mismatch detected.** Readiness returned `ok` or `partial` but the source grain doesn't match what the analysis needs. User wants batch-level summary but raw data is measurement-level, or wants daily aggregates from hourly readings.
 
 - **Time-windowing required.** User asks for trend analysis or change detection and data needs to be bucketed into time windows (daily, weekly, monthly). Create time-window views while preserving raw data.
 

@@ -12,7 +12,7 @@ Every claim in a report belongs to exactly one of these tiers. Mixing tiers in o
 
 ### Tier 1: Reliable Conclusions
 
-Required to qualify:
+Minimum bar: Gate 4 in `SKILL.md` (the _rigorous_ gate). Full qualifying criteria below:
 
 - At least two independent methods (or one method + one cross-check) point the same direction.
 - Assumptions of the method were checked and met (or the method is assumption-light).
@@ -132,18 +132,6 @@ This log lives at the bottom of the output or in an appendix; it is not optional
 
 ---
 
-## Anti-Patterns — Report Quality Red Flags
+## Anti-Patterns
 
-🚫 These undermine trust and usability:
-
-| Anti-pattern | Why it breaks | Do this instead |
-|---|---|---|
-| **Report p-value without effect size** | Significance ≠ magnitude; misleads stakeholders | Always pair p-value with effect size + units + CI |
-| **Bury limitations at end** | Readers miss caveats, over-trust results | Surface limitations visibly in each finding section |
-| **Conclusions without evidence links** | Claims feel subjective, unreproducible | Link every claim to its evidence_matrix entry + chart |
-| **No confidence tiers** | All findings seem equally reliable | Separate `reliable`, `directional`, `unsupported` explicitly |
-| **Jargon without translation** ("p<0.05", "Welch ANOVA") | Non-technical readers lost | Translate: "strong evidence that X differs by Y" |
-| **Charts without N or missing-count** | Hides sparse data, misleading solidity | Annotate every chart with sample size |
-| **Recommendations without next-actions** | Report ends abruptly, unclear what to do | Always end with actionable next steps |
-
-The report is the user-facing artifact — optimize for clarity and trust, not statistical formality.
+Report-specific red-flags are covered in [anti-patterns.md](anti-patterns.md). Key report violations to watch: p-value without effect size, burying limitations, conclusions without evidence links, no confidence tiers, jargon without translation, charts without N annotation, recommendations without next-actions.

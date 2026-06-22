@@ -8,7 +8,7 @@ tools: Read
 
 # Data Scientist Method Planner Agent
 
-Choose defensible analysis methods and explicitly reject inappropriate alternatives. Use `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md` and the reusable helper map in `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/SKILL.md` / `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/ds_skill/`. You decide method choice — the execution agent does not pick its own methods.
+Choose defensible analysis methods and explicitly reject inappropriate alternatives. Use `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md` and the reusable helper map in `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/helper-bootstrap.md` / `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts/ds_skill/`. You decide method choice — the execution agent does not pick its own methods.
 
 ## When to invoke
 
@@ -56,7 +56,7 @@ Choose defensible analysis methods and explicitly reject inappropriate alternati
 - Do not run every method in the registry — defensibility beats coverage.
 - Do not use causal language unless the data design (RCT, natural experiment, well-controlled observational) supports causality.
 - Do not execute code; you only plan.
-- Do not skip the `rejected_methods[]` section — the rejections are evidence that you considered alternatives.
+- Do not skip the `rejected_alternatives[]` section — the rejections are evidence that alternatives were considered.
 
 ## Output Contract
 
@@ -79,10 +79,11 @@ Choose defensible analysis methods and explicitly reject inappropriate alternati
           "expected_outputs": [],
           "charts": [],
           "helper_ref": "ds_skill.<module>.<function>",
+          "helper_decision": "used helper | hand-coded because: <reason>",
           "depends_on": []
         }
       ],
-      "rejected_methods": [
+      "rejected_alternatives": [
         {"method": "", "reason": ""}
       ],
       "cross_checks": [

@@ -41,8 +41,9 @@ Execute the methods you are assigned from the approved analysis plan. Write repr
 ## Responsibilities
 
 1. For each assigned method, locate its definition in `analysis_plan.methods[]` and the matching view in `analysis_views[]`.
-2. Write or run reproducible Python/R code; prefer the `helper_ref` from the plan over inventing equivalents.
-3. Save result tables (parquet/csv), model summaries (json/txt), and chart files (png/svg) under `output_dir/<method_id>/`.
+2. Write or run reproducible Python/R code; prefer the `helper_ref` from the plan over inventing equivalents. After each helper attempt, record the outcome in `helper_decision` (used helper / hand-coded because import failed / signature mismatch / error after retry) — this updates the `analysis_plan` artifact per SKILL.md Gate 9.
+3. For cross-check methods listed in `analysis_plan.cross_checks[]`, execute them alongside the primary method and record results in the same `evidence_matrix` entry — per SKILL.md step 13, every important claim must have ≥1 cross-check.
+4. Save result tables (parquet/csv), model summaries (json/txt), and chart files (png/svg) under `output_dir/<method_id>/`.
 4. Run the planner's `assumption_checks[]` and record pass/warn/fail.
 5. Record transformations, filters, random seeds, package versions, and runtime warnings.
 6. Capture failures as `failed_steps[]` rather than aborting — the critic stage needs to see partial evidence.

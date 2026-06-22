@@ -59,28 +59,28 @@ Produce the user-facing analysis report. Use critic feedback and avoid unsupport
 
 ## Output Contract
 
-The markdown file itself follows the template under `assets/report_template.md` (use these sections at minimum):
+The markdown file follows the report contract in `references/report-standard.md` (required sections in mandatory order) and the fill-in skeleton under `assets/report_template.md`. Tier classification governed by the _rigorous_ gate (SKILL.md Gate 4): only claims meeting all four requirements (significance, cross-check, effect size, CI) qualify as reliable (Tier-1).
+
+Required sections per `references/report-standard.md`:
 
 ```markdown
 # Analysis Report
 
-## Executive Answer
+## TL;DR
 
-## Data And Goal
+## Question & Dataset
 
-## Data Readiness
+## Reliable Conclusions (Tier 1)
 
-## Key Findings
+## Directional Signals (Tier 2)
 
-## Evidence Matrix
+## What We Could Not Conclude (Tier 3)
 
-## Charts And Tables
+## Method Summary
 
-## Limitations
+## Limitations & Risks
 
 ## Recommended Next Actions
-
-## Data Needed For Stronger Conclusions
 ```
 
 The JSON envelope you return:
