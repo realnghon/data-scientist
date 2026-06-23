@@ -27,6 +27,26 @@ def _check_plotting_available() -> tuple[Any, Any]:
     try:
         import matplotlib.pyplot as plt
         import seaborn as sns
+
+        # Apply clean default style
+        plt.style.use('seaborn-v0_8-darkgrid')
+        plt.rcParams.update({
+            'font.size': 11,
+            'axes.labelsize': 12,
+            'axes.titlesize': 14,
+            'axes.titleweight': 'bold',
+            'xtick.labelsize': 10,
+            'ytick.labelsize': 10,
+            'legend.fontsize': 10,
+            'figure.dpi': 100,
+            'figure.figsize': (10, 6),
+            'axes.grid': True,
+            'grid.alpha': 0.3,
+            'axes.facecolor': '#f8f9fa',
+            'figure.facecolor': 'white',
+        })
+        sns.set_palette("husl")
+
         return plt, sns
     except ImportError as e:
         raise ImportError(

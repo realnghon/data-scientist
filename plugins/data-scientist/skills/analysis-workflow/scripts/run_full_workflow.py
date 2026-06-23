@@ -2,9 +2,8 @@
 """Deterministic baseline pipeline for data-scientist analysis workflows.
 
 Runs a single-shot, dependency-light chain of the *tested* ``ds_skill`` helpers
-and emits a JSON artifact bundle plus an optional markdown skeleton. It is the
-reference pipeline for sequential platforms (Codex, OpenCode, Gemini CLI) and a
-fast baseline even on Claude Code before fan-out to parallel subagents.
+and emits a JSON artifact bundle plus an optional markdown skeleton. It is a
+fast deterministic baseline that the ds-analyst agent can build on.
 
 Usage::
 
@@ -12,10 +11,9 @@ Usage::
     python run_full_workflow.py dataset.xlsx --sheet Sheet1 --sample-rows 10000
     python run_full_workflow.py dataset.csv --format none  # JSON to stdout only
 
-The artifact bundle includes the envelope fields defined in
-``references/multi-agent-orchestration.md`` so a parent agent can pick up the
-output and dispatch the remaining stages (method-planner → execution → critic →
-report) from where this script leaves off.
+The artifact bundle includes the manifest, readiness scores, and baseline
+analysis outputs so a parent agent (ds-analyst) can pick up the output and
+continue the execution → report stages from where this script leaves off.
 """
 
 from __future__ import annotations

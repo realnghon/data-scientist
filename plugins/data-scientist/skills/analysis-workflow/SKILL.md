@@ -1,79 +1,64 @@
 ---
 name: data-scientist
-version: 2.1.0
-description: "Use when the user wants to _analyze_, _profile_, _reshape_, select a statistical _method_, or produce an evidence-backed _report_."
+version: 3.0.0
+description: "数据分析：profile 数据, 统计检验, 画图, 写报告。3 阶段流程，无需多 agent 编排。"
 ---
 
 # Data Scientist
 
-## Gates
+3 阶段快速分析流程。
 
-These override everything else. Skipping any gate invalidates the analysis.
+## 流程
 
-1. **_routed_** — First output: `route: full | profile-only | named-method | one-off | blocked — <reason>`. Use [branch-routing.md](references/branch-routing.md). Re-route only if new evidence changes the request shape; record the change.
-2. **_red_ gate** — If [data-readiness.md](references/data-readiness.md) scores any dimension `blocked`, stop. Emit a `data_request` and report only what is answerable. Never force a conclusion.
-3. **_ready_ gate** — `readiness_report` must exist before shaping or methods. If missing, run the readiness stage first.
-4. **_planned_ gate** — `analysis_plan` must exist before execution. If missing, run method planning first.
-5. **_rigorous_ gate** — Every Tier-1 / reliable claim needs: (a) statistical significance (p < 0.05 after correction, or CI excludes null), (b) a cross-check method agreeing in direction, (c) effect size with units, (d) a CI. p ≥ 0.05 or no cross-check → _downgrade_ to directional or unsupported. Detection methods (CUSUM, IsolationForest, STL) are validated instruments — a significant detection may be Tier-1 without a second cross-check.
-6. **_critiqued_ gate** — `critique` must exist before the final report. If missing, run the critic stage first.
+### 1. Intake（数据摄入）
+- 读取数据：用 pandas 读 CSV/Excel/Parquet，不用 shell 命令
+- 检查环境：`python --version` + 测试 import pandas/numpy/scipy。能 import 就直接用，不重装
+- 质量检查：缺失率、样本量、数据类型、明显异常
+- 产出：`data_manifest`（包含列信息、样本量、质量评分）
 
-## Modes
+### 2. Execution（分析执行）
+- 选方法：根据问题类型查 [method-registry.md](references/method-registry.md)
+- 数据整形：按需 pivot/melt/aggregate，不单独成阶段
+- 跑统计：运行选定方法 + 交叉验证，检查假设
+- 画图：用下面的 5 条默认规则
+- 产出：`evidence_matrix` + chart 文件
 
-- `guided` (default): proceed automatically, stop at 🔴 _checkpoint_ (max 5 per run; each includes evidence, recommended choice, consequence).
-- `auto`: for known/repeatable analyses or golden templates. Stop only if blocked.
-- `exploratory`: for unknown datasets. Run intake + readiness first; defer method selection until data quality is confirmed.
+### 3. Report（报告生成）
+- 结构：执行摘要 → 数据说明 → 关键发现（带图）→ 方法说明 → 局限性
+- 产出：`final_report.md`
 
-## Pipeline
+## 画图规则（确定性）
 
-The canonical pipeline has 7 stages: **intake → readiness → shaping → method planning → execution → critic → report**. The authoritative process definition, stage contracts, stop conditions, and loop rules live in [workflow.md](references/workflow.md). This skill is the router; that file is the map.
+1. 数值 by 组 → `boxplot`
+2. 时间序列 → `line plot`
+3. 相关性 → `scatter` (n<1000) 或 `hexbin` (n≥1000)
+4. 分布 → `histogram`
+5. 排序/重要性 → `horizontal bar` (降序)
 
-For narrow routes, skip stages per [branch-routing.md](references/branch-routing.md).
+不用火山图、3D 图、复杂 heatmap，除非用户明确要求。
 
-## Required Artifacts
+## References（按需加载）
 
-Every non-trivial analysis produces and carries forward these artifacts. They are defined in the references listed.
+多数分析不需要加载 reference。只在遇到以下情况时查阅：
 
-| Artifact | Produced by | Defined in |
-|----------|-------------|------------|
-| `data_manifest` | intake | [workflow.md](references/workflow.md) Stage 1 |
-| `readiness_report` | readiness | [data-readiness.md](references/data-readiness.md) |
-| `analysis_views` | shaping | [data-shaping.md](references/data-shaping.md) |
-| `analysis_plan` | method planning | [analysis-plan-template.md](references/analysis-plan-template.md) |
-| `evidence_matrix` | execution | [workflow.md](references/workflow.md) Stage 5 |
-| `critique` | critic | [workflow.md](references/workflow.md) Stage 6 |
-| `final_report` | report | [report-standard.md](references/report-standard.md) |
+- **选方法困难** → [method-registry.md](references/method-registry.md)
+- **复杂图表** → [chart-catalog.md](references/chart-catalog.md)
+- **制造业数据** → [manufacturing-playbook.md](references/manufacturing-playbook.md)
+- **数据质量差** → [data-readiness.md](references/data-readiness.md)
+- **复杂 reshape** → [data-shaping.md](references/data-shaping.md)
 
-## References — Lazy Load Map
+其他 reference 文件已删除或合并。
 
-Load on demand. Skip references unrelated to the current analysis.
+## Helper 使用
 
-| Reference | Load when | Skip if |
-|-----------|-----------|---------|
-| [workflow.md](references/workflow.md) | Need the canonical 7-stage process, stage contracts, or loops | One-off lookup with no decision branches |
-| [branch-routing.md](references/branch-routing.md) | Request is clearly narrow | Full pipeline clearly needed |
-| [multi-agent-orchestration.md](references/multi-agent-orchestration.md) | Spawning sub-agents or dispatching stages | Single-threaded, one-stage work |
-| [data-readiness.md](references/data-readiness.md) | Building `readiness_report` | Clean curated table; only needs a chart or stat |
-| [data-shaping.md](references/data-shaping.md) | Data needs pivot/melt/aggregation/join | Data arrives in exact analysis grain |
-| [method-registry.md](references/method-registry.md) | Selecting a statistical/ML method | Method fully prescribed by a matched golden template |
-| [advanced-techniques.md](references/advanced-techniques.md) | >2 continuous predictors, categorical noise factors, root-cause tracing, or A/B multi-metric | Single predictor; purely descriptive |
-| [chart-catalog.md](references/chart-catalog.md) | Producing report charts | Pure-text answer; user said "no charts" |
-| [report-standard.md](references/report-standard.md) | Writing `final_report` | Intermediate exploration only |
-| [analysis-plan-template.md](references/analysis-plan-template.md) | Generating `analysis_plan` | One-off or profile-only |
-| [golden-templates.md](references/golden-templates.md) | Question matches a recurring pattern | Question is clearly bespoke |
-| [manufacturing-playbook.md](references/manufacturing-playbook.md) | Manufacturing data (lot/batch/line/SPC/yield/defect) | Non-MFG domain |
-| [financial-domain.md](references/financial-domain.md) | Financial time series (OHLCV, returns, factors) | Non-financial domain |
-| [helper-bootstrap.md](references/helper-bootstrap.md) | Need to import `ds_skill` helpers | Already bootstrapped |
-| [anti-patterns.md](references/anti-patterns.md) | Before finalizing any report | Planning/data-prep stage |
-| [failure-recovery.md](references/failure-recovery.md) | Hit a stage failure or method error | Proceeding smoothly |
+统计函数在 `scripts/ds_skill/` 下，按需 import：
 
-## Human-in-the-Loop
+```python
+import sys, os
+sys.path.insert(0, "${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/scripts")
+from ds_skill.correlation import pairwise_correlation
+from ds_skill.spc import individuals_mr_chart
+from ds_skill.plotting import plot_grouped_boxplot
+```
 
-🔴 _checkpoint_ fires when:
-
-- Target `Y` is ambiguous or missing.
-- Field semantics affect grouping/time/units/leakage.
-- Shaping is destructive (aggregation/pivot/drop/impute).
-- Only a narrower scope is answerable.
-- Two defensible methods disagree.
-
-At each checkpoint: provide 2–3 concrete choices + a recommendation + the evidence behind it. Never ask an open-ended question without showing what the data suggests. In `auto` mode: pick the recommended option, record it, and flag visibly.
+Helper 模块清单见 method-registry.md 各章节的"Reusable helper"行。

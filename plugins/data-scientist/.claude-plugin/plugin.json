@@ -2,8 +2,8 @@
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "data-scientist",
   "displayName": "Data Scientist",
-  "version": "2.1.0",
-  "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
+  "version": "3.0.0",
+  "description": "快速数据分析：3 阶段流程（intake → execution → report），单 agent 完成，无多 agent 编排开销。",
   "author": {
     "name": "realnghon",
     "url": "https://github.com/realnghon"
@@ -14,13 +14,7 @@
   "skills": "./skills/",
   "commands": "./commands/",
   "agents": [
-    "./agents/ds-intake-agent.md",
-    "./agents/ds-readiness-agent.md",
-    "./agents/ds-shaping-agent.md",
-    "./agents/ds-method-planner-agent.md",
-    "./agents/ds-execution-agent.md",
-    "./agents/ds-critic-agent.md",
-    "./agents/ds-report-agent.md"
+    "./agents/ds-analyst.md"
   ],
   "keywords": [
     "data-science",
@@ -29,6 +23,6 @@
     "analysis",
     "charts",
     "skills",
-    "agents"
+    "fast"
   ]
 }

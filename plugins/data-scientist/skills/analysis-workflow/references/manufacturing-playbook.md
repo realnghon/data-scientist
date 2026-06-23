@@ -1,319 +1,165 @@
 ---
 name: manufacturing-playbook
-description: Concrete recipes for manufacturing data questions (yield drop, Cpk, SPC, root cause, MSA, OEE). Domain-specific patterns for semiconductor, process, assembly. Use when data has lot/batch/line/operator fields or MFG vocabulary. Triggers — yield, defect, Cpk, control chart, SPC, manufacturing analysis.
+description: 制造业数据分析速查：SPC、Cpk、良率分析、根因。
 ---
 
 # Manufacturing Playbook
 
-Concrete recipes for the most common manufacturing-data questions. Each recipe is structured as: when to apply → minimum data → method → common failure modes → recommended cross-checks. Cross-link to `method-registry.md` for method definitions, `chart-catalog.md` for chart selection, `golden-templates.md` for end-to-end workflows.
+制造业常见问题的速查手册。
 
-## Table of Contents
+## 常见字段角色
 
-- [Common Field Roles](#common-field-roles-quick-reference) — target and driver vocabulary
-- [Recipe 1: SPC Essentials](#recipe-1-spc-essentials) — control charts, stability
-- [Recipe 2: Capability Analysis (Cp/Cpk)](#recipe-2-capability-analysis-cpcpk)
-- [Recipe 3: Yield/Defect Driver Ranking](#recipe-3-yielddefect-driver-ranking)
-- [Recipe 4: Root Cause — Defect Pareto](#recipe-4-root-cause--defect-pareto)
-- [Recipe 5: Measurement System Analysis (MSA)](#recipe-5-measurement-system-analysis-msa)
-- [Recipe 6: DOE — Simple Screening](#recipe-6-doe--simple-screening)
-- [Recipe 7: OEE Decomposition](#recipe-7-oee-decomposition)
-- [Anti-Patterns](#anti-patterns--manufacturing-red-flags)
+**目标变量：** yield, pass_rate, defect_rate, defect_count, cycle_time, Cp/Cpk  
+**驱动变量：** line, station, lot, batch, shift, operator, supplier, 工艺参数（temp, pressure, speed）, time
 
 ---
 
-## Common Field Roles (quick reference)
+## Recipe 1: SPC 控制图
 
-Targets: yield, pass rate, defect rate, scrap, rework, defect count, defect class, cycle time, takt, throughput, downtime, spec-measurement value, energy, cost.
-Drivers: equipment / line / station / cell, product / SKU / recipe, lot / batch / serial, shift / operator / team, supplier / material, process params (temp, pressure, speed, torque, flow, humidity, dwell), time / sequence.
+### 图表选择
 
-## Recipe 1: SPC Essentials
+| 数据类型 | 子组大小 | 图表 |
+|----------|----------|------|
+| 连续测量 | 1 | I-MR |
+| 连续测量 | 2-10 | X-bar / R |
+| 连续测量 | >10 | X-bar / S |
+| 缺陷率 | 可变 n | p-chart |
+| 缺陷计数 | 固定 | c-chart |
+| 缺陷计数 | 可变 | u-chart |
 
-### When to Apply
+### 最小数据
 
-Process has ordered observations over time and the question involves stability, drift, special causes, or "is it normal".
+20-25 个受控子组用于计算控制限。
 
-### Control Chart Selection
+### 分层检查（强制）
 
-| Data type | Subgroup size | Chart |
-|---|---|---|
-| Continuous measurement | 1 (individuals) | I-MR |
-| Continuous measurement | 2-10 rational subgroup | X-bar / R |
-| Continuous measurement | >10 rational subgroup | X-bar / S |
-| Defective unit count (binary outcome) | constant n | np-chart |
-| Defective unit rate (binary outcome) | variable n | p-chart |
-| Defect count, equal opportunity | constant unit | c-chart |
-| Defect count, variable opportunity | variable unit | u-chart |
+如果数据有分层变量（line, equipment, operator），**必须**：
+1. ANOVA 检验异质性（p < 0.05）
+2. 如果异质 → **每层独立控制图**，不合并
+3. 报告每层状态 + 违规规则（WE-1..4, Nelson-1..8）
 
-### Minimum Data
+**示例：**
+- ✅ 正确：L1/L2/L3 各一张图，报告 "L1: in-control, L2: out-of-control (WE-2 @ day 15-16)"
+- ❌ 错误：合并 → 单图 → 掩盖问题源
 
-- 20-25 in-control subgroups for limit calculation.
-- Subgroups must be rationally formed (within-subgroup variation reflects common cause only).
+### Run Rules
 
-### MANDATORY: Stratification Check
+使用 Western Electric (`WE-1..4`) 或完整 Nelson (`Nelson-1..8`)。编号对齐 `ds_skill.spc` 实现。
 
-**Before creating a single combined control chart**, check if the data contains stratification variables (line, equipment, operator, shift, product, recipe). If present, you MUST:
-
-1. **Test for heterogeneity**: Run ANOVA/Kruskal-Wallis to check if mean or variance differs significantly across strata (p < 0.05)
-2. **If heterogeneous (p < 0.05)**: Create **separate control charts per stratum**. Do NOT pool data from different lines/equipment into one chart — this masks special causes.
-3. **Report per-stratum status**: For each stratum, report:
-   - Control status (in-control / out-of-control)
-   - Which Western Electric rules violated (if any)
-   - Time periods of violations
-   - Capability (Cp/Cpk) only for in-control strata
-
-**Example**: If data has columns [timestamp, measurement, line] with lines L1/L2/L3:
-- ✅ Correct: Create 3 separate I-MR charts (one per line), report "L1: in-control, L2: out-of-control (WE-2 @ samples 501-520), L3: in-control"
-- ❌ Wrong: Pool all data → single chart → report "process out-of-control" (hides which line is the problem)
-
-**Skip stratification only if**: (a) ANOVA shows no significant difference (p ≥ 0.05), OR (b) no categorical columns exist, OR (c) user explicitly requests pooled analysis.
-- Order preserved; gaps flagged not silently spanned.
-
-### Special-Cause Rule Sets (apply, do not invent)
-
-The canonical run-rule list lives in [method-registry.md](method-registry.md) §9 and matches the `WE-1..4` / `Nelson-1..8` ids emitted by `ds_skill.spc`. Apply Western Electric (`WE-1..4`) by default; add the full Nelson set (`Nelson-1..8`) when finer sensitivity is needed. Report violations by id, not by bare number.
-
-### Common Failure Modes
-
-- Limits computed from the same data being judged -> always trips. Mitigation: hold out a known in-control segment.
-- Rational subgrouping ignored -> within-subgroup variance polluted by between-subgroup drift; limits too wide. Mitigation: re-design subgroup to capture short-term variation only.
-- Variable subgroup size on p-chart with fixed limits -> false alarms. Mitigation: variable-limit p-chart.
-- Overdispersion on c/u charts -> false alarms. Mitigation: test for overdispersion; use Laney p' / u' chart if dispersion >1.
-
-### Recommended Cross-Checks
-
-- Trend / change-point analysis on the same data; rules should align with detected breaks.
-- Stratify by shift / equipment / operator; verify the chart is not aggregating away the signal.
-
-## Recipe 2: Capability Indices (Cp, Cpk, Pp, Ppk)
-
-### When to Apply
-
-A specification limit exists AND the question is "can this process meet spec". Process MUST be in statistical control first (see Recipe 1) -- capability on unstable process is misleading.
-
-### Formulas
-
-| Index | Formula | Uses |
-|---|---|---|
-| Cp | (USL - LSL) / (6 * sigma_within) | Potential, two-sided spec |
-| Cpk | min((USL - mu) / (3 * sigma_within), (mu - LSL) / (3 * sigma_within)) | Potential, accounts for centering |
-| Pp | (USL - LSL) / (6 * sigma_overall) | Overall observed, two-sided spec |
-| Ppk | min((USL - mu) / (3 * sigma_overall), (mu - LSL) / (3 * sigma_overall)) | Overall observed, accounts for centering |
-
-`sigma_within` = pooled within-subgroup SD (from R-bar / d2 or S-bar / c4).
-`sigma_overall` = total sample SD across all data.
-
-### When Each Applies
-
-- Cp / Cpk: short-term potential; rational subgroups available; process in control.
-- Pp / Ppk: long-term overall; subgroups not available OR want to include all sources of variation.
-- One-sided spec: drop the missing side; report only the relevant CPU or CPL.
-
-### Minimum Data
-
-- 30+ observations absolute minimum; 100+ preferred.
-- Subgroups: 20+ subgroups of size 2-5 for sigma_within estimation.
-- Normality check on the underlying distribution; if heavily non-normal, transform (Johnson, Box-Cox) or use non-normal capability (Weibull / percentile) and label the result.
-
-### Reading Guide
-
-| Cpk value | Interpretation | Action |
-|---|---|---|
-| < 1.00 | Process cannot meet spec | Reject; investigate and improve before capability claim |
-| 1.00 - 1.33 | Marginal | Tighten control; not safe for high-volume |
-| 1.33 - 1.67 | Adequate | Acceptable for most processes |
-| > 1.67 | Strong | Often used as supplier qualification bar (>=1.67) |
-
-Cp - Cpk gap = centering loss. Large gap means process is capable in spread but mis-centered.
-
-### Common Failure Modes
-
-- Computing capability on out-of-control data -> meaningless number. Mitigation: SPC first, then capability on the in-control segment only.
-- Non-normal data without transform -> tails over/underestimated. Mitigation: distribution test; transform or non-normal capability.
-- Reporting Cpk only when Pp/Ppk would be much lower -> hides long-term drift. Mitigation: report both.
-- Spec limit confusion (engineering vs customer vs internal) -> argues about the wrong number. Mitigation: explicit spec source citation.
-
-### Recommended Cross-Checks
-
-- Pair with capability histogram + ECDF chart, both showing spec lines.
-- Compute % outside spec empirically and compare to capability-implied %.
-
-## Recipe 3: Measurement System Analysis (Gauge R&R)
-
-### When to Apply
-
-Before any other capability or driver analysis on a measurement -- if the gauge cannot distinguish parts, all downstream conclusions are noise. Question form: "is the measurement system good enough".
-
-### Minimum Data
-
-- 10 parts spanning expected variation.
-- 2-3 operators.
-- 2-3 trials per operator per part.
-- Random order; operators blind to prior measurements ideally.
-
-### Interpretation Thresholds
-
-| Metric | Computation | Acceptable | Marginal | Unacceptable |
-|---|---|---|---|---|
-| %GR&R (of study var) | sigma_gauge / sigma_total * 100 | < 10% | 10-30% | > 30% |
-| %GR&R (of tolerance) | 6 * sigma_gauge / (USL - LSL) * 100 | < 10% | 10-30% | > 30% |
-| Number of Distinct Categories (NDC) | 1.41 * sigma_part / sigma_gauge | >= 5 | 2-4 | < 2 |
-
-### Common Failure Modes
-
-- Parts span only common-cause range -> %GR&R inflated. Mitigation: select parts spanning realistic variation.
-- Operator bias undetected because operators see prior values. Mitigation: blind randomized order.
-- Mixing repeatability and reproducibility without ANOVA breakdown. Mitigation: ANOVA gauge R&R, not just X-bar / R.
-
-### Recommended Cross-Checks
-
-- Verify with a second method or reference standard if available.
-- Re-run R&R after instrument calibration or maintenance.
-
-## Recipe 4: DOE Result Interpretation
-
-### When to Apply
-
-The data comes from a designed experiment (full factorial, fractional factorial, response surface, Plackett-Burman, mixture). The question is "which factors and interactions matter".
-
-### Minimum Data
-
-- Replication: at least 2-3 replicates at center or corner points for pure-error estimate.
-- Center points: 3-5 for curvature detection.
-- Balanced or orthogonal design preserved during data collection.
-
-### Interpretation Sequence
-
-1. Plot main effects with CI; flag factors whose CI excludes zero.
-2. Plot 2-way interactions; non-parallel lines indicate interaction.
-3. Normal-probability plot (or half-normal) of effect estimates -> effects off the line are real.
-4. Pareto of standardized effects -> rank importance.
-5. Residual diagnostics: residuals vs fitted, residuals vs run order, residual normal-QQ.
-6. If center points show curvature, augment to a response-surface design before optimizing.
-
-### Common Failure Modes
-
-- Reading main effect of a factor that has a strong interaction with another -> misleading. Mitigation: always inspect interaction plot before quoting main effect.
-- Confounded effects in fractional factorial mis-attributed. Mitigation: state the resolution and alias structure in the output.
-- Run order correlated with time / temperature drift -> drift confounded with effect. Mitigation: residual-vs-run-order plot is mandatory.
-- Reporting p-value of effect without effect size in the response units. Mitigation: always pair.
-
-### Recommended Cross-Checks
-
-- Confirmation runs at predicted optimum vs predicted center; check prediction interval contains observed.
-- Re-fit with reduced model after removing non-significant terms; check R^2 stability.
-
-## Recipe 5: Batch Effect Identification (Confounder vs Driver)
-
-### When to Apply
-
-A batch / lot / run dimension is present and the question is whether batch is masking or causing the apparent driver effects.
-
-### Minimum Data
-
-- >=5 batches with overlapping levels of suspected drivers (e.g. each batch contains both machines being compared).
-- Per-batch N adequate for the comparison method.
-
-### Test Sequence
-
-1. Cross-tab batch x each driver. If any driver level is contained within a single batch, the two are fully confounded -> driver effect is not identifiable from batch effect. Report and stop.
-2. Within-batch group comparison: re-run the driver comparison restricted to each batch. If the effect direction reverses or disappears, batch was the confounder (Simpson-style).
-3. Fit a mixed-effects model with batch as random intercept; compare driver coefficient to the pooled model. Large shrinkage of the coefficient indicates batch absorbed the effect.
-4. If batches are time-ordered, also fit a time term; rule out drift as the actual cause.
-
-### Common Failure Modes
-
-- Calling batch a "confounder" when it is actually the driver (e.g. raw-material variation). Mitigation: if batch effect is large AND batches correspond to known input changes, batch IS a driver, not a nuisance.
-- Too few batches -> mixed-effects model fails to converge or returns near-zero variance. Mitigation: collapse comparison to fixed-effects per batch and report ranges.
-
-### Recommended Cross-Checks
-
-- Materials / supplier change log: align batch boundaries with documented input changes.
-- If a process change date is known, before/after split should align with batch.
-
-## Recipe 6: Yield / Defect Pareto (Vital Few)
-
-### When to Apply
-
-Defects fall into multiple categories / causes / locations and the question is "what to fix first".
-
-### Minimum Data
-
-- Defect classification field with mutually exclusive categories.
-- Sufficient total defects (>=100) for category counts to be stable.
-- Time window matches the operational decision window (do not Pareto a year for a weekly meeting).
-
-### Method
-
-1. Count defects per category; sort descending; compute cumulative %.
-2. Mark 80% cumulative line; categories below the line are the vital few.
-3. Annotate each vital-few category with its rate per unit produced, not just count.
-4. Split the top 1-3 categories by next-level dimension (equipment / shift / product) to find the dominant contributor.
-
-### Common Failure Modes
-
-- "Other" bucket is the tallest bar -> classification is broken. Mitigation: split "Other" before any Pareto reading.
-- Counts dominated by a single high-volume product -> Pareto reflects mix, not process. Mitigation: report defect rate per unit, also stratify.
-- Stable historical Pareto used for a new product / process -> wrong vital few. Mitigation: short-window stratified Pareto for new conditions.
-
-### Recommended Cross-Checks
-
-- Pareto by count AND by cost / risk-weighted severity (small count, large cost still matters).
-- Repeat in a recent window; vital few should be stable to be actionable.
-
-## Recipe 7: Process Drift Detection
-
-### When to Apply
-
-Question is "did something change", "when did things start getting worse", "is there gradual drift".
-
-### Minimum Data
-
-- Time-ordered observations.
-- >=50 observations before and after suspected change point for power.
-- No silent gaps; gaps acknowledged.
-
-### Method Combinations
-
-- CUSUM chart: detects small persistent shifts faster than Shewhart.
-- EWMA chart: weights recent observations; detects gradual drift.
-- PELT or Binary Segmentation change-point detection on the residual (after detrending if needed).
-- Pair detection with Nelson rules 5 (six in a row trending) and 6 (alternating) for finer signals.
-
-### Common Failure Modes
-
-- Single method declaring a change point with no corroboration -> false alarm. Mitigation: require at least two methods (e.g. CUSUM + PELT) to agree on direction and approximate location.
-- Seasonality mistaken for drift. Mitigation: decompose seasonal component first.
-- Sensor calibration event coinciding with apparent drift. Mitigation: cross-reference maintenance log.
-- Re-fitting baseline after each suspected change -> drift always "detected". Mitigation: pre-register baseline window.
-
-### Recommended Cross-Checks
-
-- Pair change-point location with operational event log (recipe change, material lot change, maintenance).
-- Show pre and post distributions side by side with effect size, not just "change detected".
-
-## Manufacturing Caveats (apply always)
-
-- Product mix can create false equipment effects -- always stratify by product.
-- Time drift can masquerade as batch or shift effect -- always include a time check.
-- Rework and retest records may duplicate units -- de-dup by serial / lot if possible.
-- Aggregated yield can hide station-level failure modes -- drill to station before declaring "yield is fine".
-- Operator effects are sensitive and must be anonymized / aggregated when reported externally.
-- Root-cause claims require process knowledge or designed experiment; observational analysis names suspects, not culprits.
+**Helper:** `ds_skill.spc.individuals_mr_chart(data)`（或 `xbar_r_chart` / `p_chart` / `c_chart` / `u_chart`），然后 `apply_western_electric_rules(chart)` / `apply_nelson_rules(chart)`  
+**Chart:** `ds_skill.plotting.plot_control_chart`
 
 ---
 
-## Anti-Patterns — Manufacturing Analysis Red Flags
+## Recipe 2: 能力分析 (Cp/Cpk)
 
-🚫 These violate MFG-specific principles:
+### 前提
 
-| Anti-pattern | Why it breaks | Do this instead |
-|---|---|---|
-| **Cp/Cpk on unstable process** | Capability meaningless when out of control | Run SPC first; compute capability only on in-control segment |
-| **Pool data across process changes** (recipe/tool change mid-window) | Different processes mixed, conclusions wrong | Stratify by stable process window; analyze regimes separately |
-| **Ignore nested structure** (wafers in lots, lots in tools) | Independence assumption violated, p-values wrong | Use mixed-effects or cluster by lot/tool; report cluster-robust SE |
-| **Attribute defects without denominator** (count of fails) | Can't distinguish rate from volume | Always normalize: defect rate = defects / opportunities |
-| **Skip gage R&R** (measurement system not validated) | Noise drowns signal, wrong root cause | Run MSA first if measurement variation suspected |
-| **Root cause without timeline** | Correlation without time order ≠ causation | Plot timeline; look for leading/lagging; check process change log |
-| **Compare capability across different specs** | Cp/Cpk not comparable when spec widths differ | Normalize by spec width or report as sigma level (Z-score) |
+过程必须**先通过稳定性检查**（Recipe 1），不稳定过程的能力指数无意义。
 
-Manufacturing data has structure (lots, tools, time) and context (specs, process logs) — use them.
+### 公式
+
+| 指数 | 公式 | 含义 |
+|------|------|------|
+| Cp | (USL - LSL) / (6σ) | 潜在能力 |
+| Cpk | min((USL-μ)/(3σ), (μ-LSL)/(3σ)) | 实际能力（考虑偏移） |
+
+### 判定
+
+| Cpk | 判定 |
+|-----|------|
+| ≥1.33 | 良好 |
+| 1.0-1.33 | 可接受 |
+| <1.0 | 不可接受 |
+
+**Helper:** `ds_skill.spc.capability_summary(values, lsl, usl)`（返回 Cp/Cpk/Pp/Ppk），或单独的 `cp` / `cpk` / `pp` / `ppk`
+
+---
+
+## Recipe 3: 良率/缺陷驱动因素
+
+### 方法
+
+1. **单因素筛选** — Welch ANOVA（连续 X）或 chi-square（分类 X）
+2. **相关性排序** — Spearman 或 Point-Biserial
+3. **回归** — Logistic（缺陷 Y）或 Linear（良率 Y）
+
+### 分层 Pareto
+
+按类别（line, product, defect_type）分别统计，找 top 驱动。
+
+**Helper:** `ds_skill.correlation.correlation_with_target(df, target='yield', fdr_alpha=0.05)`  
+**Chart:** `ds_skill.plotting.plot_feature_importance`
+
+---
+
+## Recipe 4: 根因分析 — Defect Pareto
+
+### 步骤
+
+1. 按 defect_type 聚合计数
+2. 降序排序
+3. 累计占比曲线
+4. 标记 80% 线（vital few）
+
+**Helper:** 用 pandas + matplotlib，无专用 helper  
+**Chart:** `ds_skill.plotting.plot_pareto`（如果有）或手动 bar + line
+
+---
+
+## Recipe 5: MSA（测量系统分析）
+
+### Gage R&R
+
+分解总变异 = 零件变异 + 测量变异（重复性 + 再现性）。
+
+**最小数据：** 10 零件 × 3 操作员 × 2 重复 = 60 测量
+
+**判定：**
+- %R&R < 10%：良好
+- 10-30%：可接受
+- >30%：不可接受
+
+**Helper:** 无专用 helper。用 pandas + ANOVA 分解方差：按 `part` 和 `operator` 分组求方差分量（`ds_skill.analysis_methods.compare_numeric_by_group` 可辅助组间检验）。
+
+---
+
+## Recipe 6: DOE 筛选
+
+### 简单筛选设计
+
+对于 k 个因子，用 2^(k-p) 部分因子设计或 Plackett-Burman。
+
+**分析：** ANOVA 或 Lasso 找显著因子。
+
+---
+
+## Recipe 7: OEE 分解
+
+OEE = Availability × Performance × Quality
+
+| 指标 | 计算 |
+|------|------|
+| Availability | planned_time / (planned_time - downtime) |
+| Performance | actual_output / ideal_output |
+| Quality | good_output / total_output |
+
+**找瓶颈：** 三者中最低的优先改进。
+
+---
+
+## 反模式
+
+- ❌ 不稳定过程计算 Cpk
+- ❌ 混合不同 line/equipment 的数据到单张控制图
+- ❌ 用控制限作为规格限
+- ❌ 重新计算控制限用于评判同一批数据
+- ❌ 忽略分层变量
+
+**Helper 汇总：**
+- `ds_skill.spc.individuals_mr_chart` / `xbar_r_chart` / `p_chart` / `c_chart` / `u_chart`
+- `ds_skill.spc.apply_western_electric_rules` / `apply_nelson_rules`
+- `ds_skill.spc.capability_summary`（Cp/Cpk/Pp/Ppk）
+- `ds_skill.correlation.correlation_with_target`
+- `ds_skill.plotting.plot_control_chart`
+- `ds_skill.plotting.plot_pareto`

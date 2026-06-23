@@ -1,209 +1,106 @@
 ---
 name: data-readiness
-description: 8-dimension data quality scorecard (sample size, missingness, grain, time coverage, balance, leakage, role clarity, measurement reliability) run before analysis. Use when need to gate downstream stages, narrow scope, or emit data-request. Triggers — is data good enough, what's missing, can we analyze this, readiness check.
+description: 8 维数据质量检查。分析前运行，判定 ok / partial / blocked。
 ---
 
+# Data Readiness
 
-Score the data **before** running methods. Output a structured `readiness_report` so downstream stages (shaping, method planning, critic) can react. See [workflow.md](workflow.md) Stage 2.
+分析前检查数据质量。每维度独立评分，整体决策取最差分。
 
-Each dimension is scored independently as `ok` / `partial` / `blocked`. The overall decision is the worst score *unless* an explicit workaround narrows scope.
+## 8 维度速查
 
----
+### 1. Sample Size（样本量）
 
-## Dimensions
+| 每组 n | 评分 | 操作 |
+|--------|------|------|
+| ≥30 | ok | 参数方法可用 |
+| 10-29 | partial | 用非参数，报告 CI |
+| 5-9 | partial | 仅探索，bootstrap CI |
+| <5 | blocked | 仅描述统计 |
 
-### 1. Sample Size Adequacy
+回归：≥10 行/预测变量。分类：少数类 ≥30。
 
-Count rows per analysis cell (per group, per group×time bucket, per class).
+### 2. Missingness（缺失）
 
-| Per-cell n | Score | Notes |
-|---|---|---|
-| ≥ 30 | ok | parametric methods generally safe |
-| 10–29 | partial | prefer non-parametric, report effect size + CI, avoid post-hoc multi-comparison |
-| 5–9 | partial | exploratory only; bootstrap CIs |
-| < 5 | blocked | no parametric test; report descriptive only |
+| 缺失率 | 评分 |
+|--------|------|
+| Y 缺失 >5% | blocked |
+| X 缺失 <10% | ok |
+| X 缺失 10-30% | partial（需 imputation 策略） |
+| X 缺失 >30% | blocked |
 
-For regression: enforce ≥10 rows per predictor (≥20 with regularization).
-For classification: ≥30 in the minority class, or plan resampling.
-For SPC: ≥20 ordered subgroups for limit estimation.
+**规则：** 永不 impute Y。Impute X 需记录策略。
 
-### 2. Missingness Pattern
+### 3. Grain Consistency（粒度一致性）
 
-Compute % missing overall, per column, per group, per time bucket.
+检查 `df.duplicated(subset=[id_keys]).sum()`：
+- = 0 → ok
+- >0 且是合法重复测量 → partial（标记待聚合）
+- 混合粒度 → blocked
 
-| Signal | Likely mechanism | Score |
-|---|---|---|
-| missing uncorrelated with any observed feature | MCAR | ok if total <10%, partial 10–30%, blocked >30% on `Y` |
-| missing depends on observed features but not on missing value | MAR | partial; require explicit imputation strategy |
-| missing depends on the unobserved value itself | MNAR | blocked for any conclusion sensitive to that variable |
+### 4. Time Coverage（时间覆盖）
 
-Tests: chi-square of missingness indicator vs candidate predictors; missingness-by-group bar chart.
+| 检查项 | 阈值 | 评分 |
+|--------|------|------|
+| 总跨度 vs 周期 | ≥2 cycles | <2 → partial |
+| 间隙比例 | <10% | 10-30% → partial, >30% → blocked |
+| 采样频率 | 一致 | 不一致 → partial |
 
-Rule: never silently impute `Y`. Imputing `X` requires a documented strategy.
+### 5. Class Balance（类别平衡）
 
-### 3. Grain Consistency
+| 多数:少数 | 评分 |
+|-----------|------|
+| ≤3:1 | ok |
+| 3:1-10:1 | partial（用 PR-AUC/F1） |
+| 10:1-100:1 | partial（重采样或 cost-sensitive） |
+| >100:1 | blocked（改为异常检测） |
 
-Pick **one** analysis grain. A table mixing grains is a red flag.
+### 6. Leakage（泄漏）
 
-Diagnostics:
-- `df.duplicated(subset=[id_keys]).sum()` — should be 0 at intended grain.
-- Compare row count to `len(df.groupby(id_keys))`.
-- Inspect random samples; multiple rows per `entity_id` at the same `time` = mixed grain.
+检查清单：
+- [ ] 结果后记录的列（root_cause, rework_notes）→ 删除
+- [ ] 未来时间戳（滚动窗口包含当前行）→ 加 lag
+- [ ] 目标衍生特征（target-mean encoding）→ 仅在 train fold 计算
+- [ ] 全局统计量（normalization）→ 仅在 train fold fit
+- [ ] 按 Y 排序后取 top-k 作为特征 → 删除
 
-| Result | Score |
-|---|---|
-| one row per intended unit | ok |
-| duplicates that are *legitimate* repeated measures (documented) | partial; flag for aggregation in shaping |
-| mixed grains (e.g. some unit-level rows + some batch-aggregate rows interleaved) | blocked until split or filtered |
+任何泄漏维度 → **blocked**。
 
-### 4. Time Coverage
+### 7. Role Clarity（角色明确性）
 
-For any time-aware question:
+必须明确：
+- `Y`（目标变量）
+- `time`（时间列，如果时序分析）
+- `entity_id`（实体标识符）
+- `group`（分组维度）
 
-| Check | Threshold | Score impact |
-|---|---|---|
-| total span vs question's cycle | ≥ 2 cycles | required for seasonality; else partial |
-| gap fraction | < 10% of cells | gaps > 10% → partial; > 30% → blocked |
-| sampling cadence | consistent | irregular cadence → partial, plan resampling |
-| before/after window around an event | both ≥ 30 cells (or per-cell n adequate) | otherwise partial |
-| time zone / shift boundary clarity | unambiguous | ambiguous → flag in critique |
+| 状态 | 评分 |
+|------|------|
+| Y 明确 | ok |
+| Y 有 2-3 个候选 | partial（给用户选项） |
+| Y 无候选 | blocked（仅 profile） |
 
-### 5. Class / Group Balance
+### 8. Measurement Reliability（测量可靠性）
 
-| Imbalance ratio (majority : minority) | Score |
-|---|---|
-| ≤ 3:1 | ok |
-| 3:1 – 10:1 | partial; require balanced metric (PR-AUC, F1) |
-| 10:1 – 100:1 | partial; require resampling or cost-sensitive loss |
-| > 100:1 | blocked for standard methods; reframe as anomaly detection |
+| 问题 | 评分 |
+|------|------|
+| 单位不一致（kg/g 混合） | partial（需转换） |
+| 传感器已知故障期 | partial（标记/过滤） |
+| 数据录入错误（负年龄） | partial（outlier 检测） |
+| 格式不一致（日期格式） | partial（需清洗） |
 
-For group comparison: imbalance is fine as long as each group has adequate n; the imbalance itself isn't the blocker, small n is.
+## 整体决策
 
-### 6. Leakage Risk
-
-Inspect every candidate `X` against `Y` in time and causal order:
-
-- **Post-event columns:** any field recorded after `Y` (e.g. `defect_root_cause` when predicting `is_defective`). Blocked if present in `X`.
-- **Target-derived features:** field is a function of `Y` (e.g. `monthly_revenue` predicting `customer_value`). Blocked.
-- **Time order violation:** `X.timestamp > Y.timestamp` for any row. Blocked.
-- **Same-event measurement:** `X` and `Y` measured at the same stage/station/timestamp (e.g., both from `final_test` when predicting yield). Flag as **partial** with caveat: `X` may be an effect of `Y` rather than a cause. If an upstream predictor exists, exclude same-event features from driver ranking.
-- **Group-level leakage:** entity ID encoded in `X` and target also varies by entity → effectively memorizes. Partial; require entity-aware cross-validation.
-- **Pipeline leakage:** scaler/imputer fit on full data before split. Partial; require fit-on-train-only.
-
-Any single blocked sub-check makes the dimension blocked.
-
-### 7. Variable Role Clarity
-
-Confirm:
-- `Y` is unambiguously identified (or user-confirmed in `guided`).
-- `Y` has variation (constant `Y` → blocked).
-- Candidate `X` set is plausible and non-trivial (> 0 fields after leakage check).
-- Time, entity, group columns are typed correctly.
-
-🔴 **CHECKPOINT**: 如果 `Y` 不明确或有多个候选项，必须在 guided mode 中让用户确认。选错 `Y` 会导致整个分析方向错误。
-
-| Signal | Score |
-|---|---|
-| all roles confident, evidence in column names + dtypes + sample | ok |
-| `Y` candidate but unconfirmed; or some roles uncertain | partial; ask once in `guided`, default in `auto` and flag |
-| no plausible `Y` at all | blocked; redirect to exploratory profile |
-
-### 8. Reliability Of Measurement
-
-Cheap-to-check signals of unreliable input:
-- Units mismatch (same column in mixed units — e.g. mm vs in).
-- Sensor saturation (capped at min/max).
-- Sentinel values (`999`, `-1`, `9999-12-31`) treated as numeric.
-- Manual-entry artifacts (clustering on round numbers, typos).
-- Timezone confusion across regions.
-
-| Findings | Score |
-|---|---|
-| none detected | ok |
-| 1–2 minor issues, fixable in shaping | partial; document fix |
-| sentinel/saturation on `Y` or core `X`, or units mismatch | blocked until corrected at source |
-
----
-
-## Overall Decision
-
-Roll up the eight dimensions:
-
-| Rule | Overall |
-|---|---|
-| any blocked, no workaround | `blocked` |
-| any blocked but a scope narrowing makes it `partial` or `ok` | `partial` with `narrowed_scope` |
-| all `ok` | `ok` |
-| mix of `ok` and `partial` | `partial` with `caveats` |
-
-Scope narrowing examples:
-- Drop the time-series question, keep the group comparison.
-- Drop the leaked feature, keep the rest.
-- Restrict to the subset with adequate sample.
-
-### Decision → downstream action
-
-- `ok` → proceed full plan (Stage 3 shaping).
-- `partial` → proceed with narrowed scope; every claim from a partial dimension must show its caveat in the report.
-- `blocked` → skip Stages 3–7; emit the data-request artifact and return.
-
----
-
-## Output Template — `readiness_report`
-
-```json
-{
-  "decision": "ok | partial | blocked",
-  "dimensions": {
-    "sample_size":            { "score": "ok|partial|blocked", "evidence": { "per_cell_min": 42, "per_cell_median": 180, "rule_violations": [] }, "notes": "..." },
-    "missingness":            { "score": "partial",            "evidence": { "overall_pct": 0.18, "by_column_top": [["sensor_3", 0.42]], "mechanism_guess": "MAR" }, "notes": "..." },
-    "grain":                  { "score": "ok",                 "evidence": { "intended_grain": "one row per wafer", "duplicate_count": 0 }, "notes": "..." },
-    "time_coverage":          { "score": "ok",                 "evidence": { "span_days": 365, "gap_fraction": 0.02, "cadence": "daily" }, "notes": "..." },
-    "balance":                { "score": "partial",            "evidence": { "majority_minority_ratio": 8.4, "metric_recommendation": "PR-AUC" }, "notes": "..." },
-    "leakage":                { "score": "blocked",            "evidence": { "post_event_cols": ["root_cause"], "target_derived": [], "time_order_violations": 0 }, "notes": "drop root_cause to recover" },
-    "role_clarity":           { "score": "ok",                 "evidence": { "Y": "is_defective", "Y_variation": 0.07, "X_candidates": 23 }, "notes": "..." },
-    "measurement_reliability":{ "score": "partial",            "evidence": { "sentinel_values": [["temp", -999, 12]], "unit_mismatch": [], "saturation_cols": [] }, "notes": "replace -999 with NaN in temp" }
-  },
-  "narrowed_scope": [
-    "Drop driver analysis with post-event columns; keep group comparison by line.",
-    "Restrict trend analysis to last 6 months due to cadence change."
-  ],
-  "caveats": [
-    "Balance 8.4:1 — use PR-AUC, not accuracy.",
-    "18% missingness in sensor_3 — document imputation."
-  ],
-  "data_request": null
-}
+```python
+overall = max(dim_scores)  # 取最差分
+if overall == 'blocked':
+    return data_request + narrowed_scope
+elif overall == 'partial':
+    return narrowed_scope + caveats
+else:
+    return proceed
 ```
 
-When `decision == "blocked"`, populate `data_request` instead of `narrowed_scope`:
+## Helper
 
-```json
-{
-  "data_request": {
-    "blocking_reasons": ["post-event column root_cause leaks Y"],
-    "fields_needed": ["all X candidates measured strictly before Y timestamp"],
-    "grain_needed": "one row per wafer per inspection step",
-    "coverage_needed": "at least 6 months continuous, at least 100 wafers per line",
-    "target_definition": "is_defective in {0,1} at final-inspection stage",
-    "methods_unblocked": ["driver ranking", "classification", "group comparison by line"]
-  }
-}
-```
-
----
-
-## Critic Hooks
-
-The critic stage (see [workflow.md](workflow.md) Stage 6) re-reads `readiness_report` to:
-- Verify every `partial` caveat actually appears next to the matching claim in the final report.
-- Reject any conclusion that relied on a blocked-then-narrowed dimension without disclosure.
-- Trigger sensitivity tests when readiness is borderline (e.g. min per-cell n in the 10–29 partial band).
-
----
-
-## Readiness Checkpoints
-
-- Blocked readiness stops the pipeline. Emit `data_request`; do not proceed to shaping or methods.
-- Re-run readiness when sources or filters change.
-- Scan [anti-patterns.md](anti-patterns.md) before finalizing any claim.
+`ds_skill.readiness.assess_readiness(df, target, time_col=None, entity_id=None)` 返回 8 维评分 + 整体决策。

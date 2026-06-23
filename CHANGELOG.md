@@ -6,6 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [3.0.0] - 2026-06-23
+
+### ⚡ Changed — 激进瘦身（流程提速 ~60%）
+
+**BREAKING CHANGE:** agent 接口和流程结构变更。
+
+- **流程 7 阶段 → 3 阶段**：`intake+readiness → execution → report`。readiness 合并到 intake、shaping 内联到 execution、删除独立的 method-planner 和 critic 阶段。
+- **7 agents → 1 agent**：单一 `ds-analyst` 完成全流程，消除多 agent spawn、状态传递、context 重建开销。旧的 `ds-intake-agent` 等 7 个 agent 已删除。
+- **文档精简 64%**（2585 → 917 行）：删除 9 个低频/编排类 reference（workflow、branch-routing、multi-agent-orchestration、helper-bootstrap、golden-templates、advanced-techniques、financial-domain、failure-recovery、analysis-plan-template）；精简保留的 6 个 reference。
+- **确定性画图**：5 条默认图表规则（数值→boxplot、时序→line、相关→scatter、分布→histogram、排序→bar），消除每次出图不一致。
+- **画图样式美化**：`ds_skill.plotting` 注入全局 rcParams（darkgrid、dpi 100、husl 调色板、浅灰背景）。
+- **环境/IO 策略前置到 SKILL.md**：检测到可用环境直接用（不重装）；CSV/Excel 一律用 pandas（不用 shell/PowerShell）。
+
+### ✅ 保持不变
+- 统计内核 `ds_skill/`（248 测试全绿）、helper 函数签名、SPC run-rule 编号（WE-1..4 / Nelson-1..8）。
+
+---
+
 ## [2.2.0] - 2026-06-19
 
 ### 🐛 Fixed — statistical correctness (plugin helpers)

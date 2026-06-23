@@ -125,7 +125,7 @@ This log lives at the bottom of the output or in an appendix; it is not optional
 - Method definitions and assumptions: `method-registry.md`.
 - Readiness gap categories: `data-readiness.md`.
 - Manufacturing-specific recipes: `manufacturing-playbook.md`.
-- Workflow orchestration: `workflow.md` and `multi-agent-orchestration.md`.
+- The 3-stage flow: `SKILL.md` and `agents/ds-analyst.md`.
 
 ---
 
