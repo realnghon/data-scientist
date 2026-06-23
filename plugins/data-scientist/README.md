@@ -1,127 +1,127 @@
 # Data Scientist
 
-Data Scientist is a production-grade, cross-platform AI plugin for rigorous structured data analysis. Starting with manufacturing analytics, it generalizes to operational datasets across domains with evidence-backed statistical rigor.
+Data Scientist 是一个生产级、跨平台的 AI 插件，用于严谨的结构化数据分析。从制造业分析起步，可推广至各领域的运营数据集，具备循证的统计严谨性。
 
-**Version:** 4.0.0 | **License:** MIT | **Status:** Production Ready
+**版本：** 4.0.0 | **许可证：** MIT | **状态：** 生产就绪
 
-## What It Provides
+## 提供的功能
 
-### Core Components
+### 核心组件
 
-- **`data-scientist` skill** — A 3-stage flow (intake+readiness → execution → report) with progressive disclosure to lazy-loaded references. No gate ceremony, no multi-agent orchestration
-- **1 analysis subagent** — `ds-analyst` completes the whole flow in a single thread
-- **4 slash commands** — `/ds-analyze`, `/ds-profile`, `/ds-plan`, `/ds-report` for interactive workflows
-- **Tested Python library** — `ds_skill` with 250+ unit tests, 16 analysis modules (dict returns, zero dataclass overhead), and 13 statistical chart functions
-- **7 reference documents** — Lazy-load architecture: method registry, chart catalog, data readiness, data shaping, manufacturing playbook, report standard, anti-patterns
+- **`data-scientist` 技能** — 三阶段流程（数据摄入+就绪评估 → 分析执行 → 报告生成），按需加载参考文档，无需多 agent 编排
+- **1 个分析 agent** — `ds-analyst` 在单线程中完成整个流程
+- **4 个 Slash 命令** — `/ds-analyze`、`/ds-profile`、`/ds-plan`、`/ds-report`，用于交互式工作流
+- **经过测试的 Python 库** — `ds_skill`，包含 250+ 单元测试、16 个分析模块（返回 dict，零 dataclass 开销）和 13 个统计图表函数
+- **7 份参考文档** — 按需加载架构：方法注册表、图表目录、数据就绪性、数据整形、制造业手册、报告标准、反模式
 
-### Key Features
+### 关键特性
 
-✅ **Statistical Rigor** — 3-tier evidence framework (reliable/directional/unsupported), mandatory cross-checks, anti-pattern blacklist  
-✅ **Manufacturing Grade** — SPC, MSA, DOE, Cpk, control charts, process capability analysis  
-✅ **Financial Domain Support** — Time series analysis, returns vs price levels, stationarity checks, target-derived feature detection  
-✅ **Progressive Disclosure** — Lazy-load references to keep context lean while preserving depth  
-✅ **Multi-Platform** — Works across Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, GitHub Copilot, Gemini CLI  
-✅ **Path Portable** — 100% `${CLAUDE_PLUGIN_ROOT}` usage for marketplace compatibility
+✅ **统计严谨性** — 三级证据框架（可靠/方向性/无法支持），强制交叉验证，反模式清单  
+✅ **制造业级** — SPC、MSA、DOE、Cpk、控制图、过程能力分析  
+✅ **金融领域支持** — 时间序列分析、收益率与价格水平对比、平稳性检验、目标衍生特征检测  
+✅ **按需加载** — 按需加载参考文档，保持上下文精简的同时保留深度  
+✅ **多平台** — 支持 Claude Code、Codex、OpenCode、Cursor、Cline、Windsurf、GitHub Copilot、Gemini CLI  
+✅ **路径兼容** — 100% 使用 `${CLAUDE_PLUGIN_ROOT}`，兼容各应用市场
 
-## Install
+## 安装
 
-### Claude Code (Recommended)
+### Claude Code（推荐）
 
 ```bash
 /plugin marketplace add realnghon/data-scientist
 /plugin install data-scientist@data-scientist
 ```
 
-### Manual Installation
+### 手动安装
 
-For per-runtime manual paths and local development, see [`../../INSTALL.md`](../../INSTALL.md).
+各运行时的手动安装路径和本地开发说明，请参见 [`../../INSTALL.md`](../../INSTALL.md)。
 
-### Standalone Usage
+### 独立使用
 
-To use the skill as reference material without installing:
+在未安装插件的情况下将技能作为参考材料使用：
 ```bash
 cat skills/analysis-workflow/SKILL.md
 ```
 
-## Quick Start
+## 快速开始
 
-### Profile a Dataset
+### 数据集画像
 ```bash
 /ds-profile data.csv
 ```
 
-### Full Analysis
+### 完整分析
 ```bash
-/ds-analyze sales.xlsx "what drives revenue?"
+/ds-analyze sales.xlsx "什么因素驱动收入？"
 ```
 
-### Create Analysis Plan
+### 制定分析方案
 ```bash
-/ds-plan "compare treatment vs control" conversion_rate
+/ds-plan "比较实验组与对照组" conversion_rate
 ```
 
-### Generate Report
+### 生成报告
 ```bash
 /ds-report ./analysis_output
 ```
 
-## Core Workflow
+## 核心工作流
 
-The plugin follows a 3-stage flow, run by a single agent in one thread:
+该插件遵循三阶段流程，由单一 agent 在单线程中运行：
 
-1. **Intake + Readiness** — Inspect structure, grain, and field roles; large tables are probed (`getsize` → `nrows=5` → `usecols`) before a full read; 8-dimension readiness assessment (sample size, missingness, grain, time coverage, class balance, leakage, variable roles, measurement reliability); columns with >30% missing are flagged and auto-downgrade any conclusion that uses them. Produces `data_manifest`
-2. **Execution** — Pick a method (`method-registry.md`), run a formal statistical test (not just descriptive stats), check for confounding, and draw the chart per the deterministic rules. Modeling (regression/classification/survival) lives here too, on demand. Produces `evidence_matrix` + charts
-3. **Report** — User-facing markdown with executive answer, evidence tiers, and limitations
+1. **数据摄入 + 就绪评估** — 检查结构、粒度和字段角色；对大表先探测（`getsize` → `nrows=5` → `usecols`）再完整读取；8 维就绪评估（样本量、缺失率、粒度、时间覆盖、类别平衡、泄漏、变量角色、测量可靠性）；缺失率 >30% 的列会被标记并自动降低相关结论的可信度。产出 `data_manifest`
+2. **分析执行** — 选择方法（`method-registry.md`），运行正式的统计检验（而非仅描述统计），检查混杂因素，按确定性规则绘制图表。建模（回归/分类/生存分析）也在此阶段按需进行。产出 `evidence_matrix` + 图表
+3. **报告生成** — 面向用户的 Markdown 报告，包含核心结论、证据分层和局限性说明
 
-`data_manifest` and `evidence_matrix` have minimal field schemas defined in [`SKILL.md`](skills/analysis-workflow/SKILL.md). The authoritative process definition is `SKILL.md`; the analysis prompt is [`agents/ds-analyst.md`](agents/ds-analyst.md).
+`data_manifest` 和 `evidence_matrix` 的最小字段模式定义在 [`SKILL.md`](skills/analysis-workflow/SKILL.md) 中。流程定义以 `SKILL.md` 为准；分析指令见 [`agents/ds-analyst.md`](agents/ds-analyst.md)。
 
-## Quality Standards
+## 质量标准
 
-### Evidence Tiers
+### 证据层级
 
-Every claim is labelled by how much the data supports it:
+每项声明都按数据支持程度进行标注：
 
-1. ✅ **reliable** — significance (p < 0.05) + effect size + CI + a second method agreeing in direction; no high-missing column or unaddressed confound it is sensitive to
-2. ✅ **directional** — a pattern is present but single-method, borderline, modest N, or carries one caveat (hedged language required)
-3. ✅ **unsupported** — explicitly named: what was hoped, why the data cannot support it, what would be needed
+1. ✅ **可靠结论** — p < 0.05 + 效应量 + 置信区间 + 第二种方法在方向上一致；不依赖高缺失率列或未解决的敏感混杂
+2. ✅ **方向性信号** — 存在某种模式，但仅单一方法、效应处于边缘、样本量有限或存在未排除的注意事项（需使用保留性措辞）
+3. ✅ **无法支持** — 明确列出：期望验证的结果、数据无法支持的原因、需要补充什么
 
-See [`report-standard.md`](skills/analysis-workflow/references/report-standard.md) for the full contract.
+完整约定请参见 [`report-standard.md`](skills/analysis-workflow/references/report-standard.md)。
 
-### Anti-Pattern Protection
+### 反模式防护
 
-12+ documented failure modes with recovery actions:
-- Report p-value as impact → Pair with effect size + units + CI
-- Leaked features → Run leakage scan, drop offenders
-- Causal language on observational data → Use "associated with"
-- Cpk on unstable process → Confirm SPC stability first
-- Single method, no cross-check → Every Tier-1 claim needs second method
+12+ 种已记录的失败模式及其恢复措施：
+- 仅报告 p 值而不带效应量 → 必须同时报告效应量 + 单位 + 置信区间
+- 特征泄漏 → 运行泄漏扫描，剔除问题特征
+- 对观测数据使用因果语言 → 改用"与……相关"
+- 在不稳定过程上计算 Cpk → 先确认 SPC 稳定性
+- 单一方法，无交叉验证 → 每条第1层结论都需要第二种方法交叉验证
 
-See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-workflow/references/anti-patterns.md)
+参见 [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-workflow/references/anti-patterns.md)
 
-## Documentation
+## 文档
 
-### For Users
+### 面向用户
 
-- **[SKILL.md](skills/analysis-workflow/SKILL.md)** — Complete workflow guide
-- **[Method Registry](skills/analysis-workflow/references/method-registry.md)** — Statistical methods by purpose
-- **[Chart Catalog](skills/analysis-workflow/references/chart-catalog.md)** — Visualization guide
-- **[Manufacturing Playbook](skills/analysis-workflow/references/manufacturing-playbook.md)** — SPC, MSA, DOE patterns
+- **[SKILL.md](skills/analysis-workflow/SKILL.md)** — 完整工作流指南
+- **[方法注册表](skills/analysis-workflow/references/method-registry.md)** — 按用途分类的统计方法
+- **[图表目录](skills/analysis-workflow/references/chart-catalog.md)** — 可视化指南
+- **[制造业手册](skills/analysis-workflow/references/manufacturing-playbook.md)** — SPC、MSA、DOE 模式
 
-### For Developers
+### 面向开发者
 
-- **[Agent Development](agents/)** — analysis sub-agent
-- **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 16 Python modules with 250+ tests
+- **[Agent 开发](agents/)** — 分析 agent 配置
+- **[辅助库](skills/analysis-workflow/scripts/ds_skill/)** — 16 个 Python 模块，250+ 项测试
 
-## Support
+## 支持
 
-- **Issues:** [GitHub Issues](https://github.com/realnghon/data-scientist/issues)
-- **Discussions:** [GitHub Discussions](https://github.com/realnghon/data-scientist/discussions)
-- **Author:** [@realnghon](https://github.com/realnghon)
+- **问题反馈：** [GitHub Issues](https://github.com/realnghon/data-scientist/issues)
+- **讨论：** [GitHub Discussions](https://github.com/realnghon/data-scientist/discussions)
+- **作者：** [@realnghon](https://github.com/realnghon)
 
-## License
+## 许可证
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT 许可证 — 详见 [LICENSE](LICENSE)。
 
 ---
 
-**Production-grade data science for AI agents. Evidence-backed. Rigorous. Cross-platform.**
+**面向 AI agent 的生产级数据科学。循证。严谨。跨平台。**

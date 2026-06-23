@@ -1,134 +1,134 @@
 ---
 name: report-standard
-description: Final report contract defining structure, evidence-citing format, confidence tiers, limitations template. Use when writing deliverable, need section ordering, or report quality checklist. Triggers — write report, deliverable format, report structure.
+description: 最终报告契约，规定结构、引证格式、置信分层、局限性模板。写交付物、需要章节顺序、或报告质量自查时用。触发——写报告、交付格式、报告结构。
 ---
 
 
-This file defines the strict contract for the final report produced by the data-scientist skill. An agent writing or reviewing a report MUST conform to this contract. Use `assets/report_template.md` as the fill-in skeleton.
+本文件定义 data-scientist skill 产出的最终报告的严格契约。写报告或审报告的 agent **必须**遵守此契约。用 `assets/report_template.md` 作填空骨架。
 
-## Three Evidence Tiers (mandatory separation)
+## 三层证据（强制分离）
 
-Every claim in a report belongs to exactly one of these tiers. Mixing tiers in one section is a defect.
+报告里每个结论都恰好属于以下某一层。在同一节里混层即缺陷。
 
-### Tier 1: Reliable Conclusions
+### 第1层：可靠结论
 
-Minimum bar: the _rigorous_ gate in `SKILL.md` (significance + cross-check + effect size + CI). Two additional report-tier requirements on top of the gate:
+最低门槛：`SKILL.md` 里的 *严格* 闸门（显著性 + 交叉验证 + effect size + CI）。在闸门之上，报告层再加两条要求：
 
-- Method assumptions were checked and met (or the method is assumption-light); N clears the method's documented minimum (see `method-registry.md`).
-- No identified leakage, confound, or sampling bias that the conclusion is sensitive to.
+- 方法假设已检查且满足（或方法本身对假设不敏感）；N 达到该方法记录的最小值（见 `method-registry.md`）。
+- 没有会动摇该结论的已识别泄漏、混杂或抽样偏差。
 
-Language: declarative. "Yield differs by line; Line B runs 3.2 pp lower than Line A (95% CI 2.1-4.3 pp, n_A=412, n_B=389, Welch t-test p<0.001, confirmed by Mann-Whitney)."
+语言：陈述句。"良率随 line 而异；Line B 比 Line A 低 3.2 pp（95% CI 2.1-4.3 pp, n_A=412, n_B=389, Welch t-test p<0.001, 经 Mann-Whitney 确认）。"
 
-### Tier 2: Directional Signals
+### 第2层：方向性信号
 
-Required to qualify:
+入选条件：
 
-- A pattern is present but one of: single method only, partial assumption fit, borderline effect, modest N, or one identified caveat the conclusion is sensitive to.
+- 存在某种模式，但命中以下之一：仅单一方法、假设部分契合、效应处于边缘、N 偏小、或有一个会动摇结论的已识别 caveat。
 
-Language: hedged. Must use one of: "appears to", "is consistent with", "suggests", "directional only".
-Every directional signal MUST state the specific reason it is not Tier 1 (e.g. "single method", "n=18 per group", "ANOVA assumption of equal variance violated; Welch used but borderline p=0.043").
+语言：留有余地。必须用以下之一："appears to" / "与…一致" / "suggests" / "仅方向性"。
+每个方向性信号**必须**写明它没进第1层的具体原因（如"单一方法"、"每组 n=18"、"ANOVA 等方差假设被违反；改用 Welch 但 p=0.043 处于边缘"）。
 
-### Tier 3: Unsupported Findings (explicitly named)
+### 第3层：无法支持的发现（显式点名）
 
-Findings the user or stakeholder might expect to see, but the data does not support. Required structure for each:
+用户或对方可能期待看到、但数据并不支持的发现。每条所需结构：
 
-- What was hoped to be concluded.
-- Why the current data cannot support it (missing variable, insufficient N, confounded design, no causal lever, etc.).
-- What data or design would be needed to upgrade to Tier 2 or Tier 1.
+- 本来想得出什么结论。
+- 为什么当前数据支撑不了（缺变量、N 不足、设计被混杂、无因果杠杆等）。
+- 需要什么数据或设计才能升到第2层或第1层。
 
-This section is non-optional. If empty, state "No claims were attempted that the data could not support" explicitly.
+本节非可选。若为空，显式写"没有尝试任何数据无法支持的结论"。
 
-## Required Sections (in this order)
+## 必备章节（按此顺序）
 
-The output MUST contain these sections, in this order, with this content contract. Empty sections are stated explicitly as "None" rather than omitted.
+输出**必须**包含以下章节，按此顺序、按此内容契约。空章节显式写"无"，而非省略。
 
-### 1. TL;DR
+### 1. 摘要速览
 
-- At most 3 bullets.
-- Business-level language; no statistics, no method names.
-- Only Tier 1 conclusions may appear here. Tier 2 may be mentioned only with the word "directional".
-- Each bullet must be one sentence.
+- 至多 3 条要点。
+- 业务级语言；无统计量、无方法名。
+- 仅第1层结论可出现在此。第2层只能带"方向性"一词提及。
+- 每条要点一句话。
 
-### 2. Question & Dataset
+### 2. 问题与数据集
 
-- Restate the question the user asked (verbatim if possible).
-- Dataset: name/source, time range, row count, unit of analysis (one row = ?).
-- Roles assigned: target Y, drivers, time, group dimensions (link to `data-shaping.md` taxonomy).
-- Any filter or exclusion applied before analysis, with row counts before and after.
+- 复述用户问的问题（尽量逐字）。
+- 数据集：名称/来源、时间范围、行数、分析单元（一行 = ?）。
+- 已分配的角色：target Y、drivers、time、group 维度（链到 `data-shaping.md` 分类）。
+- 分析前施加的任何 filter 或 exclusion，附前后行数。
 
-### 3. Reliable Conclusions (Tier 1)
+### 3. 可靠结论（第1层）
 
-For each conclusion:
+每个结论：
 
-- Plain-language statement.
-- Evidence pointer block: method name (from `method-registry.md`), statistic, effect size with units, CI, N per group, p-value if applicable.
-- Reference to the chart that supports it (chart id + caption).
-- Reference to the cross-check method that confirmed it.
+- 平白语言的陈述。
+- 证据指针块：方法名（来自 `method-registry.md`）、统计量、带单位的 effect size、CI、每组 N、适用时的 p 值。
+- 引用支持它的图（图表编号 + 图注）。
+- 引用确认它的交叉验证方法。
 
-If zero Tier 1 conclusions, state "No reliable conclusions could be drawn at the required evidence bar" and route remaining findings to Tier 2 / Tier 3.
+若第1层结论为零，写"在所需证据门槛下无法得出可靠结论"，并把剩余发现归到第2层 / 第3层。
 
-### 4. Directional Signals (Tier 2)
+### 4. 方向性信号（第2层）
 
-Same structure as Tier 1 plus a mandatory "Why directional" line stating the specific reason it did not clear Tier 1. Hedge language required.
+结构同第1层，外加一行强制的"为何方向性"，写明它没过第1层的具体原因。必须用留有余地的措辞。
 
-### 5. What We Could Not Conclude (Tier 3)
+### 5. 我们无法得出的结论（第3层）
 
-Each item: hoped claim -> blocker -> data/design needed. Connect to `data-readiness.md` gap categories where applicable.
+每条：想得出的结论 -> 卡点 -> 所需数据/设计。适用时连到 `data-readiness.md` 的缺口类别。
 
-### 6. Method Summary
+### 6. 方法说明
 
-- Methods used, with the section reference in `method-registry.md`.
-- Methods considered and rejected, with one-line reason (e.g. "Linear regression rejected: residuals non-normal AND heteroscedastic, used quantile regression instead").
-- Any agent-side decisions made by the planner (link to multi-agent decisions if recorded).
+- 用过的方法，附 `method-registry.md` 的章节引用。
+- 考虑过但否决的方法，附一行理由（如"否决线性回归：残差非正态且异方差，改用分位数回归"）。
+- planner 在 agent 侧做的任何决策（若有记录，链到多 agent 决策）。
 
-### 7. Limitations & Risks
+### 7. 局限性与风险
 
-Cover at minimum:
+至少覆盖：
 
-- Leakage risk: any feature observed after the target?
-- Confounding: variables that vary with both driver and outcome.
-- Sampling: how the analyzed rows differ from the operating population.
-- Validity scope: time window, equipment subset, product mix the conclusions apply to.
-- Measurement: known sensor / gauge / inspection issues.
+- 泄漏风险：有没有在 target 之后观测到的特征？
+- 混杂：同时随 driver 和 outcome 变化的变量。
+- 抽样：被分析的行与运营总体有何差异。
+- 有效范围：结论适用的时间窗、设备子集、产品组合。
+- 测量：已知的 sensor / gauge / 检验问题。
 
-### 8. Recommended Next Actions
+### 8. 建议的下一步行动
 
-Each action: concrete verb, owner role, expected effort (S/M/L), expected payoff, priority (P1/P2/P3).
-Separate "analytical next steps" (more data, new method) from "operational next steps" (process change, instrument check).
+每个行动：具体动词、负责角色、预期工作量（S/M/L）、预期收益、优先级（P1/P2/P3）。
+把"分析类下一步"（补数据、换方法）与"运营类下一步"（流程变更、仪器检查）分开。
 
-## Writing Rules (enforced)
+## 写作规则（强制）
 
-- Always report effect size with units, not just p-value. A p-value alone is a defect.
-- Always state N and missingness for any group-level claim.
-- Never write "X causes Y" unless an experimental or quasi-experimental design supports it. Use "associated with", "predicts", "differs by", "is consistent with".
-- Always provide chart + table side-by-side for any Tier 1 or Tier 2 finding.
-- Cite which `method-registry.md` section produced each statistic.
-- Round numbers to the precision the measurement justifies; do not report 4 decimal places on a 2-sig-fig instrument.
-- Confidence intervals required for every estimated effect. If the method does not yield one, bootstrap or state "no CI available".
-- Use the same group ordering across all charts and tables.
-- Units must appear at first use of any numeric quantity and on every axis.
+- 永远报告带单位的 effect size，不只是 p 值。只有 p 值即缺陷。
+- 任何组级结论都写明 N 和缺失情况。
+- 永不写"X 导致 Y"，除非有实验或准实验设计支持。用"与…相关"、"可预测"、"随…而异"、"与…一致"。
+- 任何第1层或第2层发现，图 + 表并排给出。
+- 注明每个统计量出自 `method-registry.md` 哪一节。
+- 数字按测量精度取整；别在 2 位有效数字的仪器上报 4 位小数。
+- 每个估计效应都要 CI。方法给不出就 bootstrap，或写"无 CI"。
+- 所有图表用同一组别排序。
+- 单位须在任一数值量首次出现时、以及每条坐标轴上标出。
 
-## Human Decision Log
+## 人类决策日志
 
-If the user made choices during the run (method selection, exclusion approval, threshold setting), record per choice:
+若用户在过程中做过选择（方法选择、exclusion 批准、阈值设定），逐条记录：
 
-- Question asked to the user.
-- Options presented.
-- User's choice.
-- Effect on the analysis path.
+- 向用户提的问题。
+- 给出的选项。
+- 用户的选择。
+- 对分析路径的影响。
 
-This log lives at the bottom of the output or in an appendix; it is not optional when decisions occurred.
+此日志放输出末尾或附录；有决策发生时它非可选。
 
-## Cross-References
+## 交叉引用
 
-- Chart selection per method: `chart-catalog.md` "Default chart per method".
-- Method definitions and assumptions: `method-registry.md`.
-- Readiness gap categories: `data-readiness.md`.
-- Manufacturing-specific recipes: `manufacturing-playbook.md`.
-- The 3-stage flow: `SKILL.md` and `agents/ds-analyst.md`.
+- 各方法的图表选择：`chart-catalog.md` "各方法默认图表"。
+- 方法定义与假设：`method-registry.md`。
+- Readiness 缺口类别：`data-readiness.md`。
+- 制造业专用配方：`manufacturing-playbook.md`。
+- 3 阶段流程：`SKILL.md` 与 `agents/ds-analyst.md`。
 
 ---
 
-## Anti-Patterns
+## 反模式
 
-Report-specific red-flags are covered in [anti-patterns.md](anti-patterns.md). Key report violations to watch: p-value without effect size, burying limitations, conclusions without evidence links, no confidence tiers, jargon without translation, charts without N annotation, recommendations without next-actions.
+报告相关的红线见 [anti-patterns.md](anti-patterns.md)。重点盯防的报告违规：p 值无 effect size、埋掉局限性、结论无证据链接、无置信分层、术语不翻译、图无 N 标注、建议无下一步行动。

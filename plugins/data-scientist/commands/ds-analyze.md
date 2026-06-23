@@ -1,34 +1,34 @@
 ---
-description: Run an end-to-end data-scientist analysis on a dataset — intake, readiness, plan, execution, and evidence-backed report
+description: 对数据集运行端到端分析——数据摄入、就绪评估、方案制定、执行和基于证据的报告
 argument-hint: <dataset-path> [analysis-goal]
 ---
 
-# Analyze Dataset
+# 分析数据集
 
-Use the `data-scientist` skill to run a full analysis workflow on the user's dataset.
+使用 `data-scientist` 技能对用户数据集运行完整分析流程。
 
-**Examples:**
+**示例：**
 - `/ds-analyze data.csv`
-- `/ds-analyze sales.xlsx "what drives revenue?"`
-- `/ds-analyze dataset.parquet "is yield different between groups?"`
+- `/ds-analyze sales.xlsx "什么因素驱动收入？"`
+- `/ds-analyze dataset.parquet "各组之间的产出是否存在差异？"`
 
-## Required Behavior
+## 执行要求
 
-1. Identify the dataset source and user goal.
-2. Load `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/SKILL.md` and follow its workflow.
-3. Start with intake and readiness; do not jump directly to modeling or hypothesis tests.
-4. Ask no more than 5 human questions. Ask only when the answer materially changes the analysis.
-5. Produce an analysis plan before executing non-trivial analysis code.
-6. Separate reliable conclusions from directional signals and unsupported findings.
+1. 识别数据集来源和用户目标。
+2. 加载 `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/SKILL.md` 并遵循其工作流程。
+ 3. 从数据摄入和就绪评估开始；不要直接跳到建模或假设检验。
+4. 最多提出 5 个人工确认问题。仅在答案会实质性改变分析方向时才提问。
+5. 在执行非平凡的分析代码之前，先制定分析方案。
+6. 将可靠结论与方向性信号和无法支持的发现区分开来。
 
-## Expected Outputs
+## 预期输出
 
-- Data/profile summary.
-- Readiness assessment.
-- Analysis plan with rejected methods.
-- Executed results and charts when data permits.
-- Final report with limitations and next actions.
+- 数据/画像摘要。
+- 就绪评估。
+- 包含被拒绝方法的分析方案。
+- 数据允许时的执行结果和图表。
+- 最终报告，包含局限性和后续行动。
 
-## Failure Mode
+## 失败模式
 
-If the data cannot support the requested analysis, stop and produce a concrete data request instead of fabricating a report.
+如果数据无法支持所请求的分析，应停止并生成一份具体的数据需求清单，而非编造报告。

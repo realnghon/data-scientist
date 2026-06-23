@@ -1,74 +1,74 @@
 ---
 name: anti-patterns
-description: Red-flag blacklist of statistical, causal, data-prep, domain, method, and reporting failure modes, each with a recovery action. Use before finalizing any report or claim. Triggers — is this conclusion safe, sanity check, did I leak, p-value as impact, causal claim, before reporting.
+description: 统计/因果/数据准备/领域/方法/报告六类失败模式的红线清单，每条配一个补救动作。下结论或定稿前自查。触发——这个结论靠谱吗、sanity check、是不是泄漏了、p 值当影响、因果断言、报告前自查。
 ---
 
-# Anti-Patterns — Red-Flag Blacklist
+# 反模式 — 红线清单
 
-🚫 These failure modes silently corrupt an analysis. Scan this list before reporting any claim; each maps to a recovery action. If a stakeholder asks for one of these, explain the risk instead of complying silently.
+🚫 这些失败模式会悄悄毁掉一份分析。报告任何结论前先扫一遍，每条都对应一个补救动作。如果对方非要你做其中之一，把风险讲清楚，别闷头照做。
 
-## Statistical Rigor Failures
+## 统计严谨性失败
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Report p-value as business impact** | large N (n>1000) makes trivial effects "significant"; significance ≠ magnitude | pair every p with effect size + units + CI |
-| **Conclude on leaked features** | post-outcome / target-derived `X` inflates accuracy; won't replicate | run the leakage scan (data-readiness dim 6) first; drop offenders |
-| **Force a conclusion on sparse data** | n<5 per cell, >30% missing on `Y`, or constant `Y` → any test is noise | report descriptive-only; route the question to Tier 3 unsupported |
-| **Single method, no cross-check** | one test can fire on an artifact; no triangulation | every Tier-1 claim needs a second method agreeing in direction |
-| **Silently impute `Y`** | inventing the target biases every downstream estimate | never impute `Y`; imputing `X` requires a documented, reported strategy |
+| **把 p 值当业务影响** | 大 N（n>1000）会让微不足道的效应也"显著"；显著 ≠ 量级 | 每个 p 都配上 effect size + 单位 + CI |
+| **在泄漏特征上下结论** | 结果后产生 / target-derived 的 `X` 会虚高准确率，复现不了 | 先跑泄漏扫描（data-readiness 第 6 维），剔除问题特征 |
+| **在稀疏数据上硬下结论** | 每格 n<5、`Y` 缺失>30%、或 `Y` 恒定 → 任何检验都是噪声 | 只报描述统计；把问题归到 Tier 3 unsupported |
+| **单一方法、无交叉验证** | 一个检验可能命中假象；没有三角互证 | 每条第1层结论都要有第二个方法在方向上一致 |
+| **悄悄 impute `Y`** | 凭空造目标值会污染下游每个估计 | 永不 impute `Y`；impute `X` 必须有记录在案、写进报告的策略 |
 
-## Causal Inference Errors
+## 因果推断错误
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Causal language on observational data** | "X causes Y" needs an experiment or quasi-experiment | use "associated with" / "predicts" / "differs by" unless a causal design exists |
-| **Correlate against same-row outcomes** | features measured *after* or *alongside* Y (same timestamp, same event) may be effects not causes | verify time order; exclude concurrent/post-event features from driver ranking |
-| **Call a target-derived feature a "driver"** | mechanically correlated with `Y`; not an independent explanation | tag `target_derived`, exclude from driver ranking |
+| **观察性数据上用因果语言** | "X 导致 Y"需要实验或准实验 | 没有因果设计就用"与…相关" / "可预测" / "随…而异" |
+| **拿同行的结果列做相关** | 在 Y *之后*或*同时*测量的特征（同时间戳、同事件）可能是果不是因 | 核对时间先后；driver ranking 里排除同期/事件后特征 |
+| **把 target-derived 特征叫"驱动因素"** | 它与 `Y` 是机械相关，不是独立解释 | 标记 `target_derived`，从 driver ranking 中排除 |
 
-## Data Preparation Mistakes
+## 数据准备失误
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Skip pivot on entity×attribute long data** | driver ranking on unpivoted data mixes entity-level signal with measurement-type noise | pivot to entity-level (one row per wafer/patient/customer, attributes as columns) before ranking drivers |
-| **Aggregate away the signal** | group-mean hides Simpson's paradox and station-level failure modes | check within-group before declaring a pooled effect |
+| **entity×attribute 长表不 pivot 就分析** | 在未 pivot 的数据上做 driver ranking 会把实体级信号和测量类型噪声混在一起 | 先 pivot 到实体级（一行一个 wafer/患者/客户，属性做列）再排驱动 |
+| **聚合把信号抹平** | 组均值会掩盖 Simpson's paradox 和 station 级失效模式 | 宣称合并效应前先看组内 |
 
-## Domain-Specific Pitfalls
+## 领域特有陷阱
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Cp/Cpk on an unstable process** | capability on an out-of-control process is a meaningless number | confirm SPC stability first; compute capability on the in-control segment only |
-| **Rank drivers against a raw price level** | non-stationary series produce spurious correlations | use returns / forward returns / excess returns |
-| **Refit control/CV limits on the judged data** | circular — the limits always "fit" | hold out a known in-control window / keep train-test separation |
+| **在不稳定过程上算 Cp/Cpk** | 失控过程的能力指数是无意义的数 | 先确认 SPC 稳定；只在受控区段上算能力 |
+| **拿原始价格水平排驱动** | 非平稳序列会产生伪相关 | 用 returns / forward returns / excess returns |
+| **在被判定数据上重拟合控制/CV 限** | 循环论证——限永远"拟合" | 留出已知受控窗口 / 保持 train-test 分离 |
 
-## Method Selection Failures
+## 方法选择失败
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Pick a method by name or popularity** | impressive ≠ defensible; the data shape decides | choose by purpose + data type + assumption fit (`method-registry.md`) |
+| **按名气或时髦选方法** | 唬人 ≠ 站得住；数据形状才决定方法 | 按目的 + 数据类型 + 假设契合度选（`method-registry.md`） |
 
-## Reporting Failures
+## 报告失败
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Silently exclude weak features** | omitting "X has no effect" hides what was tested; reader assumes you didn't check | explicitly state negative findings: "recipe, waiting_time tested, no significant effect (p>0.05, ρ<0.1)" |
-| **Claim "comprehensive analysis" when readiness = partial** | over-promises; hides what was dropped | state the `narrowed_scope`: what is answerable, what is not, and why |
+| **悄悄略掉弱特征** | 省略"X 无效应"会藏掉你查过什么，读者以为你没查 | 明确报告负向发现："recipe、waiting_time 已检验，无显著效应（p>0.05, ρ<0.1）" |
+| **readiness=partial 却号称"全面分析"** | 过度承诺，藏掉被舍弃的部分 | 写明 `narrowed_scope`：什么能答、什么不能、为什么 |
 
-## Environment Setup Failures
+## 环境配置失败
 
-| 🚫 Anti-pattern | Why it corrupts the result | Do this instead |
+| 🚫 反模式 | 为什么毁结果 | 改这么做 |
 |---|---|---|
-| **Create a venv when a working environment exists** | interrupts the user, wastes time, litters the workspace | test the active environment first; use it and record versions (Environment Policy in SKILL.md) |
+| **已有可用环境还另建 venv** | 打断用户、浪费时间、弄脏工作区 | 先测当前环境；能用就用并记录版本（见 SKILL.md 环境策略） |
 
 ---
 
-## Usage
+## 用法
 
-Before finalizing any analysis report, scan this list to ensure no anti-patterns are present in:
-1. Method selection rationale
-2. Data preparation steps
-3. Statistical claim language
-4. Effect reporting format
-5. Missing data handling
-6. Driver ranking methodology
+定稿任何分析报告前，扫一遍本清单，确认以下环节没有反模式：
+1. 方法选择理由
+2. 数据准备步骤
+3. 统计结论的措辞
+4. 效应报告格式
+5. 缺失数据处理
+6. driver ranking 方法论
 
-When you catch yourself about to do any of these: stop, name the anti-pattern, and switch to the "do this instead" column.
+当你发现自己正要做其中任何一条：停下，点名这个反模式，切到"改这么做"那一列。

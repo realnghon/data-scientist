@@ -11,7 +11,7 @@
       "name": "data-scientist",
       "source": "./plugins/data-scientist",
       "description": "Data science workflows for messy structured data, manufacturing analytics, statistical testing, charting, and evidence-backed reporting.",
-      "version": "1.0.0",
+      "version": "4.0.0",
       "author": {
         "name": "realnghon"
       },

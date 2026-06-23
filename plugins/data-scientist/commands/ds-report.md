@@ -1,34 +1,34 @@
 ---
-description: Produce a user-facing data-scientist report from completed analysis artifacts, labelling findings by confidence and stating limitations
+description: 基于已完成的分析产物生成面向用户的报告，按置信度标注发现并说明局限性
 argument-hint: [artifacts-dir-or-context]
 ---
 
-# Report Analysis
+# 生成分析报告
 
-Use the `data-scientist` reporting workflow to produce a user-facing report from completed analysis artifacts.
+使用 `data-scientist` 报告流程，基于已完成的分析产物生成面向用户的报告。
 
-**Examples:**
+**示例：**
 - `/ds-report ./analysis_output`
-- `/ds-report "from current session"`
+- `/ds-report "从当前会话获取"`
 - `/ds-report /path/to/evidence_matrix.json`
 
-## Required Behavior
+## 执行要求
 
-1. Read the data profile, readiness report, analysis plan, execution outputs, charts, and critic notes when available.
-2. Lead with the answer the data actually supports.
-3. Label each finding as reliable conclusion, directional signal, investigation candidate, or unsupported.
-4. Explain practical magnitude, not only p-values or model scores.
-5. State limitations and missing data plainly.
+1. 读取数据画像、就绪性报告、分析计划、执行输出以及可用的图表。
+2. 以数据实际支持的结论作为开篇。
+3. 按证据层级标注每项发现：可靠结论、方向性信号或无法支持（即 `references/report-standard.md` 中定义的三级体系）。
+4. 解释实际量级，而非仅报告 p 值或模型得分。
+5. 明确陈述局限性和数据缺失情况。
 
-## Expected Outputs
+## 预期输出
 
-- executive answer
-- data and goal summary
-- readiness and caveats
-- key findings
-- evidence matrix
-- charts/tables list
-- recommended next actions
-- data needed for stronger conclusions
+- 核心结论
+- 数据与目标摘要
+- 就绪评估与注意事项
+- 关键发现
+- 证据矩阵
+- 图表/表格清单
+- 后续建议行动
+- 获得更强结论所需的数据补充
 
-Do not hide weak evidence behind polished language.
+不要用修饰性语言掩盖证据薄弱的发现。

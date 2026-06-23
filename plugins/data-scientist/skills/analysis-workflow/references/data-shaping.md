@@ -1,9 +1,9 @@
 ---
 name: data-shaping
-description: 数据整形速查：grain 决策、pivot/melt、join、泄漏检查。按需内联到 execution 阶段。
+description: 数据整形速查：grain 决策（raw/entity/batch/time-bucket/group）、长宽表转换、join 匹配率检查、聚合规则、泄漏检查点。当需要决定分析粒度、做 pivot/melt、多表 join 或排查数据泄漏时使用。按需内联到 execution 阶段。
 ---
 
-# Data Shaping
+# 数据整形
 
 数据整形操作，不单独成阶段，在 execution 里按需使用。
 

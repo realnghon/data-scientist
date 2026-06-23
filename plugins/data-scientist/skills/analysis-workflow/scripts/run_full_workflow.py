@@ -242,13 +242,13 @@ def run_workflow(
         "driver_ranking": driver_ranking,
     }
     next_stage_hint = {
-        "stages": ["method-planner", "execution", "critic", "report"],
+        "stages": ["execution", "report"],
         "can_parallelize": False,
         "rationale": (
-            "Baseline pipeline complete. Hand off to method-planner for "
-            "full method selection, then fan-out execution, critic, and report."
+            "Baseline pipeline complete. Hand off to the Execution stage "
+            "(method selection + analysis), then Report — per ds-analyst.md."
             if target and not warnings
-            else "Baseline pipeline completed with warnings; review blockers before method planning."
+            else "Baseline pipeline completed with warnings; review blockers before the Execution stage."
             if warnings
             else "No target column provided; run exploratory profiling or add --target for driver ranking."
         ),

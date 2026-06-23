@@ -1,130 +1,130 @@
-# <<Report Title: question in plain language>>
+# <<报告标题：用平白语言表述的问题>>
 
-> Fill-in template. Conform to `references/report-standard.md`. Do not delete sections; mark empty sections "None" explicitly.
+> 填空模板。遵守 `references/report-standard.md`。不要删除章节；空章节显式写"无"。
 
-## 1. TL;DR
+## 1. 摘要速览
 
-- <<bullet_1: Tier 1 conclusion in business language, no stats>>
-- <<bullet_2: Tier 1 conclusion in business language, no stats>>
-- <<bullet_3: optional; if Tier 2 only, prefix with "Directional:">>
+- <<要点1：第1层结论，业务语言，无统计量>>
+- <<要点2：第1层结论，业务语言，无统计量>>
+- <<要点3：可选；若仅有第2层，加前缀"方向性：">>
 
-## 2. Question & Dataset
+## 2. 问题与数据集
 
-- Question asked: <<verbatim user question>>
-- Dataset: <<name / source>>
-- Time range: <<start>> to <<end>>
-- Rows analyzed: <<N_final>> (from <<N_raw>> after filters)
-- Unit of analysis (one row = ?): <<row_grain>>
-- Roles:
-  - target Y: <<y_column, type, units>>
-  - drivers: <<list>>
-  - time: <<time_column or "none">>
-  - group dimensions: <<list>>
-- Filters / exclusions applied: <<rule -> rows removed>>
+- 用户问题：<<逐字引用>>
+- 数据集：<<名称 / 来源>>
+- 时间范围：<<开始>> 至 <<结束>>
+- 分析行数：<<最终行数>>（从 <<原始行数>> 过滤后）
+- 分析单元（一行 = ?）：<<行粒度>>
+- 角色分配：
+  - target Y：<<Y 列, 类型, 单位>>
+  - drivers：<<列表>>
+  - time：<<时间列或"无">>
+  - group 维度：<<列表>>
+- 过滤 / 排除：<<规则 -> 移除行数>>
 
-## 3. Reliable Conclusions (Tier 1)
+## 3. 可靠结论（第1层）
 
-### Conclusion 1
+### 结论 1
 
-- Statement: <<plain-language statement with direction and magnitude>>
-- Evidence:
-  - Method: <<method_name>> (`method-registry.md` section: <<section>>)
-  - Statistic: <<stat name = value>>
-  - Effect size: <<value with units>>, 95% CI <<lo - hi>>
-  - N: <<per group n>>
-  - p-value: <<value or "n/a">>
-- Chart: <<chart_id, caption>>
-- Cross-check method: <<method_name>> -> <<agreement summary>>
+- 陈述：<<带方向和量级的平白语言陈述>>
+- 证据：
+  - 方法：<<方法名>>（`method-registry.md` 章节：<<章节>>）
+  - 统计量：<<统计量名 = 值>>
+  - 效应量：<<带单位的值>>，95% CI <<下限 - 上限>>
+  - N：<<每组样本量>>
+  - p值：<<值或"不适用">>
+- 图表：<<图表编号，图注>>
+- 交叉验证方法：<<方法名>> -> <<一致性摘要>>
 
-### Conclusion 2
+### 结论 2
 
-<<repeat block; delete if none and mark "None" below>>
+<<重复上述块；若无则删除并在下方写"无">>
 
-If none: state "No conclusions cleared the Tier 1 bar; see Directional Signals."
+若无：写"没有结论达到第1层门槛；参见方向性信号。"
 
-## 4. Directional Signals (Tier 2)
+## 4. 方向性信号（第2层）
 
-### Signal 1
+### 信号 1
 
-- Statement: <<hedged statement using "appears to" / "is consistent with" / "suggests">>
-- Evidence:
-  - Method: <<method_name>>
-  - Statistic: <<stat name = value>>
-  - Effect size: <<value with units>>, 95% CI <<lo - hi>>
-  - N: <<per group n>>
-- Chart: <<chart_id>>
-- Why directional (mandatory): <<single method only | borderline effect p=X | assumption Y violated | n=Z too small | confound A not ruled out>>
+- 陈述：<<用"似乎" / "与…一致" / "表明"措辞的留有余地陈述>>
+- 证据：
+  - 方法：<<方法名>>
+  - 统计量：<<统计量名 = 值>>
+  - 效应量：<<带单位的值>>，95% CI <<下限 - 上限>>
+  - N：<<每组样本量>>
+- 图表：<<图表编号>>
+- 为何方向性（必填）：<<仅单一方法 | 效应处于边缘 p=X | 假设 Y 被违反 | n=Z 太小 | 混杂 A 未排除>>
 
-### Signal 2
+### 信号 2
 
-<<repeat or mark "None">>
+<<重复或写"无">>
 
-## 5. What We Could Not Conclude (Tier 3)
+## 5. 我们无法得出的结论（第3层）
 
-### Unsupported finding 1
+### 无法支持的主张 1
 
-- Hoped to conclude: <<the claim that was attempted>>
-- Why current data does not support it: <<missing variable | insufficient N | confounded design | no causal lever | leakage>>
-- Data or design needed: <<what would have to change to upgrade this to Tier 2 or 1>>
+- 期望结论：<<尝试得出的主张>>
+- 为何当前数据不支持：<<缺变量 | N 不足 | 设计被混杂 | 无因果杠杆 | 泄漏>>
+- 所需数据或设计：<<需要什么才能升到第2层或第1层>>
 
-<<repeat or state: "No claims were attempted that the data could not support.">>
+<<重复或写："没有尝试任何数据无法支持的主张。">>
 
-## 6. Method Summary
+## 6. 方法说明
 
-### Methods used
+### 使用的方法
 
-| Purpose | Method | `method-registry.md` section | Why chosen |
+| 目的 | 方法 | `method-registry.md` 章节 | 选择理由 |
 |---|---|---|---|
-| <<purpose>> | <<method>> | <<section>> | <<reason>> |
+| <<目的>> | <<方法>> | <<章节>> | <<理由>> |
 
-### Methods rejected
+### 否决的方法
 
-| Method | Rejected because |
+| 方法 | 否决原因 |
 |---|---|
-| <<method>> | <<assumption failed / data insufficient / better alternative available>> |
+| <<方法>> | <<假设不满足 / 数据不足 / 有更优替代>> |
 
-### Planner decisions
+### 规划决策
 
-<<list of agent-side decisions, link to multi-agent decision log if present, or "None">>
+<<agent 侧决策列表，若有则链到多 agent 决策日志，或"无">>
 
-## 7. Limitations & Risks
+## 7. 局限性与风险
 
-- Leakage risk: <<columns excluded as post-outcome | "none identified">>
-- Confounding: <<variables co-varying with both driver and outcome>>
-- Sampling: <<how analyzed rows differ from operating population>>
-- Validity scope: <<time window / equipment subset / product mix the conclusions apply to>>
-- Measurement: <<known gauge / sensor / inspection issues>>
-- Other: <<assumption violations not fully resolved>>
+- 泄漏风险：<<结果后排除的列 | "未发现">>
+- 混杂：<<同时随 driver 和 outcome 变化的变量>>
+- 抽样：<<分析行与运营总体有何差异>>
+- 有效范围：<<结论适用的时间窗 / 设备子集 / 产品组合>>
+- 测量：<<已知 gauge / sensor / 检验问题>>
+- 其他：<<未完全解决的假设违反>>
 
-## 8. Recommended Next Actions
+## 8. 建议的下一步行动
 
-### Operational
+### 运营类
 
-| Priority | Action | Owner role | Effort (S/M/L) | Expected payoff |
+| 优先级 | 行动 | 负责角色 | 工作量（小/中/大） | 预期收益 |
 |---|---|---|---|---|
-| P1 | <<verb + object>> | <<role>> | <<S/M/L>> | <<payoff>> |
+| P1 | <<动词 + 对象>> | <<角色>> | <<小/中/大>> | <<收益>> |
 
-### Analytical
+### 分析类
 
-| Priority | Action | Owner role | Effort (S/M/L) | Expected payoff |
+| 优先级 | 行动 | 负责角色 | 工作量（小/中/大） | 预期收益 |
 |---|---|---|---|---|
-| P1 | <<verb + object>> | <<role>> | <<S/M/L>> | <<payoff>> |
+| P1 | <<动词 + 对象>> | <<角色>> | <<小/中/大>> | <<收益>> |
 
-## 9. Charts & Tables (index)
+## 9. 图表索引
 
-| ID | Type | Supports | Annotation status |
+| 编号 | 类型 | 支持 | 标注状态 |
 |---|---|---|---|
-| <<chart_id>> | <<chart type from chart-catalog.md>> | <<Tier 1 conclusion N / Tier 2 signal N>> | <<units, N, missing, CI all present? Y/N>> |
+| <<图表编号>> | <<chart-catalog.md 中的图表类型>> | <<第1层结论 N / 第2层信号 N>> | <<单位、N、缺失、CI 是否齐全？是/否>> |
 
-## 10. Data Gaps For Stronger Conclusions
+## 10. 数据缺口（支持更强结论所需）
 
-- <<gap_1: missing field / coverage / labels and which conclusion it would upgrade>>
-- <<gap_2>>
+- <<缺口1：缺失字段 / 覆盖 / 标签，以及能升级哪个结论>>
+- <<缺口2>>
 
-## 11. Human Decision Log (if applicable)
+## 11. 人类决策日志（如适用）
 
-| Step | Question to user | Options shown | User choice | Effect on analysis |
+| 步骤 | 提问用户 | 给出的选项 | 用户选择 | 对分析的影响 |
 |---|---|---|---|---|
-| <<step>> | <<question>> | <<options>> | <<choice>> | <<downstream effect>> |
+| <<步骤>> | <<问题>> | <<选项>> | <<选择>> | <<下游影响>> |
 
-<<If no user decisions occurred, delete this section's table and state "No user decisions during run.">>
+<<若无用户决策，删除本节表格并写"运行期间无用户决策。">>

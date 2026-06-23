@@ -1,33 +1,33 @@
 ---
-description: Turn a profiled dataset and user goal into a defensible analysis plan with selected methods, assumption checks, and rejected alternatives
+description: 将已画像的数据集和用户目标转化为可辩护的分析方案，包括选定方法、假设检验和被拒绝的替代方案
 argument-hint: <analysis-goal> [target-metric]
 ---
 
-# Plan Analysis
+# 制定分析方案
 
-Use the `data-scientist` method-planning workflow to turn a profiled dataset and user goal into a defensible analysis plan.
+使用 `data-scientist` 方法规划流程，将已画像的数据集和用户目标转化为可辩护的分析方案。
 
-**Examples:**
-- `/ds-plan "compare treatment vs control"`
-- `/ds-plan "rank drivers of conversion"`
-- `/ds-plan "detect yield drop" yield_pct`
+**示例：**
+- `/ds-plan "比较实验组与对照组"`
+- `/ds-plan "对转化驱动因素进行排序"`
+- `/ds-plan "检测产出下降" yield_pct`
 
-## Required Behavior
+## 执行要求
 
-1. Confirm the target metric `Y`, analysis grain, and allowed analysis scope.
-2. Read `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md`, `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/data-readiness.md`, and relevant domain playbooks.
-3. Choose methods by purpose, data type, assumptions, and business usefulness.
-4. Record rejected methods and why they are weaker or invalid.
-5. Include cross-checks for important claims.
+1. 确认目标指标 `Y`、分析粒度以及允许的分析范围。
+2. 读取 `${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/method-registry.md`、`${CLAUDE_PLUGIN_ROOT}/skills/analysis-workflow/references/data-readiness.md` 以及相关的领域手册。
+3. 根据目的、数据类型、假设条件和业务实用性选择方法。
+4. 记录被拒绝的方法及其被拒绝的原因（较弱或无效）。
+5. 对重要结论纳入交叉验证。
 
-## Expected Outputs
+## 预期输出
 
-- analysis purpose
-- selected method set
-- assumption checks
-- rejected methods
-- execution order
-- required charts
-- human decisions still needed
+- 分析目的
+- 选定的方法集
+- 假设检验
+- 被拒绝的方法
+- 执行顺序
+- 所需图表
+- 仍需人工决策的事项
 
-Do not execute the plan unless the user explicitly asks.
+除非用户明确要求，否则不要执行该方案。

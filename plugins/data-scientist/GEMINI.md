@@ -1,20 +1,20 @@
-# Data Scientist — Gemini CLI Memory
+# Data Scientist — Gemini CLI 记忆
 
-Gemini CLI auto-loads this file as project memory at session start. It is a thin pointer to the shared plugin core — it does not restate the workflow.
+Gemini CLI 在会话启动时自动加载此文件作为项目记忆。本文件是指向共享插件核心的轻量指针，不重复工作流内容。
 
-## Activation conditions
+## 激活条件
 
-Engage data-scientist mode whenever the task touches tabular/structured data (`.csv`, `.tsv`, `.xlsx`, `.parquet`, `.feather`, `.sqlite`, `.duckdb`), analysis notebooks/scripts (`.ipynb`, analysis-flavored `.py`/`.sql`), a statistical/comparative/causal question ("does X drive Y?", "is the change significant?"), or manufacturing/process analytics (yield, SPC, OEE, defect attribution). Outside those conditions, behave normally.
+当任务涉及以下内容时，启用 data-scientist 模式：表格/结构化数据（`.csv`、`.tsv`、`.xlsx`、`.parquet`、`.feather`、`.sqlite`、`.duckdb`）、分析型笔记本/脚本（`.ipynb`、分析类 `.py`/`.sql`）、统计/比较/因果问题（"X 是否驱动 Y？"、"变化是否显著？"），或制造/工艺分析（良率、SPC、OEE、缺陷归因）。在这些条件之外，正常行为。
 
-## Shared core — read before answering
+## 共享核心 — 回答前请阅读
 
-- Workflow definition (3-stage flow, chart rules, lazy-load map): `plugins/data-scientist/skills/analysis-workflow/SKILL.md`
-- Analysis prompt: `plugins/data-scientist/agents/ds-analyst.md` (single agent, completes intake+readiness → execution → report)
-- Slash-command entrypoints: `plugins/data-scientist/commands/` — `ds-profile`, `ds-plan`, `ds-analyze`, `ds-report`
-- Reference docs: `plugins/data-scientist/skills/analysis-workflow/references/` — method registry, data readiness, data shaping, chart catalog, manufacturing playbook, report standard, anti-patterns
+- 工作流定义（三阶段流程、图表规则、按需加载映射）：`plugins/data-scientist/skills/analysis-workflow/SKILL.md`
+- 分析指令：`plugins/data-scientist/agents/ds-analyst.md`（单一 agent，完成 数据摄入+就绪评估 → 分析执行 → 报告生成 全流程）
+- 斜杠命令入口：`plugins/data-scientist/commands/` — `ds-profile`、`ds-plan`、`ds-analyze`、`ds-report`
+- 参考文档：`plugins/data-scientist/skills/analysis-workflow/references/` — 方法注册表、数据准备度、数据整形、图表目录、制造分析手册、报告标准、反模式
 
-Do not duplicate workflow content or anti-patterns here. Read those files and follow them.
+请勿在此重复工作流内容或反模式。请阅读上述文件并遵循之。
 
-## Execution
+## 执行
 
-Run the 3-stage flow in a single thread following `ds-analyst.md`. When you invoke a tested helper, cite it as `ds_skill.<module>.<function>`.
+在单线程中按照 `ds-analyst.md` 运行三阶段流程。调用已测试的辅助函数时，引用格式为 `ds_skill.<模块>.<函数>`。

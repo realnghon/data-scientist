@@ -1,9 +1,9 @@
 ---
 name: chart-catalog
-description: 图表选择速查。5 条默认规则覆盖 90% 场景。
+description: 图表选择速查，5 条默认规则覆盖 90% 场景，含特殊场景 catalog（SPC 控制图、相关性热图、生存曲线等）。当需要选图表类型、确认图表标注规范、或查绘图辅助函数时使用。
 ---
 
-# Chart Catalog
+# 图表目录
 
 ## 画图前置（确定性）
 
@@ -19,36 +19,36 @@ description: 图表选择速查。5 条默认规则覆盖 90% 场景。
 
 不用火山图、3D 图、复杂 heatmap，除非用户明确要求。
 
-## 完整 Catalog（特殊场景）
+## 完整目录（特殊场景）
 
-### Distribution（分布）
+### 分布
 - `histogram` — 标准分布形状，N≥30
 - `KDE` — 平滑分布，N≥50
 - `boxplot` — 稳健汇总 + 离群点
 - `violin` — 形状 + 汇总，多组对比
 
-### Comparison（组比较）
+### 组比较
 - `boxplot` — 2-15 组
 - `dotplot + CI` — 估计值 + 不确定性
 - `paired line` — 配对/重复测量
 
-### Correlation（相关性）
+### 相关性
 - `hexbin` — 大 N 默认（n≥1000），避免过度绘制
 - `scatter + fit` — 小样本或刻意取的子集；想看单点/离群点时按需降级
 - `correlation heatmap` — 多变量相关矩阵
 
-### Time Series（时间序列）
+### 时间序列
 - `line + bands` — 单/少系列 + 不确定性
 - `small multiples` — 多系列
 - `STL decomposition` — 趋势 + 季节 + 残差
 
-### SPC（过程控制）
+### 过程控制（SPC）
 - `I-MR chart` — 个体值
 - `X-bar / R chart` — 子组
 - `p-chart / c-chart` — 缺陷率
 - `Pareto` — 原因排序
 
-## Helper 函数
+## 辅助函数
 
 所有图表函数在 `ds_skill.plotting`（已精简至统计核心）：
 

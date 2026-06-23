@@ -1,9 +1,9 @@
 ---
 name: manufacturing-playbook
-description: 制造业数据分析速查：SPC、Cpk、良率分析、根因。
+description: 制造业数据分析速查：SPC 控制图（I-MR/X-bar/p/c/u-chart）、过程能力分析（Cp/Cpk/Pp/Ppk）、良率驱动因素排序、缺陷 Pareto 根因分析、MSA 测量系统分析、DOE 筛选、OEE 分解。当数据包含 line/batch/shift 等字段、涉及制造良率/缺陷/过程控制时使用。
 ---
 
-# Manufacturing Playbook
+# 制造业分析手册
 
 制造业常见问题的速查手册。
 

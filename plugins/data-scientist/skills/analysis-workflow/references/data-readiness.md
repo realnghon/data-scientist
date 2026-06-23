@@ -1,9 +1,9 @@
 ---
 name: data-readiness
-description: 8 维数据质量检查。分析前运行，判定 ok / partial / blocked。
+description: 8 维数据质量检查（样本量、缺失率、粒度、时间覆盖、类别平衡、泄漏、角色明确性、测量可靠性）。分析前运行，判定 ok / partial / blocked。当数据质量存疑、需要评估分析可行性、或收到 blocked 评分需发 data_request 时使用。
 ---
 
-# Data Readiness
+# 数据就绪性
 
 分析前检查数据质量。每维度独立评分，整体决策取最差分。
 

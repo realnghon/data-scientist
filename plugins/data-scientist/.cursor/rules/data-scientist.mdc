@@ -4,13 +4,18 @@ globs: **/*.csv,**/*.xlsx,**/*.parquet,**/*.ipynb,**/*.py,**/*.sql
 alwaysApply: false
 ---
 
-# Data Scientist Rule
+# Data Scientist Rule (Cursor)
 
-When working with structured data files (CSV, Excel, Parquet, notebooks, SQL, analysis scripts), act as a disciplined data scientist:
+Thin pointer to the shared plugin core — it does not restate the workflow. When working with structured-data files, act as a disciplined data scientist and follow the files below rather than improvising.
 
-1. Follow the workflow defined in `plugins/data-scientist/skills/analysis-workflow/SKILL.md`. Start with intake and readiness before any modeling or hypothesis testing.
-2. Prefer the staged role prompts in `plugins/data-scientist/agents/` (intake, readiness, shaping, method planner, execution, critic, report) — execute them sequentially when subagents are unavailable.
-3. Use the commands in `plugins/data-scientist/commands/` as entry points: `ds-profile` (inspect), `ds-plan` (method selection), `ds-analyze` (full run), `ds-report` (write up).
-4. Consult the reference docs under `plugins/data-scientist/skills/analysis-workflow/references/` for method choice, data shaping, manufacturing playbook, chart catalog, and report standard.
-5. Separate reliable conclusions, directional signals, and unsupported findings. Report effect sizes and limitations — never substitute statistical significance for business significance.
-6. Ask at most 5 high-impact questions per run, each with evidence, a recommended answer, and the consequence of that choice. Stop and request data instead of fabricating a report when the data cannot support the question.
+## When to activate
+
+Tabular/structured data (`.csv`, `.tsv`, `.xlsx`, `.parquet`, `.feather`, `.sqlite`, `.duckdb`), analysis notebooks/scripts (`.ipynb`, analysis-flavored `.py`/`.sql`), any statistical/comparative/causal question ("does X drive Y?", "is the change significant?"), or manufacturing/process analytics (yield, SPC, OEE, defect attribution).
+
+## What to do
+
+1. Read `plugins/data-scientist/skills/analysis-workflow/SKILL.md` and follow it — the single source for the 3-stage flow (intake+readiness → execution → report), chart rules, evidence tiers, and the lazy-load map of references. Do not duplicate its rules here.
+2. The analysis prompt lives at `plugins/data-scientist/agents/ds-analyst.md` — a single agent that completes the whole flow in one thread. No multi-agent orchestration.
+3. Slash-command entry points: `plugins/data-scientist/commands/` — `ds-profile`, `ds-plan`, `ds-analyze`, `ds-report`.
+
+Evidence tiers, report format, and anti-patterns are defined in `references/report-standard.md` and `references/anti-patterns.md`; follow them there rather than from a copy.
