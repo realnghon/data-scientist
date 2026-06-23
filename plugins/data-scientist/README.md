@@ -106,38 +106,14 @@ See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-wor
 ### For Users
 
 - **[SKILL.md](skills/analysis-workflow/SKILL.md)** — Complete workflow guide
-- **[CHANGELOG](../../CHANGELOG.md)** — Release history
 - **[Method Registry](skills/analysis-workflow/references/method-registry.md)** — Statistical methods by purpose
 - **[Chart Catalog](skills/analysis-workflow/references/chart-catalog.md)** — Visualization guide
 - **[Manufacturing Playbook](skills/analysis-workflow/references/manufacturing-playbook.md)** — SPC, MSA, DOE patterns
 
 ### For Developers
 
-- **[Agent Development](agents/)** — 7 subagent implementations
+- **[Agent Development](agents/)** — analysis sub-agent
 - **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 16 Python modules with 240+ tests
-
-## What's New in 2.1.0
-
-### Structural Refactoring
-- **SKILL.md → router** — No longer embeds the 15-step workflow; delegates to `workflow.md` as the single source of truth
-- **Leading-word gates** — Gates renamed from numbered lists to semantic names: _routed_ / _red_ / _ready_ / _planned_ / _rigorous_ / _critiqued_
-- **Anti-patterns consolidated** — Removed inline anti-pattern tables from 4 documents; unified in `anti-patterns.md`
-- **Multi-agent orchestration simplified** — 8 platform-specific sections → 2 runtime classes (native fan-out vs sequential)
-- **Agent deduplication** — Shared envelope contract extracted to orchestration doc; agents keep only stage-specific schemas
-
-### Token Efficiency
-- SKILL.md: 107 → 78 lines (−27%)
-- workflow.md: 241 → 150 lines (−38%)
-- multi-agent-orchestration.md: 290 → 128 lines (−56%)
-- 7 agents: 891 → 572 lines (−36%)
-- Net: −460 lines across 17 files
-
-### Removed
-- Gate 6 (Spec/unit sanity) — subsumed by readiness measurement_reliability dimension
-- `## Safety` and `## Domain — Financial` sections — covered by lazy-load map
-- Duplicate workflow steps, anti-patterns tables, and platform descriptions
-
-See [`../../CHANGELOG.md`](../../CHANGELOG.md) for complete version history.
 
 ## Support
 

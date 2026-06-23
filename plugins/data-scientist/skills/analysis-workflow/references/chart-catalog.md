@@ -5,6 +5,10 @@ description: 图表选择速查。5 条默认规则覆盖 90% 场景。
 
 # Chart Catalog
 
+## 画图前置（确定性）
+
+画任何图前，所用的列必须已在 `data_manifest` 里记录过名称、dtype、取值。直接对假设存在的列调 `pivot_table` / `boxplot` 是最常见的崩溃源。传列前用 `ds_skill.validation.validate_column_name`（数值图用 `validate_numeric_column`）校验，让缺列/类型错在画图前报错。
+
 ## 默认规则（优先使用）
 
 1. **数值 by 组** → `boxplot`

@@ -27,7 +27,7 @@
 - [ ] `pytest tests/` passes locally
 - [ ] If adding a method: `references/method-registry.md` updated
 - [ ] If adding a platform: `INSTALL.md` + README supported-platforms table updated
-- [ ] If changing public API: backward compatibility considered or breaking change noted in CHANGELOG
+- [ ] If changing public API: backward compatibility considered or breaking change noted in the PR description
 
 ## Cross-references
 

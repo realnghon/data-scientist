@@ -12,7 +12,7 @@ AI skill for structured data analysis — structured data profiling, statistical
 
 Give it a CSV, Excel, or Parquet file and a question. The skill profiles the data, checks whether analysis is feasible, selects the appropriate statistical method, runs it, and produces a report with charts, confidence intervals, and a clear statement of limitations.
 
-Pipeline: **Intake** → **Readiness** → **Shaping** → **Method selection** → **Execution** → **Critic** → **Report**
+Pipeline: **Intake** → **Execution** → **Report**
 
 ---
 
@@ -43,10 +43,10 @@ See [INSTALL.md](INSTALL.md) for platform-specific setup (Cursor, Windsurf, Code
 
 ```bash
 # Analyze a dataset
-/ds-analyze examples/manufacturing_yield/dataset.csv
+/ds-analyze data.csv
 
 # Or ask in natural language
-"Analyze examples/ab_test/dataset.csv — is treatment better than control?"
+"Analyze data.csv — is treatment better than control?"
 ```
 
 ### Output
@@ -63,7 +63,6 @@ A structured report containing: data profile, readiness assessment, method ratio
 | Evidence framework | Three tiers — Tier 1 (p < 0.05, cross-checked, effect size + CI, physically plausible), Tier 2 (signal present but uncertain), Tier 3 (tested but rejected). |
 | Manufacturing statistics | SPC: X-bar/R, I-MR, p/c/u charts, Cp/Cpk/Pp/Ppk, Western Electric rules 1-4, Nelson rules 1-8. Capability analysis, interaction effects. |
 | Statistical helpers | 16 tested Python modules — bootstrap BCa CIs, log-rank test, Weibull MLE with right-censoring, Welch ANOVA, Benjamini-Hochberg FDR, ridge/lasso regression, and more. |
-| Staged subagents | 7 dedicated agents (intake, readiness, method planner, shaper, executor, critic, reporter) with structured handoffs. |
 | Cross-platform | Single SKILL.md works across 8 runtimes without porting. |
 
 ---
@@ -72,32 +71,29 @@ A structured report containing: data profile, readiness assessment, method ratio
 
 ```
 plugins/data-scientist/
-├── SKILL.md                          Router skill (gates + lazy-load map)
-├── agents/                           Seven sub-agents
-├── commands/                         Slash commands
-├── references/
-│   ├── workflow.md                   7-stage pipeline (process SSoT)
-│   ├── method-registry.md            Method selection guide
-│   ├── data-readiness.md             8-dimension gate rubric
-│   ├── chart-catalog.md              21 chart types
-│   ├── manufacturing-playbook.md     Domain guidance
-│   ├── golden-templates.md           Report templates
-│   ├── anti-patterns.md              Failure patterns
-│   └── financial-domain.md           Finance-specific methods
-└── scripts/ds_skill/                 Python helpers (16 modules)
-    ├── readiness.py                  Data quality assessment
-    ├── correlation.py                Pairwise + target-feature correlation
-    ├── regression.py                 OLS, ridge, lasso with diagnostics
-    ├── ab_validator.py               A/B test effect sizes + SRM
-    ├── bootstrap.py                  BCa / percentile bootstrap CIs
-    ├── spc.py                        Control charts + capability indices
-    ├── time_series.py                Trend, STL decomposition, CUSUM
-    ├── classification.py             Logistic, random forest, gradient boosting
-    ├── survival.py                   Kaplan-Meier, log-rank, Weibull fit
-    └── anomaly.py                    IQR, MAD, Isolation Forest
+├── skills/analysis-workflow/
+│   ├── SKILL.md                     3-phase flow (Intake → Execution → Report)
+│   ├── references/
+│   │   ├── method-registry.md       Method selection guide
+│   │   ├── data-readiness.md        8-dimension quality gate
+│   │   ├── chart-catalog.md         Chart selection
+│   │   ├── data-shaping.md          Grain, pivot/melt, joins
+│   │   ├── manufacturing-playbook.md  Domain guidance
+│   │   └── anti-patterns.md         Failure patterns
+│   └── scripts/ds_skill/            Python helpers (16 modules)
+│       ├── readiness.py             Data quality assessment
+│       ├── correlation.py           Pairwise + target-feature correlation
+│       ├── regression.py            OLS, ridge, lasso with diagnostics
+│       ├── ab_validator.py          A/B test effect sizes + SRM
+│       ├── bootstrap.py             BCa / percentile bootstrap CIs
+│       ├── spc.py                   Control charts + capability indices
+│       ├── time_series.py           Trend, STL decomposition, CUSUM
+│       ├── classification.py        Logistic, random forest, gradient boosting
+│       ├── survival.py              Kaplan-Meier, log-rank, Weibull fit
+│       └── anomaly.py               IQR, MAD, Isolation Forest
+├── agents/ds-analyst.md             Analysis sub-agent
+└── commands/                        Slash commands (ds-analyze, ds-plan, ds-profile, ds-report)
 ```
-
-11 method families, 21 chart functions, 249 unit tests.
 
 ---
 

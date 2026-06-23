@@ -30,7 +30,21 @@ def _check_plotting_available() -> tuple[Any, Any]:
 
         # Apply clean default style
         plt.style.use('seaborn-v0_8-darkgrid')
+        # CJK-capable font fallback chain: pick the first installed family so
+        # Chinese titles/labels render as glyphs (not tofu boxes) on Windows,
+        # macOS, and Linux alike. unicode_minus=False keeps the minus sign from
+        # rendering as a missing glyph under non-Latin fonts.
+        from matplotlib import font_manager
+        _installed = {f.name for f in font_manager.fontManager.ttflist}
+        _cjk_candidates = [
+            'Microsoft YaHei', 'SimHei',        # Windows
+            'PingFang SC', 'Hiragino Sans GB',  # macOS
+            'Noto Sans CJK SC', 'WenQuanYi Zen Hei', 'Source Han Sans SC',  # Linux
+        ]
+        _cjk = [f for f in _cjk_candidates if f in _installed]
         plt.rcParams.update({
+            'font.sans-serif': _cjk + plt.rcParams.get('font.sans-serif', []),
+            'axes.unicode_minus': False,
             'font.size': 11,
             'axes.labelsize': 12,
             'axes.titlesize': 14,
@@ -715,7 +729,7 @@ def plot_scatter_fit(
         from scipy import stats
 
         r, _ = stats.pearsonr(xv, yv)
-        fit_label = f"Pearson r = {r:.3f}, R² = {r ** 2:.3f}"
+        fit_label = f"Pearson r = {r:.3f}, R^2 = {r ** 2:.3f}"
 
     if fit == "linear" and n >= 2:
         slope, intercept = np.polyfit(xv, yv, 1)

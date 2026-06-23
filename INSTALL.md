@@ -87,7 +87,7 @@ pip install -e ".[dev]"
 #### Test with example data
 
 ```text
-/ds-profile examples/manufacturing_yield/dataset.csv
+/ds-profile your_data.csv
 ```
 
 ---
@@ -312,22 +312,9 @@ analyze my dataset.csv
 
 ```bash
 cd data-scientist
-python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py examples/manufacturing_yield/dataset.csv
-python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py examples/manufacturing_yield/dataset.csv --target yield_pct --output .local/baseline
+python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py your_data.csv
+python plugins/data-scientist/skills/analysis-workflow/scripts/run_full_workflow.py your_data.csv --target your_target_col --output .local/baseline
 ```
-
-### 2. Explore examples
-
-```bash
-# Install chart + notebook dependencies
-pip install -e ".[viz]"
-pip install jupyter
-
-# Open the worked example notebook
-jupyter notebook examples/manufacturing_yield/analysis.ipynb
-```
-
-See [examples/README.md](examples/README.md) for all three datasets (manufacturing yield, A/B test, time series) and their baked-in ground truth.
 
 ---
 
@@ -447,7 +434,6 @@ rm GEMINI.md
 
 ## Next Steps
 
-- Explore [examples/](examples/) for real-world workflows
 - Read the [README](README.md) for a full feature overview
 - Report issues at [GitHub Issues](https://github.com/realnghon/data-scientist/issues)
 
@@ -456,6 +442,5 @@ rm GEMINI.md
 ## Getting Help
 
 - **Documentation**: [README.md](README.md)
-- **Examples**: [examples/](examples/)
 - **Issues**: [GitHub Issues](https://github.com/realnghon/data-scientist/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/realnghon/data-scientist/discussions)
