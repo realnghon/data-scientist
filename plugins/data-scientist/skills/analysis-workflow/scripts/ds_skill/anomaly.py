@@ -1,15 +1,15 @@
 """Univariate and multivariate anomaly / outlier detection.
 
-All detectors return a uniform :class:`AnomalyResult` so reporting code can
-consume them interchangeably. Heavy ML dependencies (scikit-learn) are
-imported lazily so simple IQR / MAD / z-score pipelines work in minimal
-environments.
+All detectors return a uniform dict so reporting code can consume them
+interchangeably. Heavy ML dependencies (scikit-learn) are imported lazily
+so simple IQR / MAD / z-score pipelines work in minimal environments.
+
+All public functions return dicts (not dataclasses) to minimize calling overhead.
 """
 
 from __future__ import annotations
 
 import warnings
-from dataclasses import asdict, dataclass, field
 from typing import Any, Iterable
 
 import numpy as np
@@ -18,33 +18,11 @@ from scipy import stats
 
 
 # ---------------------------------------------------------------------------
-# Public dataclass
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class AnomalyResult:
-    """Common shape for every anomaly detector."""
-
-    method: str
-    n_total: int
-    n_flagged: int
-    flagged_indices: list[int]
-    scores: list[float]
-    threshold_used: float
-    summary: str
-    assumptions_violated: list[str] = field(default_factory=list)
-
-    def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-# ---------------------------------------------------------------------------
 # Univariate detectors
 # ---------------------------------------------------------------------------
 
 
-def detect_iqr(series: pd.Series, k: float = 1.5) -> AnomalyResult:
+def detect_iqr(series: pd.Series, k: float = 1.5) -> dict[str, Any]:
     """Tukey IQR fence: flag values outside [Q1 - k*IQR, Q3 + k*IQR]."""
     values, dropped = _prepare_series(series, name="detect_iqr")
     n_total = len(values)
@@ -71,19 +49,19 @@ def detect_iqr(series: pd.Series, k: float = 1.5) -> AnomalyResult:
         )
 
     summary = _format_summary("IQR fence", n_total, len(flagged_indices), dropped)
-    return AnomalyResult(
-        method="iqr",
-        n_total=int(n_total),
-        n_flagged=int(len(flagged_indices)),
-        flagged_indices=flagged_indices,
-        scores=[float(s) for s in scores],
-        threshold_used=float(k),
-        summary=summary,
-        assumptions_violated=assumptions_violated,
-    )
+    return {
+        "method": "iqr",
+        "n_total": int(n_total),
+        "n_flagged": int(len(flagged_indices)),
+        "flagged_indices": flagged_indices,
+        "scores": [float(s) for s in scores],
+        "threshold_used": float(k),
+        "summary": summary,
+        "assumptions_violated": assumptions_violated,
+    }
 
 
-def detect_mad(series: pd.Series, threshold: float = 3.5) -> AnomalyResult:
+def detect_mad(series: pd.Series, threshold: float = 3.5) -> dict[str, Any]:
     """Modified z-score using median and MAD (Iglewicz & Hoaglin, 1993).
 
     Modified z-score = 0.6745 * (x - median) / MAD. Threshold defaults to 3.5
@@ -120,19 +98,19 @@ def detect_mad(series: pd.Series, threshold: float = 3.5) -> AnomalyResult:
     summary = _format_summary(
         "modified z-score (MAD)", n_total, len(flagged_indices), dropped
     )
-    return AnomalyResult(
-        method="mad",
-        n_total=int(n_total),
-        n_flagged=int(len(flagged_indices)),
-        flagged_indices=flagged_indices,
-        scores=[float(s) for s in scores],
-        threshold_used=float(threshold),
-        summary=summary,
-        assumptions_violated=assumptions_violated,
-    )
+    return {
+        "method": "mad",
+        "n_total": int(n_total),
+        "n_flagged": int(len(flagged_indices)),
+        "flagged_indices": flagged_indices,
+        "scores": [float(s) for s in scores],
+        "threshold_used": float(threshold),
+        "summary": summary,
+        "assumptions_violated": assumptions_violated,
+    }
 
 
-def detect_zscore(series: pd.Series, threshold: float = 3.0) -> AnomalyResult:
+def detect_zscore(series: pd.Series, threshold: float = 3.0) -> dict[str, Any]:
     """Classic z-score using mean and standard deviation.
 
     Skewness check: warns when |skew| > 1 that MAD/IQR are better choices.
@@ -169,22 +147,22 @@ def detect_zscore(series: pd.Series, threshold: float = 3.0) -> AnomalyResult:
     summary = _format_summary(
         "classic z-score", n_total, len(flagged_indices), dropped
     )
-    return AnomalyResult(
-        method="zscore",
-        n_total=int(n_total),
-        n_flagged=int(len(flagged_indices)),
-        flagged_indices=flagged_indices,
-        scores=[float(s) for s in scores],
-        threshold_used=float(threshold),
-        summary=summary,
-        assumptions_violated=assumptions_violated,
-    )
+    return {
+        "method": "zscore",
+        "n_total": int(n_total),
+        "n_flagged": int(len(flagged_indices)),
+        "flagged_indices": flagged_indices,
+        "scores": [float(s) for s in scores],
+        "threshold_used": float(threshold),
+        "summary": summary,
+        "assumptions_violated": assumptions_violated,
+    }
 
 
 def detect_univariate(
     series: pd.Series,
     methods: Iterable[str] = ("iqr", "mad"),
-) -> AnomalyResult:
+) -> dict[str, Any]:
     """Consensus univariate detection: flag rows agreed on by ≥ 2 methods.
 
     Falls back to a single-method result when only one method is requested.
@@ -208,30 +186,30 @@ def detect_univariate(
             f"Choose from {sorted(detector_map)}"
         )
 
-    per_method: dict[str, AnomalyResult] = {
+    per_method: dict[str, dict[str, Any]] = {
         method: detector_map[method](series) for method in methods
     }
 
     if len(methods) == 1:
         only = per_method[methods[0]]
-        return AnomalyResult(
-            method=f"consensus({methods[0]})",
-            n_total=only.n_total,
-            n_flagged=only.n_flagged,
-            flagged_indices=list(only.flagged_indices),
-            scores=list(only.scores),
-            threshold_used=only.threshold_used,
-            summary=only.summary,
-            assumptions_violated=list(only.assumptions_violated),
-        )
+        return {
+            "method": f"consensus({methods[0]})",
+            "n_total": only["n_total"],
+            "n_flagged": only["n_flagged"],
+            "flagged_indices": list(only["flagged_indices"]),
+            "scores": list(only["scores"]),
+            "threshold_used": only["threshold_used"],
+            "summary": only["summary"],
+            "assumptions_violated": list(only["assumptions_violated"]),
+        }
 
-    n_total = per_method[methods[0]].n_total
+    n_total = per_method[methods[0]]["n_total"]
     vote_counts = np.zeros(n_total, dtype=int)
     per_method_flags: dict[str, list[int]] = {}
     for method, result in per_method.items():
-        per_method_flags[method] = result.flagged_indices
-        if result.flagged_indices:
-            vote_counts[result.flagged_indices] += 1
+        per_method_flags[method] = result["flagged_indices"]
+        if result["flagged_indices"]:
+            vote_counts[result["flagged_indices"]] += 1
 
     consensus_mask = vote_counts >= 2
     flagged_indices = [int(i) for i in np.where(consensus_mask)[0]]
@@ -256,20 +234,20 @@ def detect_univariate(
     # Merge real violations from constituent detectors so callers see them.
     violations: list[str] = []
     for method, result in per_method.items():
-        for note in result.assumptions_violated:
+        for note in result["assumptions_violated"]:
             violations.append(f"[{method}] {note}")
     violations.extend(agreement_notes)
 
-    return AnomalyResult(
-        method="consensus_univariate",
-        n_total=int(n_total),
-        n_flagged=int(len(flagged_indices)),
-        flagged_indices=flagged_indices,
-        scores=scores,
-        threshold_used=2.0,
-        summary=summary,
-        assumptions_violated=violations,
-    )
+    return {
+        "method": "consensus_univariate",
+        "n_total": int(n_total),
+        "n_flagged": int(len(flagged_indices)),
+        "flagged_indices": flagged_indices,
+        "scores": scores,
+        "threshold_used": 2.0,
+        "summary": summary,
+        "assumptions_violated": violations,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -282,7 +260,7 @@ def detect_isolation_forest(
     features: list[str] | None = None,
     contamination: Any = "auto",
     random_state: int = 0,
-) -> AnomalyResult:
+) -> dict[str, Any]:
     """Isolation Forest on the numeric subset of ``df``.
 
     sklearn is imported lazily; a clear ImportError is raised if it is not
@@ -351,23 +329,23 @@ def detect_isolation_forest(
     summary = _format_summary(
         "Isolation Forest", len(df), len(flagged_indices), dropped=len(df) - n_total
     )
-    return AnomalyResult(
-        method="isolation_forest",
-        n_total=int(len(df)),
-        n_flagged=int(len(flagged_indices)),
-        flagged_indices=flagged_indices,
-        scores=[float(s) for s in full_scores],
-        threshold_used=threshold,
-        summary=summary,
-        assumptions_violated=assumptions_violated,
-    )
+    return {
+        "method": "isolation_forest",
+        "n_total": int(len(df)),
+        "n_flagged": int(len(flagged_indices)),
+        "flagged_indices": flagged_indices,
+        "scores": [float(s) for s in full_scores],
+        "threshold_used": threshold,
+        "summary": summary,
+        "assumptions_violated": assumptions_violated,
+    }
 
 
 def detect_multivariate(
     df: pd.DataFrame,
     features: list[str],
     method: str = "isolation_forest",
-) -> AnomalyResult:
+) -> dict[str, Any]:
     """Dispatch to a multivariate detector by name."""
     if method == "isolation_forest":
         return detect_isolation_forest(df, features=features)

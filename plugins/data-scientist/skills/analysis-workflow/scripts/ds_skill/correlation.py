@@ -3,66 +3,17 @@
 Supports Pearson, Spearman, Kendall (via scipy.stats) and mutual information
 (via sklearn, lazy-imported). All multiple-testing adjustment is done with a
 hand-rolled Benjamini-Hochberg FDR so we do not depend on statsmodels.
+
+All public functions return dicts (not dataclasses) to minimize calling overhead.
 """
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
 from typing import Any, Iterable
 
 import numpy as np
 import pandas as pd
 from scipy import stats
-
-
-# ---------------------------------------------------------------------------
-# Public dataclasses
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class CorrelationResult:
-    """One pairwise dependency measurement."""
-
-    x: str
-    y: str
-    method: str
-    coefficient: float
-    p_value: float | None
-    p_value_fdr_adjusted: float | None
-    significant_after_fdr: bool
-    n: int
-    interpretation: str
-    effect_strength: float
-
-    def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass
-class CorrelationMatrix:
-    """Bulk pairwise output: per-method matrices + long-form results."""
-
-    methods: list[str]
-    coefficients: dict[str, pd.DataFrame]
-    pairs: list[CorrelationResult] = field(default_factory=list)
-    n_pairs_tested: int = 0
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "methods": list(self.methods),
-            "coefficients": {
-                method: _dataframe_to_nested_dict(matrix)
-                for method, matrix in self.coefficients.items()
-            },
-            "pairs": [pair.as_dict() for pair in self.pairs],
-            "n_pairs_tested": int(self.n_pairs_tested),
-        }
-
-
-# ---------------------------------------------------------------------------
-# Public API
-# ---------------------------------------------------------------------------
 
 
 _SUPPORTED_METHODS = {"pearson", "spearman", "kendall", "mutual_info"}
@@ -73,13 +24,13 @@ def pairwise_correlation(
     methods: Iterable[str] = ("pearson", "spearman"),
     fdr_alpha: float = 0.05,
     min_observations: int = 30,
-) -> CorrelationMatrix:
+) -> dict[str, Any]:
     """Compute pairwise correlations between all numeric columns of ``df``.
 
-    Returns a :class:`CorrelationMatrix` whose ``pairs`` list contains every
-    (column_i, column_j, method) combination that had at least
-    ``min_observations`` complete rows. Benjamini-Hochberg FDR is applied
-    across all p-values returned in the long-form result.
+    Returns a dict with keys: methods, coefficients, pairs, n_pairs_tested.
+    The ``pairs`` list contains every (column_i, column_j, method) combination
+    that had at least ``min_observations`` complete rows. Benjamini-Hochberg
+    FDR is applied across all p-values.
     """
 
     if df is None or len(df) == 0:
@@ -117,7 +68,7 @@ def pairwise_correlation(
         for col in columns:
             matrices[method].loc[col, col] = diag_value
 
-    pairs: list[CorrelationResult] = []
+    pairs: list[dict[str, Any]] = []
     pending: list[tuple[int, float]] = []  # (index in pairs, raw p-value)
 
     for i, col_x in enumerate(columns):
@@ -137,30 +88,30 @@ def pairwise_correlation(
                 matrices[method].loc[col_x, col_y] = coefficient
                 matrices[method].loc[col_y, col_x] = coefficient
 
-                result = CorrelationResult(
-                    x=col_x,
-                    y=col_y,
-                    method=method,
-                    coefficient=float(coefficient),
-                    p_value=None if p_value is None else float(p_value),
-                    p_value_fdr_adjusted=None,
-                    significant_after_fdr=False,
-                    n=int(n),
-                    interpretation=_interpret_strength(coefficient, method),
-                    effect_strength=_effect_strength(coefficient, method),
-                )
+                result = {
+                    "x": col_x,
+                    "y": col_y,
+                    "method": method,
+                    "coefficient": float(coefficient),
+                    "p_value": None if p_value is None else float(p_value),
+                    "p_value_fdr_adjusted": None,
+                    "significant_after_fdr": False,
+                    "n": int(n),
+                    "interpretation": _interpret_strength(coefficient, method),
+                    "effect_strength": _effect_strength(coefficient, method),
+                }
                 pairs.append(result)
                 if p_value is not None and not np.isnan(p_value):
                     pending.append((len(pairs) - 1, float(p_value)))
 
     _apply_bh_fdr(pairs, pending, fdr_alpha)
 
-    return CorrelationMatrix(
-        methods=methods,
-        coefficients=matrices,
-        pairs=pairs,
-        n_pairs_tested=len(pairs),
-    )
+    return {
+        "methods": methods,
+        "coefficients": matrices,
+        "pairs": pairs,
+        "n_pairs_tested": len(pairs),
+    }
 
 
 def correlation_with_target(
@@ -170,12 +121,12 @@ def correlation_with_target(
     methods: Iterable[str] = ("pearson", "spearman"),
     include_mi: bool = True,
     fdr_alpha: float = 0.05,
-) -> list[CorrelationResult]:
+) -> list[dict[str, Any]]:
     """Score the correlation of each candidate feature against ``target``.
 
-    Returns a flat list of :class:`CorrelationResult` sorted by
-    ``effect_strength`` descending. Mutual information is added (one row per
-    feature) when ``include_mi`` is True and sklearn is importable.
+    Returns a flat list of dicts sorted by ``effect_strength`` descending.
+    Mutual information is added (one row per feature) when ``include_mi``
+    is True and sklearn is importable.
     """
 
     if df is None or len(df) == 0:
@@ -209,7 +160,7 @@ def correlation_with_target(
         return []
 
     target_values = numeric[target]
-    results: list[CorrelationResult] = []
+    results: list[dict[str, Any]] = []
     pending: list[tuple[int, float]] = []
 
     for feature in candidate_features:
@@ -225,18 +176,18 @@ def correlation_with_target(
             if coefficient is None or np.isnan(coefficient):
                 continue
             results.append(
-                CorrelationResult(
-                    x=feature,
-                    y=target,
-                    method=method,
-                    coefficient=float(coefficient),
-                    p_value=None if p_value is None else float(p_value),
-                    p_value_fdr_adjusted=None,
-                    significant_after_fdr=False,
-                    n=int(n),
-                    interpretation=_interpret_strength(coefficient, method),
-                    effect_strength=_effect_strength(coefficient, method),
-                )
+                {
+                    "x": feature,
+                    "y": target,
+                    "method": method,
+                    "coefficient": float(coefficient),
+                    "p_value": None if p_value is None else float(p_value),
+                    "p_value_fdr_adjusted": None,
+                    "significant_after_fdr": False,
+                    "n": int(n),
+                    "interpretation": _interpret_strength(coefficient, method),
+                    "effect_strength": _effect_strength(coefficient, method),
+                }
             )
             if p_value is not None and not np.isnan(p_value):
                 pending.append((len(results) - 1, float(p_value)))
@@ -248,7 +199,7 @@ def correlation_with_target(
         results.extend(mi_rows)
 
     _apply_bh_fdr(results, pending, fdr_alpha)
-    results.sort(key=lambda r: r.effect_strength, reverse=True)
+    results.sort(key=lambda r: r["effect_strength"], reverse=True)
     return results
 
 
@@ -323,7 +274,7 @@ def _effect_strength(coefficient: float, method: str) -> float:
 
 
 def _apply_bh_fdr(
-    results: list[CorrelationResult],
+    results: list[dict[str, Any]],
     pending: list[tuple[int, float]],
     alpha: float,
 ) -> None:
@@ -341,8 +292,8 @@ def _apply_bh_fdr(
     indices = [idx for idx, _ in pending]
     adjusted = _bh_adjust(raw)
     for slot, adj_p in zip(indices, adjusted):
-        results[slot].p_value_fdr_adjusted = float(adj_p)
-        results[slot].significant_after_fdr = bool(adj_p <= alpha)
+        results[slot]["p_value_fdr_adjusted"] = float(adj_p)
+        results[slot]["significant_after_fdr"] = bool(adj_p <= alpha)
 
 
 def _bh_adjust(p_values: np.ndarray) -> np.ndarray:
@@ -423,14 +374,14 @@ def _mutual_info_against_target(
     target: str,
     candidate_features: list[str],
     target_values: pd.Series,
-) -> list[CorrelationResult]:
+) -> list[dict[str, Any]]:
     """Mutual information of each feature vs target, normalized per feature."""
     try:
         from sklearn.feature_selection import mutual_info_regression  # noqa: WPS433
     except ImportError:
         return []
 
-    rows: list[CorrelationResult] = []
+    rows: list[dict[str, Any]] = []
     for feature in candidate_features:
         pair = numeric[[feature, target]].dropna()
         n = len(pair)
@@ -453,18 +404,18 @@ def _mutual_info_against_target(
         denom = min(h_x, h_y)
         normalized = 0.0 if denom <= 0 else max(0.0, min(1.0, mi / denom))
         rows.append(
-            CorrelationResult(
-                x=feature,
-                y=target,
-                method="mutual_info",
-                coefficient=float(normalized),
-                p_value=None,
-                p_value_fdr_adjusted=None,
-                significant_after_fdr=False,
-                n=int(n),
-                interpretation=_interpret_strength(normalized, "mutual_info"),
-                effect_strength=_effect_strength(normalized, "mutual_info"),
-            )
+            {
+                "x": feature,
+                "y": target,
+                "method": "mutual_info",
+                "coefficient": float(normalized),
+                "p_value": None,
+                "p_value_fdr_adjusted": None,
+                "significant_after_fdr": False,
+                "n": int(n),
+                "interpretation": _interpret_strength(normalized, "mutual_info"),
+                "effect_strength": _effect_strength(normalized, "mutual_info"),
+            }
         )
     return rows
 

@@ -1,13 +1,14 @@
 """Regression helpers: linear / ridge / lasso fits + diagnostics + response curves.
 
 See `method-registry.md` section "Regression".
+
+All public functions return dicts (not dataclasses) to minimize calling overhead.
 """
 
 from __future__ import annotations
 
 import math
 import warnings
-from dataclasses import asdict, dataclass, field
 from typing import Any
 
 import numpy as np
@@ -53,67 +54,6 @@ def _lazy_statsmodels():
         return sm
     except Exception:  # pragma: no cover
         return None
-
-
-# ---------------------------------------------------------------------------
-# Dataclasses
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class RegressionResult:
-    method: str
-    coefficients: dict[str, float]
-    intercept: float
-    std_errors: dict[str, float] | None
-    p_values: dict[str, float] | None
-    r_squared: float
-    adjusted_r_squared: float | None
-    n: int
-    n_features: int
-    vif: dict[str, float] = field(default_factory=dict)
-    alpha_used: float | None = None
-    fitted_values: list[float] = field(default_factory=list)
-    residuals: list[float] = field(default_factory=list)
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "method": self.method,
-            "coefficients": dict(self.coefficients),
-            "intercept": float(self.intercept),
-            "std_errors": None if self.std_errors is None else dict(self.std_errors),
-            "p_values": None if self.p_values is None else dict(self.p_values),
-            "r_squared": float(self.r_squared),
-            "adjusted_r_squared": (
-                None if self.adjusted_r_squared is None else float(self.adjusted_r_squared)
-            ),
-            "n": int(self.n),
-            "n_features": int(self.n_features),
-            "vif": dict(self.vif),
-            "alpha_used": None if self.alpha_used is None else float(self.alpha_used),
-        }
-
-
-@dataclass
-class DiagnosticReport:
-    normality_p_value: float
-    homoscedasticity_flagged: bool
-    linearity_flagged: bool
-    influential_observations: list[int]
-    multicollinearity_flagged: bool
-    recommendations: list[str] = field(default_factory=list)
-
-    def as_dict(self) -> dict[str, Any]:
-        return {
-            "normality_p_value": (
-                None if math.isnan(self.normality_p_value) else float(self.normality_p_value)
-            ),
-            "homoscedasticity_flagged": bool(self.homoscedasticity_flagged),
-            "linearity_flagged": bool(self.linearity_flagged),
-            "influential_observations": [int(i) for i in self.influential_observations],
-            "multicollinearity_flagged": bool(self.multicollinearity_flagged),
-            "recommendations": list(self.recommendations),
-        }
 
 
 # ---------------------------------------------------------------------------
@@ -207,7 +147,7 @@ def fit_linear_regression(
     target: str,
     features: list[str],
     robust_se: bool = False,
-) -> RegressionResult:
+) -> dict[str, Any]:
     """OLS via statsmodels (preferred) or numpy lstsq + bootstrap SE."""
     X, y, feats = _prep_xy(df, target, features)
     n, k = X.shape
@@ -261,21 +201,21 @@ def fit_linear_regression(
     adj_r2 = _adj_r_squared(r2, n, k)
     vif = _vif(X, feats)
 
-    return RegressionResult(
-        method="linear",
-        coefficients=coefficients,
-        intercept=intercept,
-        std_errors=std_errors,
-        p_values=p_values,
-        r_squared=r2,
-        adjusted_r_squared=adj_r2,
-        n=n,
-        n_features=k,
-        vif=vif,
-        alpha_used=None,
-        fitted_values=fitted.tolist(),
-        residuals=resid.tolist(),
-    )
+    return {
+        "method": "linear",
+        "coefficients": coefficients,
+        "intercept": intercept,
+        "std_errors": std_errors,
+        "p_values": p_values,
+        "r_squared": r2,
+        "adjusted_r_squared": adj_r2,
+        "n": n,
+        "n_features": k,
+        "vif": vif,
+        "alpha_used": None,
+        "fitted_values": fitted.tolist(),
+        "residuals": resid.tolist(),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -290,7 +230,7 @@ def _fit_regularized(
     alpha: float | list[float],
     cv_folds: int,
     kind: str,
-) -> RegressionResult:
+) -> dict[str, Any]:
     X, y, feats = _prep_xy(df, target, features)
     n, k = X.shape
 
@@ -343,21 +283,21 @@ def _fit_regularized(
     adj_r2 = _adj_r_squared(r2, n, k)
     vif = _vif(X, feats)
 
-    return RegressionResult(
-        method=kind,
-        coefficients=coefficients,
-        intercept=intercept,
-        std_errors=None,
-        p_values=None,
-        r_squared=r2,
-        adjusted_r_squared=adj_r2,
-        n=n,
-        n_features=k,
-        vif=vif,
-        alpha_used=alpha_used,
-        fitted_values=fitted.tolist(),
-        residuals=resid.tolist(),
-    )
+    return {
+        "method": kind,
+        "coefficients": coefficients,
+        "intercept": intercept,
+        "std_errors": None,
+        "p_values": None,
+        "r_squared": r2,
+        "adjusted_r_squared": adj_r2,
+        "n": n,
+        "n_features": k,
+        "vif": vif,
+        "alpha_used": alpha_used,
+        "fitted_values": fitted.tolist(),
+        "residuals": resid.tolist(),
+    }
 
 
 def fit_ridge(
@@ -366,7 +306,7 @@ def fit_ridge(
     features: list[str],
     alpha: float | list[float] = 1.0,
     cv_folds: int = 5,
-) -> RegressionResult:
+) -> dict[str, Any]:
     return _fit_regularized(df, target, features, alpha, cv_folds, "ridge")
 
 
@@ -376,7 +316,7 @@ def fit_lasso(
     features: list[str],
     alpha: float | list[float] = 1.0,
     cv_folds: int = 5,
-) -> RegressionResult:
+) -> dict[str, Any]:
     return _fit_regularized(df, target, features, alpha, cv_folds, "lasso")
 
 
@@ -386,7 +326,7 @@ def fit_lasso(
 
 
 def response_curves(
-    result: RegressionResult,
+    result: dict[str, Any],
     df: pd.DataFrame,
     features: list[str],
     n_points: int = 50,
@@ -416,8 +356,8 @@ def response_curves(
     per_feature: dict[str, dict[str, list[float]]] = {}
     stacked = np.empty((len(features), n_points, 2), dtype=float)
 
-    coef = result.coefficients
-    intercept = result.intercept
+    coef = result["coefficients"]
+    intercept = result["intercept"]
 
     for fi, f in enumerate(features):
         x_min = float(sub[f].min())
@@ -453,12 +393,12 @@ def response_curves(
 
 
 def residual_diagnostics(
-    result: RegressionResult,
+    result: dict[str, Any],
     df: pd.DataFrame,
-) -> DiagnosticReport:
+) -> dict[str, Any]:
     """Compute normality / homoscedasticity / linearity / influence / VIF flags."""
-    residuals = np.asarray(result.residuals, dtype=float)
-    fitted = np.asarray(result.fitted_values, dtype=float)
+    residuals = np.asarray(result["residuals"], dtype=float)
+    fitted = np.asarray(result["fitted_values"], dtype=float)
     if residuals.size < 4 or fitted.size != residuals.size:
         raise ValueError("Result does not carry residuals to diagnose.")
 
@@ -519,7 +459,7 @@ def residual_diagnostics(
     # only — it flags large-residual points but CANNOT see high-leverage /
     # small-residual points (the most dangerous influence case). Treat the output
     # as "large standardized residuals", not a true Cook's distance.
-    k = result.n_features
+    k = result["n_features"]
     sigma_hat = float(np.sqrt(np.sum(residuals ** 2) / max(n - k - 1, 1)))
     if sigma_hat > 0:
         h = (k + 1) / n
@@ -530,7 +470,7 @@ def residual_diagnostics(
         influential = []
 
     # Multicollinearity
-    mc_flag = any(v > 10.0 and math.isfinite(v) for v in result.vif.values())
+    mc_flag = any(v > 10.0 and math.isfinite(v) for v in result["vif"].values())
 
     recs: list[str] = []
     if not math.isnan(norm_p) and norm_p < 0.05:
@@ -550,11 +490,13 @@ def residual_diagnostics(
     if not recs:
         recs.append("Diagnostics pass; OLS assumptions look acceptable.")
 
-    return DiagnosticReport(
-        normality_p_value=norm_p,
-        homoscedasticity_flagged=homo_flag,
-        linearity_flagged=lin_flag,
-        influential_observations=influential,
-        multicollinearity_flagged=mc_flag,
-        recommendations=recs,
-    )
+    return {
+        "normality_p_value": (
+            None if math.isnan(norm_p) else float(norm_p)
+        ),
+        "homoscedasticity_flagged": bool(homo_flag),
+        "linearity_flagged": bool(lin_flag),
+        "influential_observations": influential,
+        "multicollinearity_flagged": bool(mc_flag),
+        "recommendations": recs,
+    }

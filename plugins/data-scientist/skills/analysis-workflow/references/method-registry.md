@@ -27,8 +27,13 @@ from ds_skill.<module> import <function>
 - 3+ 组数值 → Welch ANOVA（或 Kruskal-Wallis 如果非正态）
 - 分类 Y → chi-square（期望频数<5 时用 Fisher exact）
 
-**Helper:** `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)`（target/group 为 keyword-only）  
-**Chart:** `ds_skill.plotting.plot_grouped_boxplot`
+**Helper:**
+- 数值 Y → `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)`（target/group 为 keyword-only；内部自动选 Welch t / Mann-Whitney / ANOVA / Kruskal）
+- 分类 Y → `ds_skill.analysis_methods.compare_categorical(df, target=..., group=...)`（卡方独立性检验；期望频数<5 时 2×2 自动转 Fisher exact、更大表给稀疏告警；效应量 Cramér's V）
+
+**Chart:** `ds_skill.plotting.plot_grouped_boxplot`（数值）
+
+**混杂提醒：** 下结论前先排查是否有第三变量同时驱动 Y 和组别（如季节同时影响气温与病例数）。怀疑混杂 → 分层复算或写进局限性，别下因果。见 [anti-patterns.md](anti-patterns.md) 的 Causal Inference Errors。
 
 ---
 

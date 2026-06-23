@@ -1,9 +1,0 @@
-{
-  "name": "data-scientist-plugin",
-  "version": "1.0.0",
-  "private": true,
-  "type": "module",
-  "scripts": {
-    "profile": "python plugins/data-scientist/skills/analysis-workflow/scripts/profile_dataset.py"
-  }
-}

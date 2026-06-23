@@ -214,6 +214,131 @@ def compare_numeric_by_group(df: pd.DataFrame, *, target: str, group: str) -> di
     }
 
 
+def compare_categorical(
+    df: pd.DataFrame,
+    *,
+    target: str,
+    group: str,
+    fisher_max_cells: int = 4,
+) -> dict[str, Any]:
+    """Test association between two categorical columns.
+
+    Chi-square test of independence by default. When any expected cell count
+    drops below 5 the chi-square approximation is unreliable, so a 2x2 table
+    falls back to Fisher's exact test and larger tables are flagged as sparse
+    (use a simulated/exact test or collapse categories). Effect size is
+    Cramér's V, which the registry pairs with chi-square for magnitude.
+
+    Returns a dict mirroring :func:`compare_numeric_by_group`'s shape so both
+    branches of group comparison share one calling convention.
+    """
+    data = df[[target, group]].dropna()
+    if len(data) == 0:
+        return {"status": "blocked", "reason": "No complete rows for both columns."}
+
+    table = pd.crosstab(data[group], data[target])
+    if table.shape[0] < 2 or table.shape[1] < 2:
+        return {
+            "status": "blocked",
+            "reason": "Both columns need at least two observed categories.",
+            "table_shape": list(table.shape),
+        }
+
+    observed = table.to_numpy(dtype=float)
+    n = int(observed.sum())
+
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore", RuntimeWarning)
+        chi2, chi2_p, dof, expected = stats.chi2_contingency(observed, correction=False)
+    chi2 = float(chi2)
+    chi2_p = float(chi2_p)
+    dof = int(dof)
+    expected = np.asarray(expected, dtype=float)
+
+    min_expected = float(expected.min())
+    expected_ok = min_expected >= 5.0
+
+    # Pick the primary test: chi-square when expected counts are healthy,
+    # Fisher's exact for a sparse 2x2, otherwise chi-square with a sparsity caveat.
+    method_output: dict[str, Any]
+    if expected_ok:
+        primary_method = "chi_square_test"
+        method_output = {
+            "method": "chi_square_test",
+            "status": "ok",
+            "statistic": float(chi2),
+            "p_value": float(chi2_p),
+            "dof": int(dof),
+        }
+    elif observed.shape == (2, 2):
+        primary_method = "fisher_exact"
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            odds_ratio, fisher_p = stats.fisher_exact(observed)
+        method_output = {
+            "method": "fisher_exact",
+            "status": "ok",
+            "statistic": float(odds_ratio),
+            "p_value": float(fisher_p),
+            "reason": f"Min expected count {min_expected:.1f} < 5; Fisher exact on 2x2.",
+        }
+    else:
+        primary_method = "chi_square_test"
+        method_output = {
+            "method": "chi_square_test",
+            "status": "ok",
+            "statistic": float(chi2),
+            "p_value": float(chi2_p),
+            "dof": int(dof),
+            "caveat": (
+                f"Min expected count {min_expected:.1f} < 5 in a "
+                f"{observed.shape[0]}x{observed.shape[1]} table; chi-square "
+                "approximation is fragile. Collapse rare categories or use an "
+                "exact/simulated test."
+            ),
+        }
+
+    cramers_v = _cramers_v(chi2, n, observed.shape)
+    effect = {
+        "cramers_v": cramers_v,
+        "min_expected_count": round(min_expected, 3),
+        "table": {
+            str(row): {str(col): int(table.loc[row, col]) for col in table.columns}
+            for row in table.index
+        },
+    }
+
+    p_value = method_output.get("p_value")
+    if p_value is not None and p_value < 0.05 and n >= 40 and (cramers_v or 0) >= 0.1:
+        label = "reliable_conclusion"
+    elif cramers_v and cramers_v >= 0.1:
+        label = "directional_signal"
+    else:
+        label = "investigation_candidate"
+
+    return {
+        "status": "ok",
+        "target": target,
+        "group": group,
+        "n": n,
+        "primary_method": primary_method,
+        "expected_counts_ok": expected_ok,
+        "method_output": method_output,
+        "effect": effect,
+        "interpretation_label": label,
+    }
+
+
+def _cramers_v(chi2: float, n: int, shape: tuple[int, ...]) -> float | None:
+    """Cramér's V effect size for a contingency table (0 = no association)."""
+    if n <= 0:
+        return None
+    k = min(shape) - 1
+    if k <= 0:
+        return None
+    return float(np.sqrt((chi2 / n) / k))
+
+
 def rank_numeric_drivers(
     df: pd.DataFrame,
     *,
@@ -327,6 +452,12 @@ def _run_group_method(groups: list[np.ndarray], method: str) -> dict[str, Any]:
                 statistic, p_value = stats.kruskal(*groups)
             elif method == "welch_anova":
                 statistic, p_value = _welch_anova(groups)
+            elif method in {"chi_square_test", "fisher_exact_or_two_proportion_test"}:
+                return {
+                    "method": method,
+                    "status": "use_compare_categorical",
+                    "hint": "Categorical target: call compare_categorical(df, target=..., group=...).",
+                }
             else:
                 return {"method": method, "status": "not_implemented"}
     except Exception as exc:

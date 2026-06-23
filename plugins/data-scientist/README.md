@@ -2,17 +2,17 @@
 
 Data Scientist is a production-grade, cross-platform AI plugin for rigorous structured data analysis. Starting with manufacturing analytics, it generalizes to operational datasets across domains with evidence-backed statistical rigor.
 
-**Version:** 2.1.0 | **License:** MIT | **Status:** Production Ready
+**Version:** 4.0.0 | **License:** MIT | **Status:** Production Ready
 
 ## What It Provides
 
 ### Core Components
 
-- **Top-level `data-scientist` skill** — Router with 6 leading-word gates (_routed_ / _red_ / _ready_ / _planned_ / _rigorous_ / _critiqued_) and progressive disclosure to the canonical 7-stage pipeline
-- **7 staged subagents** — One per pipeline stage with shared envelope contract and stage-specific schemas
+- **`data-scientist` skill** — A 3-stage flow (intake+readiness → execution → report) with progressive disclosure to lazy-loaded references. No gate ceremony, no multi-agent orchestration
+- **1 analysis subagent** — `ds-analyst` completes the whole flow in a single thread
 - **4 slash commands** — `/ds-analyze`, `/ds-profile`, `/ds-plan`, `/ds-report` for interactive workflows
-- **Tested Python library** — `ds_skill` with 240+ unit tests, 16 analysis modules, and 21 chart functions
-- **16 reference documents** — Lazy-load architecture: workflow SSoT, method registry, anti-patterns, domain playbooks
+- **Tested Python library** — `ds_skill` with 250+ unit tests, 16 analysis modules (dict returns, zero dataclass overhead), and 13 statistical chart functions
+- **7 reference documents** — Lazy-load architecture: method registry, chart catalog, data readiness, data shaping, manufacturing playbook, report standard, anti-patterns
 
 ### Key Features
 
@@ -67,28 +67,25 @@ cat skills/analysis-workflow/SKILL.md
 
 ## Core Workflow
 
-The plugin follows a 7-stage quality-gated pipeline:
+The plugin follows a 3-stage flow, run by a single agent in one thread:
 
-1. **Intake** — Inspect data structure, grain, field roles, and schema
-2. **Readiness** — 8-dimension assessment (sample size, missingness, grain, time coverage, class balance, leakage, variable roles, measurement reliability)
-3. **Shaping** — Transform to analysis-ready views (pivots, aggregations, time windows)
-4. **Method Planning** — Select defensible statistical methods, document rejected alternatives
-5. **Execution** — Run reproducible code, save structured outputs and charts
-6. **Critic** — Challenge claims for weak evidence, leakage, confounds, method mismatches
-7. **Report** — User-facing markdown with executive answer, evidence matrix, limitations
+1. **Intake + Readiness** — Inspect structure, grain, and field roles; large tables are probed (`getsize` → `nrows=5` → `usecols`) before a full read; 8-dimension readiness assessment (sample size, missingness, grain, time coverage, class balance, leakage, variable roles, measurement reliability); columns with >30% missing are flagged and auto-downgrade any conclusion that uses them. Produces `data_manifest`
+2. **Execution** — Pick a method (`method-registry.md`), run a formal statistical test (not just descriptive stats), check for confounding, and draw the chart per the deterministic rules. Modeling (regression/classification/survival) lives here too, on demand. Produces `evidence_matrix` + charts
+3. **Report** — User-facing markdown with executive answer, evidence tiers, and limitations
 
-Each stage has a dedicated subagent with clear output contracts. The authoritative process definition lives in [`workflow.md`](skills/analysis-workflow/references/workflow.md); `SKILL.md` acts as the router.
+`data_manifest` and `evidence_matrix` have minimal field schemas defined in [`SKILL.md`](skills/analysis-workflow/SKILL.md). The authoritative process definition is `SKILL.md`; the analysis prompt is [`agents/ds-analyst.md`](agents/ds-analyst.md).
 
 ## Quality Standards
 
-### Non-Negotiable Gates
+### Evidence Tiers
 
-1. ✅ **_routed_** — Route analysis type first (full/profile-only/named-method/one-off/blocked)
-2. ✅ **_red_** — `readiness = blocked` stops pipeline (no forced conclusions)
-3. ✅ **_ready_** — `readiness_report` must exist before shaping or methods
-4. ✅ **_planned_** — `analysis_plan` must exist before execution
-5. ✅ **_rigorous_** — Tier-1 claims require: p < 0.05 + effect size + CI + cross-check agreement
-6. ✅ **_critiqued_** — `critique` must exist before final report
+Every claim is labelled by how much the data supports it:
+
+1. ✅ **reliable** — significance (p < 0.05) + effect size + CI + a second method agreeing in direction; no high-missing column or unaddressed confound it is sensitive to
+2. ✅ **directional** — a pattern is present but single-method, borderline, modest N, or carries one caveat (hedged language required)
+3. ✅ **unsupported** — explicitly named: what was hoped, why the data cannot support it, what would be needed
+
+See [`report-standard.md`](skills/analysis-workflow/references/report-standard.md) for the full contract.
 
 ### Anti-Pattern Protection
 
@@ -113,7 +110,7 @@ See [`skills/analysis-workflow/references/anti-patterns.md`](skills/analysis-wor
 ### For Developers
 
 - **[Agent Development](agents/)** — analysis sub-agent
-- **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 16 Python modules with 240+ tests
+- **[Helper Library](skills/analysis-workflow/scripts/ds_skill/)** — 16 Python modules with 250+ tests
 
 ## Support
 

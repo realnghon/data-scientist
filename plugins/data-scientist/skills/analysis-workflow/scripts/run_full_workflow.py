@@ -157,16 +157,16 @@ def run_workflow(
             results = correlation_with_target(df, target=target)
             correlation_rows = [
                 {
-                    "feature": r.x,
-                    "target": r.y,
-                    "method": r.method,
-                    "coefficient": r.coefficient,
-                    "p_value": r.p_value,
-                    "p_adjusted": r.p_value_fdr_adjusted,
-                    "significant_after_fdr": r.significant_after_fdr,
-                    "n": r.n,
-                    "effect_strength": r.effect_strength,
-                    "interpretation": r.interpretation,
+                    "feature": r["x"],
+                    "target": r["y"],
+                    "method": r["method"],
+                    "coefficient": r["coefficient"],
+                    "p_value": r["p_value"],
+                    "p_adjusted": r["p_value_fdr_adjusted"],
+                    "significant_after_fdr": r["significant_after_fdr"],
+                    "n": r["n"],
+                    "effect_strength": r["effect_strength"],
+                    "interpretation": r["interpretation"],
                 }
                 for r in results
             ]

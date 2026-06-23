@@ -7,13 +7,13 @@ description: 图表选择速查。5 条默认规则覆盖 90% 场景。
 
 ## 画图前置（确定性）
 
-画任何图前，所用的列必须已在 `data_manifest` 里记录过名称、dtype、取值。直接对假设存在的列调 `pivot_table` / `boxplot` 是最常见的崩溃源。传列前用 `ds_skill.validation.validate_column_name`（数值图用 `validate_numeric_column`）校验，让缺列/类型错在画图前报错。
+画任何图前，所用的列必须已在 `data_manifest` 里记录过名称、dtype、取值。直接对假设存在的列调 `pivot_table` / `boxplot` 是最常见的崩溃源。传列前校验列存在(`if col not in df.columns`)与类型(`pd.api.types.is_numeric_dtype`)，让错误在画图前报出而非中途崩。
 
 ## 默认规则（优先使用）
 
 1. **数值 by 组** → `boxplot`
 2. **时间序列** → `line plot`
-3. **相关性** → `scatter` (n<1000) 或 `hexbin` (n≥1000)
+3. **相关性** → 默认 `hexbin`（n≥1000），可按需降级到 `scatter`（画子集、或想看单点/离群点时）
 4. **分布** → `histogram`
 5. **排序/重要性** → `horizontal bar`（降序）
 
@@ -33,8 +33,8 @@ description: 图表选择速查。5 条默认规则覆盖 90% 场景。
 - `paired line` — 配对/重复测量
 
 ### Correlation（相关性）
-- `scatter + fit` — 两变量，N<5000
-- `hexbin` — 高 N (>5000)
+- `hexbin` — 大 N 默认（n≥1000），避免过度绘制
+- `scatter + fit` — 小样本或刻意取的子集；想看单点/离群点时按需降级
 - `correlation heatmap` — 多变量相关矩阵
 
 ### Time Series（时间序列）
@@ -50,24 +50,29 @@ description: 图表选择速查。5 条默认规则覆盖 90% 场景。
 
 ## Helper 函数
 
-所有图表函数在 `ds_skill.plotting`：
+所有图表函数在 `ds_skill.plotting`（已精简至统计核心）：
 
 ```python
 from ds_skill.plotting import (
-    plot_grouped_boxplot,
-    plot_time_series,
-    plot_scatter_fit,
-    plot_histogram,
-    plot_feature_importance,
-    plot_control_chart,
-    plot_correlation_matrix,
-    plot_kaplan_meier,
+    plot_control_chart,           # SPC 控制图
+    plot_correlation_matrix,      # 相关性热图
+    plot_regression_diagnostics,  # 回归诊断 4 图
+    plot_time_series_decomposition,  # 时序分解
+    plot_distribution_comparison, # 分布对比 + QQ图
+    plot_kaplan_meier,           # 生存曲线
+    plot_pareto,                 # 帕累托图
+    plot_capability_histogram,   # 过程能力分析
+    plot_flagged_scatter,        # 异常标记散点图
+    plot_roc_curve,              # ROC 曲线
+    plot_confusion_matrix,       # 混淆矩阵
+    plot_calibration_curve,      # 校准曲线
+    plot_feature_importance,     # 特征重要性
 )
 ```
 
-每个函数返回 matplotlib figure 对象，保存用 `fig.savefig(path)`。
+每个函数返回 matplotlib figure 对象，保存用 `fig.savefig(path)`。通用图表（直方图、散点图、箱线图）请用 matplotlib/seaborn 直接绘制。
 
-## 通用注释要求
+## 图表标注要求
 
 每张图必须包含：
 - 标题（问题，不是变量名）

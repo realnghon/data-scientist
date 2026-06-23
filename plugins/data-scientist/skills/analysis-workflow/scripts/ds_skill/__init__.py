@@ -6,17 +6,13 @@ Modules (lazy-import only what you need):
     correlation        - Pearson/Spearman/Kendall/mutual information with FDR
     anomaly            - IQR/MAD/IsolationForest univariate + multivariate
     time_series        - Mann-Kendall trend, STL decomposition, change-point
-    bootstrap          - generic bootstrap confidence intervals
     shaping            - grain detector, leakage column scanner
     ab_validator       - SRM, MDE, effect-size with CI
     regression         - linear/regularized regression with diagnostics
     classification     - small-N safe classification with proper CV
     survival           - Kaplan-Meier, log-rank, Weibull
-    report_generator   - fill the report template from evidence_matrix
-    analysis_methods   - group comparison, driver ranking (legacy v0)
-    validation         - input validation utilities
+    analysis_methods   - group comparison, driver ranking
     plotting           - optional visualization helpers (requires matplotlib/seaborn)
-    caching            - disk-based caching for expensive computations
 
 Import only what the current analysis needs, e.g.:
 
@@ -36,9 +32,9 @@ from typing import TYPE_CHECKING
 __version__ = "1.0.0"
 
 _SUBMODULES = frozenset({
-    "readiness", "spc", "correlation", "anomaly", "time_series", "bootstrap",
+    "readiness", "spc", "correlation", "anomaly", "time_series",
     "shaping", "ab_validator", "regression", "classification", "survival",
-    "report_generator", "analysis_methods", "validation", "plotting", "caching",
+    "analysis_methods", "plotting",
 })
 
 
@@ -58,16 +54,12 @@ if TYPE_CHECKING:
     from . import ab_validator as ab_validator
     from . import analysis_methods as analysis_methods
     from . import anomaly as anomaly
-    from . import bootstrap as bootstrap
-    from . import caching as caching
     from . import classification as classification
     from . import correlation as correlation
     from . import plotting as plotting
     from . import readiness as readiness
     from . import regression as regression
-    from . import report_generator as report_generator
     from . import shaping as shaping
     from . import spc as spc
     from . import survival as survival
     from . import time_series as time_series
-    from . import validation as validation

@@ -1,8 +1,7 @@
 """Classification helpers for the data-scientist skill.
 
-Wraps scikit-learn with the skill's standardized result shape: dataclasses
-that own their effect sizes, assumption flags, rejected alternatives, and
-serializable ``as_dict`` views.
+Wraps scikit-learn with the skill's standardized result shape: dicts that own
+their effect sizes, assumption flags, rejected alternatives.
 
 Method choices follow `references/method-registry.md` section 6 (Classification):
 
@@ -10,55 +9,16 @@ Method choices follow `references/method-registry.md` section 6 (Classification)
 - Binary, predictive performance -> gradient-boosted trees.
 - Multi-class -> multinomial logistic or GBT (one-vs-rest handled internally).
 - Imbalanced minority -> class_weight="balanced" (cost-sensitive loss).
+
+All public functions return dicts (not dataclasses) to minimize calling overhead.
 """
 
 from __future__ import annotations
 
-from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-
-
-# ---------------------------------------------------------------------------
-# Dataclasses
-# ---------------------------------------------------------------------------
-
-
-@dataclass
-class ClassificationResult:
-    method: str
-    classes: list
-    n_per_class: dict
-    cv_metrics: dict
-    feature_importance: dict[str, float] | None
-    confusion_matrix: list[list[int]]
-    imbalance_ratio: float
-    min_class_warning: bool
-    recommendations: list[str] = field(default_factory=list)
-    # Stored for downstream threshold tuning. Not part of as_dict() because
-    # it carries raw arrays.
-    _probabilities: Any = field(default=None, repr=False, compare=False)
-    _true_labels: Any = field(default=None, repr=False, compare=False)
-
-    def as_dict(self) -> dict[str, Any]:
-        data = asdict(self)
-        # Drop private fields from serializable view.
-        data.pop("_probabilities", None)
-        data.pop("_true_labels", None)
-        return data
-
-
-@dataclass
-class ThresholdSweep:
-    criterion_used: str
-    optimal_threshold: float
-    metrics_at_optimum: dict
-    sweep: list[dict]
-
-    def as_dict(self) -> dict[str, Any]:
-        return asdict(self)
 
 
 # ---------------------------------------------------------------------------
@@ -128,8 +88,8 @@ def fit_classifier(
     stratify: bool = True,
     class_weight: Literal["balanced", None] = "balanced",
     random_state: int = 0,
-) -> ClassificationResult:
-    """Fit a classifier with CV metrics and return a ClassificationResult.
+) -> dict[str, Any]:
+    """Fit a classifier with CV metrics and return a dict.
 
     Uses StratifiedKFold when ``stratify=True``. Computes macro and per-class
     precision/recall/F1, accuracy, and AUC (binary -> single value; multi-class
@@ -351,26 +311,26 @@ def fit_classifier(
         proba_matrix = None
     true_array = np.array(all_true, dtype=int)
 
-    return ClassificationResult(
-        method=method,
-        classes=classes_sorted,
-        n_per_class=balance["n_per_class"],
-        cv_metrics=cv_metrics,
-        feature_importance=feature_importance,
-        confusion_matrix=cm_list,
-        imbalance_ratio=float(balance["imbalance_ratio"]),
-        min_class_warning=bool(balance["min_class_warning"]),
-        recommendations=recommendations,
-        _probabilities=proba_matrix,
-        _true_labels=true_array,
-    )
+    return {
+        "method": method,
+        "classes": classes_sorted,
+        "n_per_class": balance["n_per_class"],
+        "cv_metrics": cv_metrics,
+        "feature_importance": feature_importance,
+        "confusion_matrix": cm_list,
+        "imbalance_ratio": float(balance["imbalance_ratio"]),
+        "min_class_warning": bool(balance["min_class_warning"]),
+        "recommendations": recommendations,
+        "_probabilities": proba_matrix,
+        "_true_labels": true_array,
+    }
 
 
 def tune_threshold(
-    result: ClassificationResult,
+    result: dict[str, Any],
     criterion: Literal["f1", "youden", "cost"] = "f1",
     cost_matrix: dict | None = None,
-) -> ThresholdSweep:
+) -> dict[str, Any]:
     """Sweep the decision threshold for a *binary* classifier.
 
     Criterion:
@@ -380,23 +340,23 @@ def tune_threshold(
       ``fp_cost`` and ``fn_cost`` (defaults to 1.0 each).
     """
     if result is None:
-        raise ValueError("tune_threshold requires a ClassificationResult.")
-    if len(result.classes) != 2:
+        raise ValueError("tune_threshold requires a classification result dict.")
+    if len(result["classes"]) != 2:
         raise ValueError(
             "tune_threshold currently supports binary classifiers only "
-            f"(got {len(result.classes)} classes)."
+            f"(got {len(result['classes'])} classes)."
         )
-    if result._probabilities is None or result._true_labels is None:
+    if result.get("_probabilities") is None or result.get("_true_labels") is None:
         raise ValueError(
-            "ClassificationResult is missing probabilities/true labels; "
+            "Classification result is missing probabilities/true labels; "
             "re-run fit_classifier to populate them."
         )
 
-    proba = np.asarray(result._probabilities)
+    proba = np.asarray(result["_probabilities"])
     if proba.ndim != 2 or proba.shape[1] < 2:
         raise ValueError("Probability matrix shape is unexpected for binary classification.")
     positive_proba = proba[:, 1]
-    y_true = np.asarray(result._true_labels, dtype=int)
+    y_true = np.asarray(result["_true_labels"], dtype=int)
 
     fp_cost = 1.0
     fn_cost = 1.0
@@ -462,9 +422,9 @@ def tune_threshold(
         fn = int(((pred == 0) & (y_true == 1)).sum())
         metrics_at_optimum["expected_cost"] = float(fp * fp_cost + fn * fn_cost)
 
-    return ThresholdSweep(
-        criterion_used=criterion,
-        optimal_threshold=float(best_threshold),
-        metrics_at_optimum=metrics_at_optimum,
-        sweep=sweep,
-    )
+    return {
+        "criterion_used": criterion,
+        "optimal_threshold": float(best_threshold),
+        "metrics_at_optimum": metrics_at_optimum,
+        "sweep": sweep,
+    }
