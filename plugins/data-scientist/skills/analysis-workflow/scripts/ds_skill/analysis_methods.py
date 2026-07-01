@@ -161,7 +161,13 @@ def recommend_group_comparison(
     )
 
 
-def compare_numeric_by_group(df: pd.DataFrame, *, target: str, group: str) -> dict[str, Any]:
+def compare_numeric_by_group(
+    df: pd.DataFrame,
+    *,
+    target: str,
+    group: str,
+    normality_p_threshold: float = 0.01,
+) -> dict[str, Any]:
     data = df[[target, group]].dropna()
     groups = [
         values[target].to_numpy(dtype=float)
@@ -186,7 +192,7 @@ def compare_numeric_by_group(df: pd.DataFrame, *, target: str, group: str) -> di
         except Exception:
             equal_variance_p = None
 
-    normality_ok = _normality_ok(groups)
+    normality_ok = _normality_ok(groups, normality_p_threshold=normality_p_threshold)
     recommendation = recommend_group_comparison(
         target_type="numeric",
         group_count=group_count,
@@ -414,7 +420,19 @@ def _robust_scale(series: pd.Series) -> float:
     return value_range if value_range > 0 else 0.0
 
 
-def _normality_ok(groups: list[np.ndarray]) -> bool | None:
+def _normality_ok(
+    groups: list[np.ndarray],
+    *,
+    normality_p_threshold: float = 0.01,
+) -> bool | None:
+    """Check Shapiro-Wilk normality for each group.
+
+    Parameters
+    ----------
+    normality_p_threshold :
+        Minimum p-value from Shapiro-Wilk to consider a group normally
+        distributed. Default 0.01 (conservative for multiple groups).
+    """
     p_values: list[float] = []
     for values in groups:
         if len(values) < 3:
@@ -431,7 +449,7 @@ def _normality_ok(groups: list[np.ndarray]) -> bool | None:
                 p_values.append(float(stats.shapiro(sample).pvalue))
         except Exception:
             return None
-    return all(p >= 0.01 for p in p_values)
+    return all(p >= normality_p_threshold for p in p_values)
 
 
 def _run_group_method(groups: list[np.ndarray], method: str) -> dict[str, Any]:
@@ -533,3 +551,205 @@ def _interpretation_label(
     if magnitude > 0:
         return "directional_signal"
     return "investigation_candidate"
+
+
+def posthoc_pairwise(
+    df: pd.DataFrame,
+    *,
+    target: str,
+    group: str,
+    method: str | None = None,
+    normality_p_threshold: float = 0.01,
+) -> dict[str, Any]:
+    """Pairwise post-hoc comparisons after a significant omnibus test.
+
+    A significant ANOVA / Kruskal-Wallis only says "at least one group differs";
+    it does not say which pairs. This runs the post-hoc test that matches the
+    omnibus assumptions and controls the family-wise error across all pairs:
+
+    - ``tukey_hsd``      -- equal-variance parametric (pairs with one-way ANOVA)
+    - ``games_howell``   -- unequal-variance parametric (pairs with Welch ANOVA)
+    - ``dunn``           -- rank-based, Holm-adjusted (pairs with Kruskal-Wallis)
+
+    When ``method`` is None it is inferred from the same variance/normality
+    heuristics used by :func:`compare_numeric_by_group`. Requires statsmodels
+    (Tukey) or scikit-posthocs (Games-Howell, Dunn).
+    """
+    data = df[[target, group]].dropna()
+    grouped = [
+        (str(name), values[target].to_numpy(dtype=float))
+        for name, values in data.groupby(group)
+        if len(values) > 0
+    ]
+    if len(grouped) < 3:
+        return {
+            "status": "skipped",
+            "reason": "Post-hoc pairwise tests apply to 3+ groups; use the two-group effect size instead.",
+        }
+
+    names = [n for n, _ in grouped]
+    arrays = [a for _, a in grouped]
+
+    if method is None:
+        method = _infer_posthoc_method(arrays, normality_p_threshold=normality_p_threshold)
+
+    try:
+        if method == "tukey_hsd":
+            pairs = _tukey_hsd(data, target, group)
+        elif method == "games_howell":
+            pairs = _games_howell(data, target, group)
+        elif method == "dunn":
+            pairs = _dunn(arrays, names)
+        else:
+            return {"status": "failed", "reason": f"Unknown post-hoc method {method!r}."}
+    except ImportError as exc:
+        return {"status": "unavailable", "method": method, "reason": str(exc)}
+    except Exception as exc:  # pragma: no cover - defensive
+        return {"status": "failed", "method": method, "reason": str(exc)}
+
+    significant = [p for p in pairs if p["p_value"] is not None and p["p_value"] < 0.05]
+    return {
+        "status": "ok",
+        "method": method,
+        "correction": "family-wise across all pairs",
+        "pairs": pairs,
+        "n_significant_pairs": len(significant),
+        "significant_pairs": [f"{p['group_a']} vs {p['group_b']}" for p in significant],
+    }
+
+
+def _infer_posthoc_method(
+    arrays: list[np.ndarray],
+    *,
+    normality_p_threshold: float = 0.01,
+) -> str:
+    """Pick the post-hoc test matching the omnibus assumptions."""
+    normality_ok = _normality_ok(arrays, normality_p_threshold=normality_p_threshold)
+    small = min(len(a) for a in arrays) < 20
+    if normality_ok is False and small:
+        return "dunn"
+    equal_variance_p = None
+    if all(len(a) >= 2 for a in arrays):
+        try:
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore", RuntimeWarning)
+                equal_variance_p = float(stats.levene(*arrays, center="median").pvalue)
+        except Exception:
+            equal_variance_p = None
+    if equal_variance_p is not None and equal_variance_p < 0.05:
+        return "games_howell"
+    return "tukey_hsd"
+
+
+def _tukey_hsd(data: pd.DataFrame, target: str, group: str) -> list[dict[str, Any]]:
+    try:
+        from statsmodels.stats.multicomp import pairwise_tukeyhsd  # type: ignore
+    except Exception as exc:
+        raise ImportError("Tukey HSD requires statsmodels; install statsmodels.") from exc
+    res = pairwise_tukeyhsd(
+        data[target].to_numpy(dtype=float),
+        data[group].astype(str).to_numpy(),
+    )
+    frame = pd.DataFrame(res._results_table.data[1:], columns=res._results_table.data[0])
+    pairs: list[dict[str, Any]] = []
+    for _, row in frame.iterrows():
+        pairs.append(
+            {
+                "group_a": str(row["group1"]),
+                "group_b": str(row["group2"]),
+                "mean_difference": float(row["meandiff"]),
+                "ci_low": float(row["lower"]),
+                "ci_high": float(row["upper"]),
+                "p_value": float(row["p-adj"]),
+                "reject_null": bool(row["reject"]),
+            }
+        )
+    return pairs
+
+
+def _games_howell(data: pd.DataFrame, target: str, group: str) -> list[dict[str, Any]]:
+    """Games-Howell post-hoc: unequal-variance, unequal-n pairwise comparison.
+
+    Implemented directly against scipy's studentized-range distribution rather
+    than a third-party post-hoc package (scikit-posthocs does not ship it). For
+    each pair the statistic is q = |mean_i - mean_j| / sqrt((s_i^2/n_i + s_j^2/n_j)/2)
+    evaluated at the Welch-Satterthwaite degrees of freedom; p-values come from the
+    studentized range with k groups, which controls the family-wise error.
+    """
+    from scipy.stats import studentized_range  # local: keeps module import light
+
+    grouped = [
+        (str(name), sub[target].to_numpy(dtype=float))
+        for name, sub in data.groupby(group)
+        if len(sub) > 0
+    ]
+    names = [n for n, _ in grouped]
+    arrays = [a for _, a in grouped]
+    k = len(arrays)
+    means = [float(np.mean(a)) for a in arrays]
+    variances = [float(np.var(a, ddof=1)) for a in arrays]
+    sizes = [len(a) for a in arrays]
+
+    pairs: list[dict[str, Any]] = []
+    for i in range(k):
+        for j in range(i + 1, k):
+            vi, vj = variances[i], variances[j]
+            ni, nj = sizes[i], sizes[j]
+            se = np.sqrt(vi / ni + vj / nj)
+            diff = means[i] - means[j]
+            if se == 0:
+                p_val = 1.0
+                q = 0.0
+                df = float(ni + nj - 2)
+            else:
+                df = (vi / ni + vj / nj) ** 2 / (
+                    (vi / ni) ** 2 / (ni - 1) + (vj / nj) ** 2 / (nj - 1)
+                )
+                q = abs(diff) / (se / np.sqrt(2.0))
+                p_val = float(studentized_range.sf(q, k, df))
+            # Games-Howell CI uses the critical q at family-wise alpha=0.05.
+            q_crit = float(studentized_range.ppf(0.95, k, df)) if se > 0 else 0.0
+            margin = q_crit * se / np.sqrt(2.0)
+            pairs.append(
+                {
+                    "group_a": names[i],
+                    "group_b": names[j],
+                    "mean_difference": float(diff),
+                    "ci_low": float(diff - margin),
+                    "ci_high": float(diff + margin),
+                    "p_value": min(1.0, p_val),
+                    "reject_null": bool(p_val < 0.05),
+                }
+            )
+    return pairs
+
+
+def _dunn(arrays: list[np.ndarray], names: list[str]) -> list[dict[str, Any]]:
+    try:
+        import scikit_posthocs as sp  # type: ignore
+    except Exception as exc:
+        raise ImportError("Dunn's test requires scikit-posthocs; install scikit-posthocs.") from exc
+    matrix = sp.posthoc_dunn(arrays, p_adjust="holm")
+    # scikit-posthocs labels groups 1..k; remap to the real names.
+    matrix.index = names
+    matrix.columns = names
+    return _matrix_to_pairs(matrix)
+
+
+def _matrix_to_pairs(matrix: pd.DataFrame) -> list[dict[str, Any]]:
+    """Flatten a symmetric p-value matrix into an upper-triangle pair list."""
+    labels = list(matrix.index)
+    pairs: list[dict[str, Any]] = []
+    for i, a in enumerate(labels):
+        for b in labels[i + 1 :]:
+            p = matrix.loc[a, b]
+            p_val = None if pd.isna(p) else float(p)
+            pairs.append(
+                {
+                    "group_a": str(a),
+                    "group_b": str(b),
+                    "p_value": p_val,
+                    "reject_null": bool(p_val is not None and p_val < 0.05),
+                }
+            )
+    return pairs

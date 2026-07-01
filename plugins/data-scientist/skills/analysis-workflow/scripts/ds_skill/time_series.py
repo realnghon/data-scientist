@@ -292,11 +292,24 @@ def detect_change_points(
     series: pd.Series,
     method: str = "cusum",
     min_size: int = 10,
+    *,
+    threshold_sigma: float = 5.0,
+    binary_threshold: float = 1.0,
 ) -> ChangePoints:
     """Detect change points in the mean.
 
     Supports ``"cusum"`` (default) and ``"binary_segmentation"``. Both methods
     are implemented manually so they work without the ``ruptures`` dependency.
+
+    Parameters
+    ----------
+    threshold_sigma :
+        CUSUM threshold in sigma units. Higher values produce fewer change
+        points. Only used when ``method="cusum"``.
+    binary_threshold :
+        Binary-segmentation threshold for the normalised mean-shift
+        statistic. Higher values produce fewer change points. Only used when
+        ``method="binary_segmentation"``.
     """
 
     values = pd.Series(series).dropna().to_numpy(dtype=float)
@@ -310,9 +323,13 @@ def detect_change_points(
         )
 
     if method == "cusum":
-        change_indices, confidence = _cusum_change_points(values, min_size=min_size)
+        change_indices, confidence = _cusum_change_points(
+            values, min_size=min_size, threshold_sigma=threshold_sigma,
+        )
     elif method == "binary_segmentation":
-        change_indices, confidence = _binary_segmentation(values, min_size=min_size)
+        change_indices, confidence = _binary_segmentation(
+            values, min_size=min_size, threshold=binary_threshold,
+        )
     else:
         raise ValueError(f"Unknown change-point method: {method!r}")
 

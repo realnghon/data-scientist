@@ -10,8 +10,9 @@ Modules (lazy-import only what you need):
     ab_validator       - SRM, MDE, effect-size with CI
     regression         - linear/regularized regression with diagnostics
     classification     - small-N safe classification with proper CV
-    survival           - Kaplan-Meier, log-rank, Weibull
-    analysis_methods   - group comparison, driver ranking
+    survival           - Kaplan-Meier, log-rank, Weibull, Cox regression
+    analysis_methods   - group comparison, driver ranking, post-hoc tests
+    bootstrap          - non-parametric BCa / percentile bootstrap CIs
     plotting           - optional visualization helpers (requires matplotlib/seaborn)
 
 Import only what the current analysis needs, e.g.:
@@ -34,7 +35,7 @@ __version__ = "1.0.0"
 _SUBMODULES = frozenset({
     "readiness", "spc", "correlation", "anomaly", "time_series",
     "shaping", "ab_validator", "regression", "classification", "survival",
-    "analysis_methods", "plotting",
+    "analysis_methods", "bootstrap", "plotting",
 })
 
 
@@ -54,6 +55,7 @@ if TYPE_CHECKING:
     from . import ab_validator as ab_validator
     from . import analysis_methods as analysis_methods
     from . import anomaly as anomaly
+    from . import bootstrap as bootstrap
     from . import classification as classification
     from . import correlation as correlation
     from . import plotting as plotting

@@ -902,8 +902,18 @@ def capability_summary(
     lsl: float | None,
     usl: float | None,
     name: str = "",
+    *,
+    min_recommended_n: int = 30,
 ) -> CapabilityResult:
-    """All-in-one capability summary with interpretation and n-warning."""
+    """All-in-one capability summary with interpretation and n-warning.
+
+    Parameters
+    ----------
+    min_recommended_n :
+        Minimum sample size below which the result is flagged with
+        ``min_n_warning=True``. Defaults to 30, per classical SPC
+        guidance for stable capability estimation.
+    """
 
     arr = _coerce_values(values)
     _check_limits(lsl, usl)
@@ -935,7 +945,7 @@ def capability_summary(
         pp=pp_value,
         ppk=ppk_value,
         interpretation=_interpret_cpk(cpk_value),
-        min_n_warning=n < _MIN_RECOMMENDED_N,
+        min_n_warning=n < min_recommended_n,
         lsl=lsl,
         usl=usl,
     )

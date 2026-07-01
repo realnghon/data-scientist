@@ -30,6 +30,7 @@ from ds_skill.<module> import <function>
 **辅助函数：**
 - 数值 Y → `ds_skill.analysis_methods.compare_numeric_by_group(df, target=..., group=...)`（target/group 为 keyword-only；内部自动选 Welch t / Mann-Whitney / ANOVA / Kruskal）
 - 分类 Y → `ds_skill.analysis_methods.compare_categorical(df, target=..., group=...)`（卡方独立性检验；期望频数<5 时 2×2 自动转 Fisher exact、更大表给稀疏告警；效应量 Cramér's V）
+- 事后检验（Post-hoc）→ `ds_skill.analysis_methods.posthoc_pairwise(df, target=..., group=..., method='tukey_hsd')`（支持 tukey_hsd、games_howell、dunn）
 
 **图表：** `ds_skill.plotting.plot_grouped_boxplot`（数值）
 
@@ -120,10 +121,14 @@ from ds_skill.<module> import <function>
 
 **方法：**
 - 生存曲线 → Kaplan-Meier
-- 组比较 → Log-Rank test
-- 参数拟合 → Weibull
+- 组比较 → Log-Rank test（支持 weighted log-rank，通过 `weighting` 参数指定 `"wilcoxon"`、`"tarone-ware"`、`"peto"` 等）
+- 参数拟合 → Weibull（优先用 lifelines，失败则回退 scipy MLE）
+- Cox 比例风险 → Cox 回归
 
-**辅助函数：** `ds_skill.survival.kaplan_meier(durations, events)`  
+**辅助函数：**
+- `ds_skill.survival.kaplan_meier(durations, events)`
+- `ds_skill.survival.log_rank_test(durations, events, groups, weighting=None)`
+- `ds_skill.survival.cox_regression(df, duration_col, event_col, covariates)` — 返回 CoxResult（hazard_ratios、置信区间、p 值、concordance）
 **图表：** `ds_skill.plotting.plot_kaplan_meier`
 
 ---
@@ -158,4 +163,6 @@ from ds_skill.<module> import <function>
 
 **用于：** 任意统计量的 CI，小样本。
 
-**辅助函数：** `ds_skill.bootstrap.bootstrap_ci(data, statistic_fn, n_bootstrap=1000)`
+**辅助函数：**
+- `ds_skill.bootstrap.bootstrap_ci(data, statistic_fn=np.mean, n_bootstrap=1000, confidence=0.95, method='BCa', random_state=0)` — 单样本/单组 bootstrap CI
+- `ds_skill.bootstrap.bootstrap_diff_ci(a, b, statistic_fn=<function diff_of_means>, n_bootstrap=1000, confidence=0.95, method='BCa', random_state=0)` — 两组差异的 bootstrap CI

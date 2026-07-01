@@ -170,6 +170,15 @@ def fit_linear_regression(
         fitted = np.asarray(model.fittedvalues, dtype=float)
         resid = np.asarray(model.resid, dtype=float)
         r2 = float(model.rsquared)
+        # Exact leverage (hat-matrix diagonal) straight from the fitted model so
+        # residual_diagnostics can compute a real Cook's distance rather than
+        # assuming uniform leverage.
+        try:
+            leverage = np.asarray(
+                model.get_influence().hat_matrix_diag, dtype=float
+            ).tolist()
+        except Exception:
+            leverage = None
     else:
         # numpy lstsq path with bootstrap SE
         X_const = np.column_stack([np.ones(n), X])
@@ -198,6 +207,15 @@ def fit_linear_regression(
         stats = _lazy_scipy_stats()
         p_values = {feats[i]: float(2 * (1 - stats.norm.cdf(abs(z_scores[i])))) for i in range(k)}
 
+        # Exact leverage via the hat matrix H = X(X'X)^-1 X'; we only need its
+        # diagonal, so use the pseudo-inverse for numerical stability.
+        try:
+            with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+                pinv = np.linalg.pinv(X_const.T @ X_const)
+                leverage = np.einsum("ij,jk,ik->i", X_const, pinv, X_const).tolist()
+        except Exception:
+            leverage = None
+
     adj_r2 = _adj_r_squared(r2, n, k)
     vif = _vif(X, feats)
 
@@ -215,6 +233,7 @@ def fit_linear_regression(
         "alpha_used": None,
         "fitted_values": fitted.tolist(),
         "residuals": resid.tolist(),
+        "leverage": leverage,
     }
 
 
@@ -297,6 +316,7 @@ def _fit_regularized(
         "alpha_used": alpha_used,
         "fitted_values": fitted.tolist(),
         "residuals": resid.tolist(),
+        "leverage": None,
     }
 
 
@@ -453,15 +473,30 @@ def residual_diagnostics(
         homo_flag = False
         lin_flag = False
 
-    # Influence proxy: the result does not carry the design matrix X, so true
-    # per-observation leverage h_ii is unavailable. We approximate leverage as
-    # uniform ((k+1)/n), which makes this score a function of residual magnitude
-    # only — it flags large-residual points but CANNOT see high-leverage /
-    # small-residual points (the most dangerous influence case). Treat the output
-    # as "large standardized residuals", not a true Cook's distance.
+    # Influence: Cook's distance. When the fit carried the exact hat-matrix
+    # diagonal (OLS), use it for a true Cook's distance that sees BOTH large
+    # residuals and high-leverage points. Only fall back to the uniform-leverage
+    # approximation (residual magnitude only) when leverage is unavailable, e.g.
+    # penalized ridge/lasso fits where the hat matrix is not the OLS one.
     k = result["n_features"]
+    leverage = result.get("leverage")
     sigma_hat = float(np.sqrt(np.sum(residuals ** 2) / max(n - k - 1, 1)))
-    if sigma_hat > 0:
+    leverage_is_exact = False
+    if sigma_hat > 0 and leverage is not None:
+        h = np.asarray(leverage, dtype=float)
+        if h.size == residuals.size:
+            leverage_is_exact = True
+            # Cook's D_i = (r_i^2 / ((k+1) * sigma^2)) * (h_i / (1 - h_i)^2)
+            with np.errstate(divide="ignore", over="ignore", invalid="ignore"):
+                denom = (1.0 - h) ** 2
+                factor = np.where(denom > 0, h / denom, 0.0)
+                cooks = (residuals ** 2) / ((k + 1) * sigma_hat ** 2) * factor
+            threshold = 4.0 / n
+            influential = [int(i) for i in np.where(cooks > threshold)[0]]
+        else:
+            influential = []
+    elif sigma_hat > 0:
+        # Uniform-leverage approximation (residual magnitude only).
         h = (k + 1) / n
         cooks = (residuals ** 2) / ((k + 1) * sigma_hat ** 2) * (h / (1 - h) ** 2 if h < 1 else 1.0)
         threshold = 4.0 / n
@@ -480,11 +515,17 @@ def residual_diagnostics(
     if lin_flag:
         recs.append("Residual mean varies across fitted-value quartiles; relationship may be non-linear.")
     if influential:
-        recs.append(
-            f"{len(influential)} observations with large standardized residuals "
-            "(approximate; leverage assumed uniform, so high-leverage/low-residual "
-            "points may be missed); inspect them and re-check with full leverage if X is available."
-        )
+        if leverage_is_exact:
+            recs.append(
+                f"{len(influential)} influential observations (Cook's distance > 4/n, "
+                "computed with exact leverage); inspect them for data errors or genuine outliers."
+            )
+        else:
+            recs.append(
+                f"{len(influential)} observations with large standardized residuals "
+                "(approximate; leverage assumed uniform, so high-leverage/low-residual "
+                "points may be missed); inspect them and re-check with full leverage if X is available."
+            )
     if mc_flag:
         recs.append("VIF > 10 on at least one feature; consider ridge or removing collinear features.")
     if not recs:
@@ -497,6 +538,7 @@ def residual_diagnostics(
         "homoscedasticity_flagged": bool(homo_flag),
         "linearity_flagged": bool(lin_flag),
         "influential_observations": influential,
+        "influence_leverage_exact": bool(leverage_is_exact),
         "multicollinearity_flagged": bool(mc_flag),
         "recommendations": recs,
     }
